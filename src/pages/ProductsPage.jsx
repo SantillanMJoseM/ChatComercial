@@ -10,14 +10,14 @@ export default function ProductsPage() {
   const { products, createProduct, updateProduct, deleteProduct } = useApp();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', price: 0, stock: 0, category: '', image_url: '', is_custom_dimensions: false, sku: '' });
+  const [form, setForm] = useState({ name: '', description: '', price: 0, stock: 0, category: '', imageUrl: '', isCustomDimensions: false, sku: '' });
   const [importUrl, setImportUrl] = useState('');
   const [importing, setImporting] = useState(false);
   const fileRef = useRef(null);
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ name: '', description: '', price: 0, stock: 0, category: '', image_url: '', is_custom_dimensions: false, sku: '' });
+    setForm({ name: '', description: '', price: 0, stock: 0, category: '', imageUrl: '', isCustomDimensions: false, sku: '' });
     setModalOpen(true);
   };
   const openEdit = (p) => {
@@ -68,8 +68,8 @@ export default function ProductsPage() {
     price: Number(p.price || p.precio || 0),
     stock: Number(p.stock || p.stock || 0),
     category: p.category || p.categoria || 'General',
-    image_url: p.image_url || p.imagen || '',
-    is_custom_dimensions: p.is_custom_dimensions === true || p.is_custom_dimensions === 'true' || p.a_medida === 'true',
+    imageUrl: p.imageUrl || p.imagen || '',
+    isCustomDimensions: p.isCustomDimensions === true || p.isCustomDimensions === 'true' || p.a_medida === 'true',
     sku: p.sku || p.codigo || '',
   });
 
@@ -79,8 +79,8 @@ export default function ProductsPage() {
     // Simulated scraping: generate mock products based on URL
     setTimeout(async () => {
       const mock = [
-        { name: 'Producto importado 1', description: 'Importado desde ' + importUrl, price: 15000, stock: 10, category: 'Importados', image_url: '', is_custom_dimensions: false, sku: 'IMP-001' },
-        { name: 'Producto importado 2', description: 'Importado desde ' + importUrl, price: 22000, stock: 5, category: 'Importados', image_url: '', is_custom_dimensions: false, sku: 'IMP-002' },
+        { name: 'Producto importado 1', description: 'Importado desde ' + importUrl, price: 15000, stock: 10, category: 'Importados', imageUrl: '', isCustomDimensions: false, sku: 'IMP-001' },
+        { name: 'Producto importado 2', description: 'Importado desde ' + importUrl, price: 22000, stock: 5, category: 'Importados', imageUrl: '', isCustomDimensions: false, sku: 'IMP-002' },
       ];
       for (const p of mock) await createProduct(p);
       setImporting(false);
@@ -114,10 +114,10 @@ export default function ProductsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {products.map(p => (
           <div key={p.id} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
-            {p.image_url && <img src={p.image_url} alt={p.name} className="w-full h-32 object-cover rounded-xl mb-3" />}
+            {p.imageUrl && <img src={p.imageUrl} alt={p.name} className="w-full h-32 object-cover rounded-xl mb-3" />}
             <div className="flex items-center justify-between">
               <h4 className="font-semibold text-slate-800">{p.name}</h4>
-              {p.is_custom_dimensions && <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">A medida</span>}
+              {p.isCustomDimensions && <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">A medida</span>}
             </div>
             <p className="text-xs text-slate-500 mt-1">{p.description}</p>
             <div className="flex items-center justify-between mt-3">
@@ -143,9 +143,9 @@ export default function ProductsPage() {
           </div>
           <input className="w-full border border-slate-200 rounded-lg px-3 py-2" placeholder="Categoría" value={form.category} onChange={e=>setForm({...form,category:e.target.value})} />
           <input className="w-full border border-slate-200 rounded-lg px-3 py-2" placeholder="SKU" value={form.sku} onChange={e=>setForm({...form,sku:e.target.value})} />
-          <input className="w-full border border-slate-200 rounded-lg px-3 py-2" placeholder="URL imagen" value={form.image_url} onChange={e=>setForm({...form,image_url:e.target.value})} />
+          <input className="w-full border border-slate-200 rounded-lg px-3 py-2" placeholder="URL imagen" value={form.imageUrl} onChange={e=>setForm({...form,imageUrl:e.target.value})} />
           <label className="flex items-center gap-2 text-sm text-slate-600">
-            <input type="checkbox" checked={form.is_custom_dimensions} onChange={e=>setForm({...form,is_custom_dimensions:e.target.checked})} />
+            <input type="checkbox" checked={form.isCustomDimensions} onChange={e=>setForm({...form,isCustomDimensions:e.target.checked})} />
             Producto a medida (aberturas)
           </label>
         </div>

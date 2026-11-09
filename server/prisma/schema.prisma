@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Setting {
+  id               String   @id @default("global")
+  botResponseMode  String   @default("auto")
+  weeklySchedule    Json
+  outOfHours       Boolean  @default(false)
+  toneRules        Json
+  globalBotEnabled Boolean  @default(true)
+  updatedAt        DateTime @updatedAt
+}
+
+model OrderStatus {
+  id              String   @id @default(uuid())
+  name            String
+  color           String
+  position        Int
+  isSystemDefault Boolean  @default(false)
+  orders          Order[]
+}
+
+model Product {
+  id                 String   @id @default(uuid())
+  name               String
+  description        String?
+  price              Decimal  @db.Decimal(12,2)
+  stock              Int      @default(0)
+  category           String?
+  imageUrl           String?
+  isCustomDimensions Boolean  @default(false)
+  sku                String?  @unique
+  orderItems         OrderItem[]
+}
+
+model Customer {
+  id             String   @id @default(uuid())
+  name           String
+  phone          String?
+  email          String?
+  branchLocation String?
+  botEnabled     Boolean  @default(true)
+  notes          String?
+  orders         Order[]
+  conversations  ChatConversation[]
+}
+
+model Order {
+  id         String   @id @default(uuid())
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  statusId   String?
+  status     OrderStatus? @relation(fields: [statusId], references: [id])
+  total      Decimal  @db.Decimal(12,2)
+  createdAt  DateTime @default(now())
+  notes      String?
+  source     String?
+  items      OrderItem[]
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
+  quantity    Int
+  unitPrice   Decimal  @db.Decimal(12,2)
+  customSpecs Json?
+}
+
+model ChatConversation {
+  id           String   @id @default(uuid())
+  customerId   String?
+  customer     Customer? @relation(fields: [customerId], references: [id])
+  mode         String   @default("auto")
+  lastActivity DateTime @default(now())
+  messages     ChatMessage[]
+}
+
+model ChatMessage {
+  id             String   @id @default(uuid())
+  conversationId String
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         String
+  contentType    String
+  contentUrl     String?
+  text           String?
+  reaction       String?
+  createdAt      DateTime @default(now())
+}
+
+model AiKnowledgeRule {
+  id         String   @id @default(uuid())
+  rulePrompt String
+  category   String?
+  createdAt  DateTime @default(now())
+}

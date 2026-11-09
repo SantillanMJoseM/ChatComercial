@@ -23,7 +23,7 @@ function OrderCard({ order, customer, items, onEdit }) {
       className="bg-white rounded-xl shadow-sm border border-slate-100 p-3 cursor-grab active:cursor-grabbing mb-2">
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs font-mono text-slate-400">#{order.id.slice(0,6)}</span>
-        <span className="text-xs text-slate-400">{new Date(order.created_at).toLocaleDateString('es-AR')}</span>
+        <span className="text-xs text-slate-400">{new Date(order.createdAt).toLocaleDateString('es-AR')}</span>
       </div>
       <div className="font-semibold text-slate-800 text-sm">{customer?.name || 'Sin cliente'}</div>
       <div className="text-xs text-slate-500 mt-1">{items.length} ítem(s)</div>
@@ -49,13 +49,13 @@ export default function OrdersPage() {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const customerById = (id) => customers.find(c => c.id === id);
-  const itemsByOrder = (oid) => orderItems.filter(i => i.order_id === oid);
+  const itemsByOrder = (oid) => orderItems.filter(i => i.orderId === oid);
 
   const filteredOrders = useMemo(() => {
     return orders.filter(o => {
-      if (filterStatus && o.status_id !== filterStatus) return false;
-      if (filterCustomer && o.customer_id !== filterCustomer) return false;
-      if (filterDate && !o.created_at.startsWith(filterDate)) return false;
+      if (filterStatus && o.statusId !== filterStatus) return false;
+      if (filterCustomer && o.customerId !== filterCustomer) return false;
+      if (filterDate && !o.createdAt.startsWith(filterDate)) return false;
       return true;
     });
   }, [orders, filterStatus, filterCustomer, filterDate]);
@@ -69,66 +69,59 @@ export default function OrdersPage() {
     if (!newStatus) {
       // dropped over a card -> find that card's status
       const overOrder = orders.find(o => o.id === over.id);
-      if (overOrder) newStatus = overOrder.status_id;
+      if (overOrder) newStatus = overOrder.statusId;
     }
     const order = orders.find(o => o.id === active.id);
-    if (order && newStatus && order.status_id !== newStatus) {
-      await updateOrder(order.id, { status_id: newStatus });
+    if (order && newStatus && order.statusId !== newStatus) {
+      await updateOrder(order.id, { statusId: newStatus });
     }
   };
 
   // Form state
-  const [form, setForm] = useState({ customer_id: '', status_id: '', source: '', notes: '', items: [] });
+  const [form, setForm] = useState({ customerId: '', statusId: '', source: '', notes: '', items: [] });
   const openCreate = () => {
     setEditing(null);
-    setForm({ customer_id: customers[0]?.id || '', status_id: statuses[0]?.id || '', source: 'Manual', notes: '', items: [] });
+    setForm({ customerId: customers[0]?.id || '', statusId: statuses[0]?.id || '', source: 'Manual', notes: '', items: [] });
     setModalOpen(true);
   };
   const openEdit = (order) => {
     setEditing(order);
     setForm({
-      customer_id: order.customer_id,
-      status_id: order.status_id,
+      customerId: order.customerId,
+      statusId: order.statusId,
       source: order.source || '',
       notes: order.notes || '',
-      items: itemsByOrder(order.id).map(i => ({ product_id: i.product_id, quantity: i.quantity, unit_price: i.unit_price, custom_specs: i.custom_specs || {} })),
+      items: itemsByOrder(order.id).map(i => ({ productId: i.productId, quantity: i.quantity, unitPrice: i.unitPrice, customSpecs: i.customSpecs || {} })),
     });
     setModalOpen(true);
   };
 
   const addItem = () => {
     const p = products[0];
-    setForm(f => ({ ...f, items: [...f.items, { product_id: p?.id || '', quantity: 1, unit_price: p?.price || 0, custom_specs: {} }] }));
+    setForm(f => ({ ...f, items: [...f.items, { productId: p?.id || '', quantity: 1, unitPrice: p?.price || 0, customSpecs: {} }] }));
   };
   const updateItem = (idx, patch) => {
     setForm(f => {
       const items = [...f.items];
       items[idx] = { ...items[idx], ...patch };
-      if (patch.product_id) {
-        const p = products.find(x => x.id === patch.product_id);
-        if (p) items[idx].unit_price = p.price;
+      if (patch.productId) {
+        const p = products.find(x => x.id === patch.productId);
+        if (p) items[idx].unitPrice = p.price;
       }
       return { ...f, items };
     });
   };
   const removeItem = (idx) => setForm(f => ({ ...f, items: f.items.filter((_,i)=>i!==idx) }));
 
-  const calcTotal = () => form.items.reduce((s,i) => s + (i.quantity||0)*(i.unit_price||0), 0);
+  const calcTotal = () => form.items.reduce((s,i) => s + (i.quantity||0)*(i.unitPrice||0), 0);
 
   const saveOrder = async () => {
     const total = calcTotal();
-    const payload = { customer_id: form.customer_id, status_id: form.status_id, source: form.source, notes: form.notes, total };
+    const items = form.items.map(i => ({ productId: i.productId, quantity: i.quantity, unitPrice: i.unitPrice, customSpecs: i.customSpecs }));
+    const payload = { customerId: form.customerId, statusId: form.statusId, source: form.source, notes: form.notes, total, items };
     if (editing) {
       await updateOrder(editing.id, payload);
-      const old = orderItems.filter(i => i.order_id === editing.id);
-      await db.order_items.bulkDelete(old.map(i=>i.id));
-      for (const it of form.items) {
-        const oi = { id: uid(), order_id: editing.id, ...it };
-        await db.order_items.put(oi);
-      }
-    }
-    if (!editing) {
-      const items = form.items.map(i => ({ product_id: i.product_id, quantity: i.quantity, unit_price: i.unit_price, custom_specs: i.custom_specs }));
+    } else {
       await createOrder(payload, items);
     }
     await loadAll();
@@ -171,12 +164,12 @@ export default function OrdersPage() {
                     <span className="w-3 h-3 rounded-full" style={{ backgroundColor: status.color }} />
                     <span className="font-semibold text-sm text-slate-700">{status.name}</span>
                   </div>
-                  <span className="text-xs bg-white px-2 py-0.5 rounded-full text-slate-500">{filteredOrders.filter(o=>o.status_id===status.id).length}</span>
+                  <span className="text-xs bg-white px-2 py-0.5 rounded-full text-slate-500">{filteredOrders.filter(o=>o.statusId===status.id).length}</span>
                 </div>
-                <SortableContext items={filteredOrders.filter(o=>o.status_id===status.id).map(o=>o.id)} strategy={verticalListSortingStrategy}>
+                <SortableContext items={filteredOrders.filter(o=>o.statusId===status.id).map(o=>o.id)} strategy={verticalListSortingStrategy}>
                   <DroppableColumn id={status.id}>
-                    {filteredOrders.filter(o=>o.status_id===status.id).map(order => (
-                      <OrderCard key={order.id} order={order} customer={customerById(order.customer_id)} items={itemsByOrder(order.id)} onEdit={openEdit} />
+                    {filteredOrders.filter(o=>o.statusId===status.id).map(order => (
+                      <OrderCard key={order.id} order={order} customer={customerById(order.customerId)} items={itemsByOrder(order.id)} onEdit={openEdit} />
                     ))}
                   </DroppableColumn>
                 </SortableContext>
@@ -184,7 +177,7 @@ export default function OrdersPage() {
             ))}
           </div>
           <DragOverlay>
-            {activeOrder ? <div className="bg-white rounded-xl shadow-lg p-3 w-[240px] opacity-90">{customerById(activeOrder.customer_id)?.name}</div> : null}
+            {activeOrder ? <div className="bg-white rounded-xl shadow-lg p-3 w-[240px] opacity-90">{customerById(activeOrder.customerId)?.name}</div> : null}
           </DragOverlay>
         </DndContext>
       ) : (
@@ -202,14 +195,14 @@ export default function OrdersPage() {
             </thead>
             <tbody>
               {filteredOrders.map(o => {
-                const st = statuses.find(s=>s.id===o.status_id);
+                const st = statuses.find(s=>s.id===o.statusId);
                 return (
                   <tr key={o.id} className="border-t border-slate-100">
                     <td className="px-4 py-3 font-mono text-xs">{o.id.slice(0,8)}</td>
-                    <td className="px-4 py-3">{customerById(o.customer_id)?.name || '-'}</td>
+                    <td className="px-4 py-3">{customerById(o.customerId)?.name || '-'}</td>
                     <td className="px-4 py-3"><Badge color={st?.color}>{st?.name}</Badge></td>
                     <td className="px-4 py-3 font-semibold">{money(o.total)}</td>
-                    <td className="px-4 py-3 text-slate-500">{new Date(o.created_at).toLocaleDateString('es-AR')}</td>
+                    <td className="px-4 py-3 text-slate-500">{new Date(o.createdAt).toLocaleDateString('es-AR')}</td>
                     <td className="px-4 py-3 flex gap-2">
                       <button onClick={()=>openEdit(o)} className="text-indigo-600 hover:underline text-xs">Editar</button>
                       <button onClick={()=>deleteOrder(o.id)} className="text-red-600 hover:underline text-xs">Eliminar</button>
@@ -230,13 +223,13 @@ export default function OrdersPage() {
         <div className="space-y-3">
           <div>
             <label className="text-sm text-slate-600">Cliente</label>
-            <select className="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1" value={form.customer_id} onChange={e=>setForm({...form, customer_id:e.target.value})}>
+            <select className="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1" value={form.customerId} onChange={e=>setForm({...form, customerId:e.target.value})}>
               {customers.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
           <div>
             <label className="text-sm text-slate-600">Estado</label>
-            <select className="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1" value={form.status_id} onChange={e=>setForm({...form, status_id:e.target.value})}>
+            <select className="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1" value={form.statusId} onChange={e=>setForm({...form, statusId:e.target.value})}>
               {statuses.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </div>
@@ -254,23 +247,23 @@ export default function OrdersPage() {
               <Button size="sm" onClick={addItem}>+ Ítem</Button>
             </div>
             {form.items.map((it, idx) => {
-              const prod = products.find(p=>p.id===it.product_id);
-              const isCustom = prod?.is_custom_dimensions;
+              const prod = products.find(p=>p.id===it.productId);
+              const isCustom = prod?.isCustomDimensions;
               return (
                 <div key={idx} className="border border-slate-100 rounded-xl p-3 mb-2 space-y-2">
                   <div className="flex gap-2">
-                    <select className="flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-sm" value={it.product_id} onChange={e=>updateItem(idx,{product_id:e.target.value})}>
+                    <select className="flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-sm" value={it.productId} onChange={e=>updateItem(idx,{productId:e.target.value})}>
                       {products.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
                     </select>
                     <input type="number" min={1} className="w-16 border border-slate-200 rounded-lg px-2 py-1.5 text-sm" value={it.quantity} onChange={e=>updateItem(idx,{quantity:Number(e.target.value)})} />
-                    <input type="number" className="w-24 border border-slate-200 rounded-lg px-2 py-1.5 text-sm" value={it.unit_price} onChange={e=>updateItem(idx,{unit_price:Number(e.target.value)})} />
+                    <input type="number" className="w-24 border border-slate-200 rounded-lg px-2 py-1.5 text-sm" value={it.unitPrice} onChange={e=>updateItem(idx,{unitPrice:Number(e.target.value)})} />
                     <button onClick={()=>removeItem(idx)} className="text-red-500 text-sm px-2">✕</button>
                   </div>
                   {isCustom && (
                     <div className="grid grid-cols-3 gap-2">
-                      <input placeholder="Ancho (cm)" className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm" onChange={e=>updateItem(idx,{custom_specs:{...it.custom_specs, width:e.target.value}})} value={it.custom_specs?.width||''} />
-                      <input placeholder="Alto (cm)" className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm" onChange={e=>updateItem(idx,{custom_specs:{...it.custom_specs, height:e.target.value}})} value={it.custom_specs?.height||''} />
-                      <input placeholder="Línea/vidrio" className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm" onChange={e=>updateItem(idx,{custom_specs:{...it.custom_specs, spec:e.target.value}})} value={it.custom_specs?.spec||''} />
+                      <input placeholder="Ancho (cm)" className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm" onChange={e=>updateItem(idx,{customSpecs:{...it.customSpecs, width:e.target.value}})} value={it.customSpecs?.width||''} />
+                      <input placeholder="Alto (cm)" className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm" onChange={e=>updateItem(idx,{customSpecs:{...it.customSpecs, height:e.target.value}})} value={it.customSpecs?.height||''} />
+                      <input placeholder="Línea/vidrio" className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm" onChange={e=>updateItem(idx,{customSpecs:{...it.customSpecs, spec:e.target.value}})} value={it.customSpecs?.spec||''} />
                     </div>
                   )}
                 </div>

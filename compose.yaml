@@ -1,16 +1,49 @@
 services:
-  chatcomercial:
+  db:
+    image: postgres:17-alpine
+    container_name: chatcomercial-db
+    environment:
+      POSTGRES_USER: chat
+      POSTGRES_PASSWORD: chat
+      POSTGRES_DB: chatcomercial
+    volumes:
+      - chatcomercial_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chat -d chatcomercial"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: chatcomercial-backend
+    environment:
+      DATABASE_URL: postgresql://chat:chat@db:5432/chatcomercial
+      PORT: 4000
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  frontend:
     build:
       context: .
       dockerfile: Dockerfile
-    image: chatcomercial:latest
     container_name: chatcomercial
     ports:
       - "3001:80"
+    depends_on:
+      backend:
+        condition: service_healthy
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+
+volumes:
+  chatcomercial_pgdata:

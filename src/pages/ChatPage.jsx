@@ -17,8 +17,8 @@ export default function ChatPage() {
   const messagesEndRef = useRef(null);
 
   const selectedConv = conversations.find(c => c.id === selectedConvId);
-  const selectedCustomer = selectedConv ? customers.find(c => c.id === selectedConv.customer_id) : null;
-  const convMessages = messages.filter(m => m.conversation_id === selectedConvId).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  const selectedCustomer = selectedConv ? customers.find(c => c.id === selectedConv.customerId) : null;
+  const convMessages = messages.filter(m => m.conversation_id === selectedConvId).sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -36,15 +36,15 @@ export default function ChatPage() {
     const msg = await addMessage({
       conversation_id: selectedConv.id,
       sender,
-      content_type: type,
+      contentType: type,
       text,
-      content_url: extra.url || null,
+      contentUrl: extra.url || null,
       reaction: null,
       ...extra,
     });
 
     // Auto mode logic
-    const botAllowed = settings?.globalBotEnabled !== false && selectedCustomer?.bot_enabled !== false;
+    const botAllowed = settings?.globalBotEnabled !== false && selectedCustomer?.botEnabled !== false;
     if (selectedConv.mode === 'auto' && sender === 'user' && botAllowed) {
       // close naturally?
       if (shouldCloseConversation(text) && type === 'text') {
@@ -62,9 +62,9 @@ export default function ChatPage() {
           await addMessage({
             conversation_id: selectedConv.id,
             sender: 'bot',
-            content_type: 'text',
+            contentType: 'text',
             text: reply,
-            content_url: null,
+            contentUrl: null,
             reaction: null,
           });
         }
@@ -142,8 +142,8 @@ export default function ChatPage() {
     if (!selectedCustomer) return;
     const firstStatus = statuses[0]?.id;
     await createOrder({
-      customer_id: selectedCustomer.id,
-      status_id: firstStatus,
+      customerId: selectedCustomer.id,
+      statusId: firstStatus,
       source: 'Chat WhatsApp',
       notes: 'Pedido creado desde conversación',
       total: 0,
@@ -172,8 +172,8 @@ export default function ChatPage() {
         </div>
         <div className="flex-1 overflow-auto">
           {conversations.map(conv => {
-            const cust = customers.find(c=>c.id===conv.customer_id);
-            const last = messages.filter(m=>m.conversation_id===conv.id).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at)).pop();
+            const cust = customers.find(c=>c.id===conv.customerId);
+            const last = messages.filter(m=>m.conversation_id===conv.id).sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt)).pop();
             return (
               <button key={conv.id} onClick={()=>selectConversation(conv)}
                 className={`w-full text-left p-3 border-b border-slate-50 hover:bg-slate-50 transition ${selectedConvId===conv.id?'bg-indigo-50':''}`}>
@@ -181,7 +181,7 @@ export default function ChatPage() {
                   <span className="font-medium text-sm text-slate-800">{cust?.name || 'Cliente'}</span>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full ${conv.mode==='auto'?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}`}>{conv.mode}</span>
                 </div>
-                <div className="text-xs text-slate-400 truncate mt-1">{last?.text || (last?.content_type==='audio'?'🎤 Audio':last?.content_type==='image'?'📷 Imagen':'')}</div>
+                <div className="text-xs text-slate-400 truncate mt-1">{last?.text || (last?.contentType==='audio'?'🎤 Audio':last?.contentType==='image'?'📷 Imagen':'')}</div>
               </button>
             );
           })}
@@ -220,15 +220,15 @@ export default function ChatPage() {
                       isBot ? 'bg-emerald-100 text-emerald-900 rounded-tr-none' :
                       'bg-indigo-100 text-indigo-900 rounded-tr-none'
                     }`}>
-                      {m.content_type === 'audio' && m.content_url && (
-                        <audio controls src={m.content_url} className="w-48" />
+                      {m.contentType === 'audio' && m.contentUrl && (
+                        <audio controls src={m.contentUrl} className="w-48" />
                       )}
-                      {m.content_type === 'image' && m.content_url && (
-                        <img src={m.content_url} alt={m.text} className="rounded-lg max-h-40" />
+                      {m.contentType === 'image' && m.contentUrl && (
+                        <img src={m.contentUrl} alt={m.text} className="rounded-lg max-h-40" />
                       )}
                       {m.text && <div>{m.text}</div>}
                       {m.reaction && <div className="text-xs mt-1">{m.reaction}</div>}
-                      <div className="text-[10px] opacity-50 mt-1 text-right">{new Date(m.created_at).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}</div>
+                      <div className="text-[10px] opacity-50 mt-1 text-right">{new Date(m.createdAt).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}</div>
                     </div>
                   </div>
                 );

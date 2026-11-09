@@ -6,12 +6,12 @@ db.version(1).stores({
   settings: 'id',
   order_statuses: 'id, position',
   products: 'id, category, sku',
-  customers: 'id, phone, bot_enabled',
-  orders: 'id, customer_id, status_id, created_at, source',
-  order_items: 'id, order_id, product_id',
-  chat_conversations: 'id, customer_id, mode, last_activity',
-  chat_messages: 'id, conversation_id, created_at',
-  ai_knowledge_rules: 'id, category, created_at',
+  customers: 'id, phone, botEnabled',
+  orders: 'id, customerId, statusId, createdAt, source',
+  order_items: 'id, orderId, productId',
+  chat_conversations: 'id, customerId, mode, lastActivity',
+  chat_messages: 'id, conversation_id, createdAt',
+  ai_knowledge_rules: 'id, category, createdAt',
 });
 
 export const uid = () => crypto.randomUUID();

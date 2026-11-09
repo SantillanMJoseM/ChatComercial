@@ -37,16 +37,16 @@ export async function seedDefaults() {
   const productCount = await db.products.count();
   if (!productCount) {
     await db.products.bulkPut([
-      { id: uid(), name: 'Ventana Módena 120x100', description: 'Ventana de aluminio línea Módena', price: 85000, stock: 12, category: 'Aberturas', image_url: '', is_custom_dimensions: true, sku: 'VEN-MOD-120' },
-      { id: uid(), name: 'Puerta Placa', description: 'Puerta placa estándar', price: 120000, stock: 5, category: 'Puertas', image_url: '', is_custom_dimensions: false, sku: 'PUE-PLA-001' },
-      { id: uid(), name: 'Vidrio DVH 4+12+4', description: 'Vidrio doble hermético', price: 35000, stock: 20, category: 'Vidrios', image_url: '', is_custom_dimensions: true, sku: 'VID-DVH-4' },
+      { id: uid(), name: 'Ventana Módena 120x100', description: 'Ventana de aluminio línea Módena', price: 85000, stock: 12, category: 'Aberturas', imageUrl: '', isCustomDimensions: true, sku: 'VEN-MOD-120' },
+      { id: uid(), name: 'Puerta Placa', description: 'Puerta placa estándar', price: 120000, stock: 5, category: 'Puertas', imageUrl: '', isCustomDimensions: false, sku: 'PUE-PLA-001' },
+      { id: uid(), name: 'Vidrio DVH 4+12+4', description: 'Vidrio doble hermético', price: 35000, stock: 20, category: 'Vidrios', imageUrl: '', isCustomDimensions: true, sku: 'VID-DVH-4' },
     ]);
   }
   const customerCount = await db.customers.count();
   if (!customerCount) {
     await db.customers.bulkPut([
-      { id: uid(), name: 'Juan Pérez', phone: '+54 9 381 555-0001', email: 'juan@mail.com', branch_location: 'Tucumán', bot_enabled: true, notes: '' },
-      { id: uid(), name: 'María García', phone: '+54 9 11 555-0002', email: 'maria@mail.com', branch_location: 'Buenos Aires', bot_enabled: true, notes: '' },
+      { id: uid(), name: 'Juan Pérez', phone: '+54 9 381 555-0001', email: 'juan@mail.com', branchLocation: 'Tucumán', botEnabled: true, notes: '' },
+      { id: uid(), name: 'María García', phone: '+54 9 11 555-0002', email: 'maria@mail.com', branchLocation: 'Buenos Aires', botEnabled: true, notes: '' },
     ]);
   }
 

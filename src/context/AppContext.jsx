@@ -1,8 +1,17 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { db, uid, now } from '../db/db';
-import { seedDefaults } from '../db/seed';
 
+const API = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 const AppContext = createContext(null);
+
+async function api(path, options = {}) {
+  const res = await fetch(`${API}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  if (!res.ok) throw new Error(`API ${res.status}`);
+  if (res.status === 204) return null;
+  return res.json();
+}
 
 export function AppProvider({ children }) {
   const [loading, setLoading] = useState(true);
@@ -17,189 +26,153 @@ export function AppProvider({ children }) {
   const [rules, setRules] = useState([]);
 
   const loadAll = useCallback(async () => {
-    await seedDefaults();
-    const [s, st, p, c, o, oi, conv, msg, r] = await Promise.all([
-      db.settings.toArray(),
-      db.order_statuses.orderBy('position').toArray(),
-      db.products.toArray(),
-      db.customers.toArray(),
-      db.orders.toArray(),
-      db.order_items.toArray(),
-      db.chat_conversations.toArray(),
-      db.chat_messages.toArray(),
-      db.ai_knowledge_rules.toArray(),
-    ]);
-    setSettings(s[0] || null);
-    setStatuses(st);
-    setProducts(p);
-    setCustomers(c);
-    setOrders(o);
-    setOrderItems(oi);
-    setConversations(conv);
-    setMessages(msg);
-    setRules(r);
-    setLoading(false);
+    setLoading(true);
+    try {
+      const [s, st, p, c, o, conv, r] = await Promise.all([
+        api('/settings'),
+        api('/order-statuses'),
+        api('/products'),
+        api('/customers'),
+        api('/orders'),
+        api('/conversations'),
+        api('/rules'),
+      ]);
+      setSettings(s);
+      setStatuses(st);
+      setProducts(p);
+      setCustomers(c);
+      setOrders(o);
+      setOrderItems(o.flatMap(x => x.items || []));
+      setConversations(conv);
+      setMessages(conv.flatMap(x => (x.messages || []).map(m => ({ ...m, conversationId: x.id }))));
+      setRules(r);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadAll(); }, [loadAll]);
 
   // Settings
   const updateSettings = useCallback(async (patch) => {
-    const current = await db.settings.get('global');
-    const next = { ...current, ...patch };
-    await db.settings.put(next);
+    const next = await api('/settings', { method: 'PUT', body: JSON.stringify(patch) });
     setSettings(next);
   }, []);
 
   // Statuses
   const createStatus = useCallback(async (data) => {
-    const item = { id: uid(), position: statuses.length, is_system_default: false, ...data };
-    await db.order_statuses.put(item);
+    const item = await api('/order-statuses', { method: 'POST', body: JSON.stringify(data) });
     setStatuses(prev => [...prev, item].sort((a,b)=>a.position-b.position));
     return item;
-  }, [statuses.length]);
+  }, []);
   const updateStatus = useCallback(async (id, patch) => {
-    const current = await db.order_statuses.get(id);
-    const next = { ...current, ...patch };
-    await db.order_statuses.put(next);
+    const next = await api(`/order-statuses/${id}`, { method: 'PUT', body: JSON.stringify(patch) });
     setStatuses(prev => prev.map(s => s.id === id ? next : s).sort((a,b)=>a.position-b.position));
   }, []);
   const deleteStatus = useCallback(async (id) => {
-    await db.order_statuses.delete(id);
+    await api(`/order-statuses/${id}`, { method: 'DELETE' });
     setStatuses(prev => prev.filter(s => s.id !== id));
   }, []);
   const reorderStatuses = useCallback(async (orderedIds) => {
     const updated = [];
     for (let i = 0; i < orderedIds.length; i++) {
       const s = statuses.find(x => x.id === orderedIds[i]);
-      if (s) { const ns = { ...s, position: i }; await db.order_statuses.put(ns); updated.push(ns); }
+      if (s) {
+        const ns = await api(`/order-statuses/${s.id}`, { method: 'PUT', body: JSON.stringify({ ...s, position: i }) });
+        updated.push(ns);
+      }
     }
     setStatuses(updated.sort((a,b)=>a.position-b.position));
   }, [statuses]);
 
   // Products
   const createProduct = useCallback(async (data) => {
-    const item = { id: uid(), ...data };
-    await db.products.put(item);
+    const item = await api('/products', { method: 'POST', body: JSON.stringify(data) });
     setProducts(prev => [item, ...prev]);
     return item;
   }, []);
   const updateProduct = useCallback(async (id, patch) => {
-    const current = await db.products.get(id);
-    const next = { ...current, ...patch };
-    await db.products.put(next);
+    const next = await api(`/products/${id}`, { method: 'PUT', body: JSON.stringify(patch) });
     setProducts(prev => prev.map(p => p.id === id ? next : p));
   }, []);
   const deleteProduct = useCallback(async (id) => {
-    await db.products.delete(id);
+    await api(`/products/${id}`, { method: 'DELETE' });
     setProducts(prev => prev.filter(p => p.id !== id));
   }, []);
 
   // Customers
   const createCustomer = useCallback(async (data) => {
-    const item = { id: uid(), bot_enabled: true, ...data };
-    await db.customers.put(item);
+    const item = await api('/customers', { method: 'POST', body: JSON.stringify(data) });
     setCustomers(prev => [item, ...prev]);
     return item;
   }, []);
   const updateCustomer = useCallback(async (id, patch) => {
-    const current = await db.customers.get(id);
-    const next = { ...current, ...patch };
-    await db.customers.put(next);
+    const next = await api(`/customers/${id}`, { method: 'PUT', body: JSON.stringify(patch) });
     setCustomers(prev => prev.map(c => c.id === id ? next : c));
   }, []);
   const deleteCustomer = useCallback(async (id) => {
-    await db.customers.delete(id);
+    await api(`/customers/${id}`, { method: 'DELETE' });
     setCustomers(prev => prev.filter(c => c.id !== id));
   }, []);
 
   // Orders
   const createOrder = useCallback(async (data, items = []) => {
-    const id = uid();
-    const order = { id, created_at: now(), ...data };
-    await db.orders.put(order);
-    const savedItems = [];
-    for (const it of items) {
-      const oi = { id: uid(), order_id: id, ...it };
-      await db.order_items.put(oi);
-      savedItems.push(oi);
-    }
+    const order = await api('/orders', { method: 'POST', body: JSON.stringify({ ...data, items }) });
     setOrders(prev => [order, ...prev]);
-    setOrderItems(prev => [...savedItems, ...prev]);
+    setOrderItems(prev => [...(order.items || []), ...prev]);
     return order;
   }, []);
   const updateOrder = useCallback(async (id, patch) => {
-    const current = await db.orders.get(id);
-    const next = { ...current, ...patch };
-    await db.orders.put(next);
-    setOrders(prev => prev.map(o => o.id === id ? next : o));
+    const order = await api(`/orders/${id}`, { method: 'PUT', body: JSON.stringify(patch) });
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, ...order } : o));
+    if (order.items) {
+      setOrderItems(prev => [...order.items, ...prev.filter(i => i.orderId !== id && i.order_id !== id)]);
+    }
   }, []);
   const deleteOrder = useCallback(async (id) => {
-    await db.orders.delete(id);
-    const items = await db.order_items.where('order_id').equals(id).toArray();
-    await db.order_items.bulkDelete(items.map(i=>i.id));
+    await api(`/orders/${id}`, { method: 'DELETE' });
     setOrders(prev => prev.filter(o => o.id !== id));
-    setOrderItems(prev => prev.filter(oi => oi.order_id !== id));
+    setOrderItems(prev => prev.filter(i => (i.orderId || i.order_id) !== id));
   }, []);
 
   // Conversations
   const createConversation = useCallback(async (customerId) => {
-    const existing = conversations.find(c => c.customer_id === customerId);
+    const existing = conversations.find(c => c.customerId === customerId);
     if (existing) return existing;
-    const item = { id: uid(), customer_id: customerId, mode: 'auto', last_activity: now() };
-    await db.chat_conversations.put(item);
+    const item = await api('/conversations', { method: 'POST', body: JSON.stringify({ customerId, mode: 'auto' }) });
     setConversations(prev => [item, ...prev]);
     return item;
   }, [conversations]);
   const updateConversation = useCallback(async (id, patch) => {
-    const current = await db.chat_conversations.get(id);
-    const next = { ...current, ...patch, last_activity: now() };
-    await db.chat_conversations.put(next);
+    const next = await api(`/conversations/${id}`, { method: 'PUT', body: JSON.stringify(patch) });
     setConversations(prev => prev.map(c => c.id === id ? next : c));
   }, []);
   const deleteConversation = useCallback(async (id) => {
-    await db.chat_conversations.delete(id);
-    const msgs = await db.chat_messages.where('conversation_id').equals(id).toArray();
-    await db.chat_messages.bulkDelete(msgs.map(m=>m.id));
+    await api(`/conversations/${id}`, { method: 'DELETE' });
     setConversations(prev => prev.filter(c => c.id !== id));
-    setMessages(prev => prev.filter(m => m.conversation_id !== id));
+    setMessages(prev => prev.filter(m => (m.conversationId || m.conversation_id) !== id));
   }, []);
 
   // Messages
+  const addMessage = useCallback(async (data) => {
+    const item = await api('/messages', { method: 'POST', body: JSON.stringify(data) });
+    setMessages(prev => [...prev, item]);
+    return item;
+  }, []);
   const updateMessage = useCallback(async (id, patch) => {
-    const current = await db.chat_messages.get(id);
-    const next = { ...current, ...patch };
-    await db.chat_messages.put(next);
+    const next = await api(`/messages/${id}`, { method: 'PUT', body: JSON.stringify(patch) });
     setMessages(prev => prev.map(m => m.id === id ? next : m));
     return next;
   }, []);
 
-  const addMessage = useCallback(async (data) => {
-    const item = { id: uid(), created_at: now(), ...data };
-    await db.chat_messages.put(item);
-    setMessages(prev => [...prev, item]);
-    // update conversation last_activity
-    if (item.conversation_id) {
-      const conv = await db.chat_conversations.get(item.conversation_id);
-      if (conv) {
-        const next = { ...conv, last_activity: now() };
-        await db.chat_conversations.put(next);
-        setConversations(prev => prev.map(c => c.id === item.conversation_id ? next : c));
-      }
-    }
-    return item;
-  }, []);
-
   // Rules
   const createRule = useCallback(async (data) => {
-    const item = { id: uid(), created_at: now(), ...data };
-    await db.ai_knowledge_rules.put(item);
+    const item = await api('/rules', { method: 'POST', body: JSON.stringify(data) });
     setRules(prev => [item, ...prev]);
     return item;
   }, []);
   const deleteRule = useCallback(async (id) => {
-    await db.ai_knowledge_rules.delete(id);
+    await api(`/rules/${id}`, { method: 'DELETE' });
     setRules(prev => prev.filter(r => r.id !== id));
   }, []);
 

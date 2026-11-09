@@ -26,7 +26,7 @@ describe('ai tone and behavior', () => {
   });
 
   it('uses knowledge rules in price reply', () => {
-    const rules = [{ id: '1', rule_prompt: 'Las ventanas Módena subieron un 10%', category: 'precios', created_at: new Date().toISOString() }];
+    const rules = [{ id: '1', rule_prompt: 'Las ventanas Módena subieron un 10%', category: 'precios', createdAt: new Date().toISOString() }];
     const reply = generateBotReply({ text: 'precio ventana', messages: [], rules, settings, customer: null, products: [{ name: 'Ventana', price: 100 }] });
     expect(reply).toContain('subieron un 10%');
   });
