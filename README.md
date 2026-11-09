@@ -1,16 +1,27 @@
-# React + Vite
+# ChatComercial
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Plataforma de gestión omnicanal para e-commerce y atención por IA. Simulador de WhatsApp + Backoffice completo.
 
-Currently, two official plugins are available:
+## Stack
+- React + Vite
+- Tailwind CSS
+- Base de datos interna (IndexedDB vía Dexie)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Módulos
+- Pedidos (Kanban drag-and-drop + lista)
+- Chat Simulador (WhatsApp UI, audio, imágenes, reacciones, modo auto/manual)
+- Entrenamiento IA (reglas de conocimiento)
+- Productos (CRUD + importación masiva/URL simulada)
+- Clientes (CRUD + toggle bot)
+- Configuración (estados, horarios, tono)
 
-## React Compiler
+## Desarrollo
+```bash
+npm install
+npm run dev
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Build
+```bash
+npm run build
+```
