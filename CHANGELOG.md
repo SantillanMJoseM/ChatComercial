@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.0] - 2026-11-09
+### Added
+- Backend Node.js/TypeScript con API REST.
+- PostgreSQL como fuente central de datos.
+- Docker Compose multi-servicio (frontend, backend, PostgreSQL).
+- Migraciones Prisma.
+
 ## [1.0.0] - 2026-11-09
 ### Added
 - Módulos de Pedidos, Chat, Entrenador IA, Productos, Clientes y Configuración.
