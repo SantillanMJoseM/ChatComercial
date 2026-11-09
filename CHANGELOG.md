@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.1] - 2026-11-09
+### Fixed
+- Limpieza de clases Tailwind duplicadas.
+- Middleware JWT real.
+- Dashboard mejorado.
+- Persistencia de tema.
+
 ## [2.2.0] - 2026-11-09
 ### Added
 - Design system Modern Indigo.
