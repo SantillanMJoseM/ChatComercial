@@ -4,8 +4,9 @@ const API = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 const AppContext = createContext(null);
 
 async function api(path, options = {}) {
+  const token = localStorage.getItem('chatcomercial_token');
   const res = await fetch(`${API}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     ...options,
   });
   if (!res.ok) throw new Error(`API ${res.status}`);

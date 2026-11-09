@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 export async function seed() {
@@ -36,6 +37,12 @@ export async function seed() {
         globalBotEnabled: true,
       },
     });
+  }
+
+  const userCount = await prisma.user.count();
+  if (userCount === 0) {
+    const passwordHash = await bcrypt.hash('admin123', 10);
+    await prisma.user.create({ data: { email: 'admin@chatcomercial.com', passwordHash, name: 'Admin', role: 'admin' } });
   }
 }
 

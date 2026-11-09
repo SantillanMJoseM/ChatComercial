@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import './seed.js';
+import { generateReply } from './llm.js';
 
 const prisma = new PrismaClient();
 const app = express();
@@ -139,6 +140,36 @@ app.post('/api/rules', async (req, res) => res.json(await prisma.aiKnowledgeRule
 app.delete('/api/rules/:id', async (req, res) => {
   await prisma.aiKnowledgeRule.delete({ where: { id: req.params.id } });
   res.json({ ok: true });
+});
+
+// Auth
+app.post('/api/auth/register', async (req, res) => {
+  const { email, password, name } = req.body;
+  if (!email || !password) return res.status(400).json({ error: 'email and password required' });
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) return res.status(409).json({ error: 'email already registered' });
+  const bcrypt = await import('bcryptjs');
+  const passwordHash = await bcrypt.hash(password, 10);
+  const user = await prisma.user.create({ data: { email, passwordHash, name } });
+  res.json({ id: user.id, email: user.email, role: user.role });
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return res.status(401).json({ error: 'invalid credentials' });
+  const bcrypt = await import('bcryptjs');
+  const ok = await bcrypt.compare(password, user.passwordHash);
+  if (!ok) return res.status(401).json({ error: 'invalid credentials' });
+  const jwt = await import('jsonwebtoken');
+  const token = jwt.sign({ sub: user.id, role: user.role }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '7d' });
+  res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
+});
+
+app.post('/api/ai/chat', async (req, res) => {
+  const { prompt } = req.body;
+  const reply = await generateReply(prompt || '');
+  res.json({ reply });
 });
 
 const port = process.env.PORT || 4000;

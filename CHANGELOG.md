@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.0] - 2026-11-09
+### Added
+- Autenticación básica (login, JWT).
+- Capa LLM desacoplada.
+- Backup script.
+- Auditoría de botones.
+- Mejoras visuales sidebar/layout.
+
 ## [2.0.0] - 2026-11-09
 ### Added
 - Backend Node.js/TypeScript con API REST.
