@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { Mic, Send, Brain } from 'lucide-react';
+import { Mic, Send, Brain, MicOff } from 'lucide-react';
 import Button from '../components/ui/Button';
+import { isSpeechRecognitionSupported, startSpeechRecognition } from '../utils/speech';
 
 function parseRule(text) {
   const t = text.toLowerCase();
@@ -18,9 +19,8 @@ export default function TrainingPage() {
     { sender: 'bot', text: 'Hola, soy el entrenador. Decime qué querés que aprenda y lo guardo como regla.' },
   ]);
   const [input, setInput] = useState('');
-  const [recording, setRecording] = useState(false);
-  const mediaRef = useRef(null);
-  const chunksRef = useRef([]);
+  const [listening, setListening] = useState(false);
+  const recognitionRef = useRef(null);
 
   const send = async () => {
     const text = input.trim();
@@ -34,23 +34,23 @@ export default function TrainingPage() {
     }, 500);
   };
 
-  const startRec = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mr = new MediaRecorder(stream);
-      chunksRef.current = [];
-      mr.ondataavailable = e => chunksRef.current.push(e.data);
-      mr.onstop = () => {
-        stream.getTracks().forEach(t=>t.stop());
-        setRecording(false);
-        alert('Audio grabado. En esta versión, escribí la instrucción para guardarla como regla.');
-      };
-      mr.start();
-      mediaRef.current = mr;
-      setRecording(true);
-    } catch { alert('Sin micrófono'); }
+  const toggleListen = () => {
+    if (listening) {
+      recognitionRef.current?.stop();
+      setListening(false);
+      return;
+    }
+    if (!isSpeechRecognitionSupported()) {
+      alert('El navegador no soporta reconocimiento de voz. Escribí la instrucción.');
+      return;
+    }
+    setListening(true);
+    recognitionRef.current = startSpeechRecognition({
+      onResult: (text) => setInput(text),
+      onError: () => setListening(false),
+      onEnd: () => setListening(false),
+    });
   };
-  const stopRec = () => { mediaRef.current?.stop(); };
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -67,8 +67,8 @@ export default function TrainingPage() {
             ))}
           </div>
           <div className="p-3 border-t border-slate-100 flex items-center gap-2">
-            <button onClick={recording?stopRec:startRec} className={`p-2 rounded-full ${recording?'bg-red-500 text-white':'text-slate-500 hover:text-indigo-600'}`}>
-              <Mic size={20}/>
+            <button onClick={toggleListen} className={`p-2 rounded-full ${listening?'bg-red-500 text-white':'text-slate-500 hover:text-indigo-600'}`}>
+              {listening ? <MicOff size={20}/> : <Mic size={20}/>}
             </button>
             <input className="flex-1 border border-slate-200 rounded-full px-4 py-2 text-sm" placeholder="Ej: Las ventanas de línea Módena subieron un 10%"
               value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')send();}} />

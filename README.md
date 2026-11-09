@@ -13,7 +13,7 @@ Plataforma de gestión omnicanal para e-commerce y atención por IA. Simulador d
 - Entrenamiento IA (reglas de conocimiento)
 - Productos (CRUD + importación masiva/URL simulada)
 - Clientes (CRUD + toggle bot)
-- Configuración (estados, horarios, tono)
+- Configuración (estados, horarios, tono, segmentación)
 
 ## Desarrollo
 ```bash
@@ -21,7 +21,12 @@ npm install
 npm run dev
 ```
 
-## Build
+## Pruebas
 ```bash
+npm test
+npm run lint
 npm run build
 ```
+
+## Despliegue
+Ver `DEPLOY.md`. Ejecutar `./deploy.sh`.

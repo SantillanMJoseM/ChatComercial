@@ -5,12 +5,13 @@ const GREETING = /(hola|buenos|buenas|hey)/i;
 
 export function isOutOfHours(settings) {
   if (settings?.outOfHours) return true;
-  if (!settings?.weeklySchedule) return false;
+  if (!settings?.weeklySchedule) return !!settings?.outOfHours;
   const now = new Date();
   const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
   const day = days[now.getDay()];
   const cfg = settings.weeklySchedule[day];
-  if (!cfg || !cfg.enabled) return true;
+  if (!cfg) return !!settings?.outOfHours;
+  if (!cfg.enabled) return true;
   const mins = now.getHours()*60 + now.getMinutes();
   const [sh,sm] = cfg.start.split(':').map(Number);
   const [eh,em] = cfg.end.split(':').map(Number);
@@ -57,7 +58,9 @@ export function generateBotReply({ text, messages, rules, settings, customer, pr
 
   if (/precio|cu[aá]nto|valor|costo/i.test(text)) {
     const list = (products || []).slice(0,5).map(p => `${p.name} ${money(p.price)}`).join(', ');
-    return tone(`Te paso algunos precios ${list}. Decime cuál te interesa`, settings);
+    const relevantRules = (rules || []).filter(r => /precio|subi|aument|costo/i.test(r.rule_prompt || ''));
+    const extra = relevantRules.length ? ` ${relevantRules[0].rule_prompt}` : '';
+    return tone(`Te paso algunos precios ${list}${extra}. Decime cuál te interesa`, settings);
   }
 
   if (/ventana|abertura|puerta|modena|m[oó]dena/i.test(text)) {
