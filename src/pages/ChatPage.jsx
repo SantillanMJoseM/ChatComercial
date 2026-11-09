@@ -156,12 +156,12 @@ export default function ChatPage() {
   return (
     <div className="flex h-[calc(100vh-3rem)] gap-4">
       {/* Conversations list */}
-      <div className="w-80 bg-white rounded-2xl border border-slate-100 flex flex-col overflow-hidden">
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="font-semibold text-slate-800">Conversaciones</h3>
+      <div className="w-80 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 flex flex-col overflow-hidden">
+        <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+          <h3 className="font-semibold text-slate-800 dark:text-slate-100">Conversaciones</h3>
         </div>
-        <div className="p-2 border-b border-slate-100">
-          <select className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-sm" onChange={e => {
+        <div className="p-2 border-b border-slate-100 dark:border-slate-700">
+          <select className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-sm" onChange={e => {
             const cust = customers.find(c=>c.id===e.target.value);
             if (cust) newConversationForCustomer(cust);
             e.target.value = '';
@@ -176,9 +176,9 @@ export default function ChatPage() {
             const last = messages.filter(m=>m.conversation_id===conv.id).sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt)).pop();
             return (
               <button key={conv.id} onClick={()=>selectConversation(conv)}
-                className={`w-full text-left p-3 border-b border-slate-50 hover:bg-slate-50 transition ${selectedConvId===conv.id?'bg-indigo-50':''}`}>
+                className={`w-full text-left p-3 border-b border-slate-50 hover:bg-slate-50 dark:bg-slate-900 transition ${selectedConvId===conv.id?'bg-indigo-50':''}`}>
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-sm text-slate-800">{cust?.name || 'Cliente'}</span>
+                  <span className="font-medium text-sm text-slate-800 dark:text-slate-100">{cust?.name || 'Cliente'}</span>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full ${conv.mode==='auto'?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}`}>{conv.mode}</span>
                 </div>
                 <div className="text-xs text-slate-400 truncate mt-1">{last?.text || (last?.contentType==='audio'?'🎤 Audio':last?.contentType==='image'?'📷 Imagen':'')}</div>
@@ -189,26 +189,26 @@ export default function ChatPage() {
       </div>
 
       {/* Chat area */}
-      <div className="flex-1 bg-white rounded-2xl border border-slate-100 flex flex-col overflow-hidden">
+      <div className="flex-1 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 flex flex-col overflow-hidden">
         {selectedConv ? (
           <>
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-emerald-600 text-white rounded-t-2xl">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-emerald-600 text-white rounded-t-2xl">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"><Phone size={18}/></div>
+                <div className="w-9 h-9 rounded-full bg-white dark:bg-slate-800/20 flex items-center justify-center"><Phone size={18}/></div>
                 <div>
                   <div className="font-semibold">{selectedCustomer?.name}</div>
                   <div className="text-xs opacity-80">{selectedCustomer?.phone}</div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={handleToggleMode} className="flex items-center gap-1 bg-white/20 px-3 py-1.5 rounded-full text-xs">
+                <button onClick={handleToggleMode} className="flex items-center gap-1 bg-white dark:bg-slate-800/20 px-3 py-1.5 rounded-full text-xs">
                   {mode === 'auto' ? <ToggleRight size={16}/> : <ToggleLeft size={16}/>} {mode === 'auto' ? 'Auto' : 'Manual'}
                 </button>
                 <Button size="sm" variant="secondary" onClick={handleCreateOrderFromChat}>Crear pedido</Button>
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto p-4 space-y-3 bg-slate-50">
+            <div className="flex-1 overflow-auto p-4 space-y-3 bg-slate-50 dark:bg-slate-900">
               {convMessages.map(m => {
                 const isUser = m.sender === 'user';
                 const isBot = m.sender === 'bot';
@@ -216,7 +216,7 @@ export default function ChatPage() {
                 return (
                   <div key={m.id} className={`flex ${isUser ? 'justify-start' : 'justify-end'}`}>
                     <div className={`max-w-[70%] rounded-2xl px-4 py-2 text-sm shadow-sm ${
-                      isUser ? 'bg-white text-slate-800 rounded-tl-none' :
+                      isUser ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-tl-none' :
                       isBot ? 'bg-emerald-100 text-emerald-900 rounded-tr-none' :
                       'bg-indigo-100 text-indigo-900 rounded-tr-none'
                     }`}>
@@ -236,25 +236,25 @@ export default function ChatPage() {
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-3 border-t border-slate-100 bg-white">
+            <div className="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs text-slate-500">Enviar como:</span>
-                <button onClick={()=>setSenderMode('customer')} className={`text-xs px-2 py-1 rounded-full ${senderMode==='customer'?'bg-emerald-600 text-white':'bg-slate-100'}`}>Cliente</button>
-                <button onClick={()=>setSenderMode('operator')} className={`text-xs px-2 py-1 rounded-full ${senderMode==='operator'?'bg-indigo-600 text-white':'bg-slate-100'}`}>Operador</button>
+                <span className="text-xs text-slate-500 dark:text-slate-400">Enviar como:</span>
+                <button onClick={()=>setSenderMode('customer')} className={`text-xs px-2 py-1 rounded-full ${senderMode==='customer'?'bg-emerald-600 text-white':'bg-slate-100 dark:bg-slate-800'}`}>Cliente</button>
+                <button onClick={()=>setSenderMode('operator')} className={`text-xs px-2 py-1 rounded-full ${senderMode==='operator'?'bg-indigo-600 text-white':'bg-slate-100 dark:bg-slate-800'}`}>Operador</button>
                 {mode === 'manual' && (
                   <Button size="sm" variant="secondary" onClick={handleGenerateDraft}><Sparkles size={14}/> Generar borrador IA</Button>
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => fileInputRef.current?.click()} className="p-2 text-slate-500 hover:text-indigo-600"><ImageIcon size={20}/></button>
+                <button onClick={() => fileInputRef.current?.click()} className="p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600"><ImageIcon size={20}/></button>
                 <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleImageUpload} />
                 <button
                   onClick={recording ? stopRecording : startRecording}
-                  className={`p-2 rounded-full ${recording ? 'bg-red-500 text-white' : 'text-slate-500 hover:text-indigo-600'}`}>
+                  className={`p-2 rounded-full ${recording ? 'bg-red-500 text-white' : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600'}`}>
                   {recording ? <MicOff size={20}/> : <Mic size={20}/>}
                 </button>
                 <input
-                  className="flex-1 border border-slate-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="flex-1 border border-slate-200 dark:border-slate-700 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   placeholder="Escribí un mensaje..."
                   value={input}
                   onChange={e=>setInput(e.target.value)}

@@ -1,8 +1,10 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/layout/Layout';
 import OrdersPage from './pages/OrdersPage';
+import DashboardPage from './pages/DashboardPage';
 import ChatPage from './pages/ChatPage';
 import TrainingPage from './pages/TrainingPage';
 import ProductsPage from './pages/ProductsPage';
@@ -16,14 +18,16 @@ function RequireAuth({ children }) {
 
 export default function App() {
   return (
-    <AppProvider>
-      <BrowserRouter>
+    <ThemeProvider>
+      <AppProvider>
+        <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/*" element={
             <RequireAuth>
               <Layout>
                 <Routes>
+                  <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/" element={<OrdersPage />} />
                   <Route path="/chat" element={<ChatPage />} />
                   <Route path="/training" element={<TrainingPage />} />
@@ -37,5 +41,6 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </AppProvider>
+    </ThemeProvider>
   );
 }

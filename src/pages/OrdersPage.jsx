@@ -20,13 +20,13 @@ function OrderCard({ order, customer, items, onEdit }) {
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}
-      className="bg-white rounded-xl shadow-sm border border-slate-100 p-3 cursor-grab active:cursor-grabbing mb-2">
+      className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 p-3 cursor-grab active:cursor-grabbing mb-2">
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs font-mono text-slate-400">#{order.id.slice(0,6)}</span>
         <span className="text-xs text-slate-400">{new Date(order.createdAt).toLocaleDateString('es-AR')}</span>
       </div>
-      <div className="font-semibold text-slate-800 text-sm">{customer?.name || 'Sin cliente'}</div>
-      <div className="text-xs text-slate-500 mt-1">{items.length} ítem(s)</div>
+      <div className="font-semibold text-slate-800 dark:text-slate-100 text-sm">{customer?.name || 'Sin cliente'}</div>
+      <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">{items.length} ítem(s)</div>
       <div className="mt-2 flex items-center justify-between">
         <span className="font-bold text-indigo-600 text-sm">{money(order.total)}</span>
         <button onClick={(e)=>{e.stopPropagation(); onEdit(order);}} className="text-xs text-slate-400 hover:text-indigo-600">Editar</button>
@@ -133,7 +133,7 @@ export default function OrdersPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-slate-800">Pedidos</h2>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Pedidos</h2>
         <div className="flex items-center gap-2">
           <Button variant={view==='kanban'?'primary':'secondary'} size="sm" onClick={()=>setView('kanban')}><Columns size={16}/> Kanban</Button>
           <Button variant={view==='list'?'primary':'secondary'} size="sm" onClick={()=>setView('list')}><List size={16}/> Lista</Button>
@@ -142,29 +142,29 @@ export default function OrdersPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-4 bg-white p-3 rounded-xl border border-slate-100">
-        <select className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm" value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}>
+      <div className="flex flex-wrap gap-3 mb-4 bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
+        <select className="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm" value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}>
           <option value="">Todos los estados</option>
           {statuses.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
-        <select className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm" value={filterCustomer} onChange={e=>setFilterCustomer(e.target.value)}>
+        <select className="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm" value={filterCustomer} onChange={e=>setFilterCustomer(e.target.value)}>
           <option value="">Todos los clientes</option>
           {customers.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
-        <input type="date" className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm" value={filterDate} onChange={e=>setFilterDate(e.target.value)} />
+        <input type="date" className="border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm" value={filterDate} onChange={e=>setFilterDate(e.target.value)} />
       </div>
 
       {view === 'kanban' ? (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={e=>setActiveId(e.active.id)} onDragEnd={onDragEnd}>
           <div className="flex gap-4 overflow-x-auto pb-4">
             {statuses.map(status => (
-              <div key={status.id} className="min-w-[260px] w-[260px] bg-slate-100 rounded-2xl p-3">
+              <div key={status.id} className="min-w-[260px] w-[260px] bg-slate-100 dark:bg-slate-800 rounded-2xl p-3">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <span className="w-3 h-3 rounded-full" style={{ backgroundColor: status.color }} />
-                    <span className="font-semibold text-sm text-slate-700">{status.name}</span>
+                    <span className="font-semibold text-sm text-slate-700 dark:text-slate-200">{status.name}</span>
                   </div>
-                  <span className="text-xs bg-white px-2 py-0.5 rounded-full text-slate-500">{filteredOrders.filter(o=>o.statusId===status.id).length}</span>
+                  <span className="text-xs bg-white dark:bg-slate-800 px-2 py-0.5 rounded-full text-slate-500 dark:text-slate-400">{filteredOrders.filter(o=>o.statusId===status.id).length}</span>
                 </div>
                 <SortableContext items={filteredOrders.filter(o=>o.statusId===status.id).map(o=>o.id)} strategy={verticalListSortingStrategy}>
                   <DroppableColumn id={status.id}>
@@ -177,13 +177,13 @@ export default function OrdersPage() {
             ))}
           </div>
           <DragOverlay>
-            {activeOrder ? <div className="bg-white rounded-xl shadow-lg p-3 w-[240px] opacity-90">{customerById(activeOrder.customerId)?.name}</div> : null}
+            {activeOrder ? <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-3 w-[240px] opacity-90">{customerById(activeOrder.customerId)?.name}</div> : null}
           </DragOverlay>
         </DndContext>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-slate-600">
+            <thead className="bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-300">
               <tr>
                 <th className="text-left px-4 py-3">ID</th>
                 <th className="text-left px-4 py-3">Cliente</th>
@@ -197,12 +197,12 @@ export default function OrdersPage() {
               {filteredOrders.map(o => {
                 const st = statuses.find(s=>s.id===o.statusId);
                 return (
-                  <tr key={o.id} className="border-t border-slate-100">
+                  <tr key={o.id} className="border-t border-slate-100 dark:border-slate-700">
                     <td className="px-4 py-3 font-mono text-xs">{o.id.slice(0,8)}</td>
                     <td className="px-4 py-3">{customerById(o.customerId)?.name || '-'}</td>
                     <td className="px-4 py-3"><Badge color={st?.color}>{st?.name}</Badge></td>
                     <td className="px-4 py-3 font-semibold">{money(o.total)}</td>
-                    <td className="px-4 py-3 text-slate-500">{new Date(o.createdAt).toLocaleDateString('es-AR')}</td>
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{new Date(o.createdAt).toLocaleDateString('es-AR')}</td>
                     <td className="px-4 py-3 flex gap-2">
                       <button onClick={()=>openEdit(o)} className="text-indigo-600 hover:underline text-xs">Editar</button>
                       <button onClick={()=>deleteOrder(o.id)} className="text-red-600 hover:underline text-xs">Eliminar</button>
@@ -222,48 +222,48 @@ export default function OrdersPage() {
         </>}>
         <div className="space-y-3">
           <div>
-            <label className="text-sm text-slate-600">Cliente</label>
-            <select className="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1" value={form.customerId} onChange={e=>setForm({...form, customerId:e.target.value})}>
+            <label className="text-sm text-slate-600 dark:text-slate-300">Cliente</label>
+            <select className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 mt-1" value={form.customerId} onChange={e=>setForm({...form, customerId:e.target.value})}>
               {customers.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="text-sm text-slate-600">Estado</label>
-            <select className="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1" value={form.statusId} onChange={e=>setForm({...form, statusId:e.target.value})}>
+            <label className="text-sm text-slate-600 dark:text-slate-300">Estado</label>
+            <select className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 mt-1" value={form.statusId} onChange={e=>setForm({...form, statusId:e.target.value})}>
               {statuses.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="text-sm text-slate-600">Origen</label>
-            <input className="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1" value={form.source} onChange={e=>setForm({...form, source:e.target.value})} />
+            <label className="text-sm text-slate-600 dark:text-slate-300">Origen</label>
+            <input className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 mt-1" value={form.source} onChange={e=>setForm({...form, source:e.target.value})} />
           </div>
           <div>
-            <label className="text-sm text-slate-600">Notas</label>
-            <textarea className="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1" rows={2} value={form.notes} onChange={e=>setForm({...form, notes:e.target.value})} />
+            <label className="text-sm text-slate-600 dark:text-slate-300">Notas</label>
+            <textarea className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 mt-1" rows={2} value={form.notes} onChange={e=>setForm({...form, notes:e.target.value})} />
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm text-slate-600">Ítems</label>
+              <label className="text-sm text-slate-600 dark:text-slate-300">Ítems</label>
               <Button size="sm" onClick={addItem}>+ Ítem</Button>
             </div>
             {form.items.map((it, idx) => {
               const prod = products.find(p=>p.id===it.productId);
               const isCustom = prod?.isCustomDimensions;
               return (
-                <div key={idx} className="border border-slate-100 rounded-xl p-3 mb-2 space-y-2">
+                <div key={idx} className="border border-slate-100 dark:border-slate-700 rounded-xl p-3 mb-2 space-y-2">
                   <div className="flex gap-2">
-                    <select className="flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-sm" value={it.productId} onChange={e=>updateItem(idx,{productId:e.target.value})}>
+                    <select className="flex-1 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-sm" value={it.productId} onChange={e=>updateItem(idx,{productId:e.target.value})}>
                       {products.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
                     </select>
-                    <input type="number" min={1} className="w-16 border border-slate-200 rounded-lg px-2 py-1.5 text-sm" value={it.quantity} onChange={e=>updateItem(idx,{quantity:Number(e.target.value)})} />
-                    <input type="number" className="w-24 border border-slate-200 rounded-lg px-2 py-1.5 text-sm" value={it.unitPrice} onChange={e=>updateItem(idx,{unitPrice:Number(e.target.value)})} />
+                    <input type="number" min={1} className="w-16 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-sm" value={it.quantity} onChange={e=>updateItem(idx,{quantity:Number(e.target.value)})} />
+                    <input type="number" className="w-24 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-sm" value={it.unitPrice} onChange={e=>updateItem(idx,{unitPrice:Number(e.target.value)})} />
                     <button onClick={()=>removeItem(idx)} className="text-red-500 text-sm px-2">✕</button>
                   </div>
                   {isCustom && (
                     <div className="grid grid-cols-3 gap-2">
-                      <input placeholder="Ancho (cm)" className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm" onChange={e=>updateItem(idx,{customSpecs:{...it.customSpecs, width:e.target.value}})} value={it.customSpecs?.width||''} />
-                      <input placeholder="Alto (cm)" className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm" onChange={e=>updateItem(idx,{customSpecs:{...it.customSpecs, height:e.target.value}})} value={it.customSpecs?.height||''} />
-                      <input placeholder="Línea/vidrio" className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm" onChange={e=>updateItem(idx,{customSpecs:{...it.customSpecs, spec:e.target.value}})} value={it.customSpecs?.spec||''} />
+                      <input placeholder="Ancho (cm)" className="border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-sm" onChange={e=>updateItem(idx,{customSpecs:{...it.customSpecs, width:e.target.value}})} value={it.customSpecs?.width||''} />
+                      <input placeholder="Alto (cm)" className="border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-sm" onChange={e=>updateItem(idx,{customSpecs:{...it.customSpecs, height:e.target.value}})} value={it.customSpecs?.height||''} />
+                      <input placeholder="Línea/vidrio" className="border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-sm" onChange={e=>updateItem(idx,{customSpecs:{...it.customSpecs, spec:e.target.value}})} value={it.customSpecs?.spec||''} />
                     </div>
                   )}
                 </div>

@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0] - 2026-11-09
+### Added
+- Design system Modern Indigo.
+- Modo claro/oscuro con selector.
+- Dashboard con KPIs.
+- Mejoras responsive y componentes.
+
 ## [2.1.0] - 2026-11-09
 ### Added
 - Autenticación básica (login, JWT).

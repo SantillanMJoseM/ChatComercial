@@ -21,12 +21,12 @@ export default function CustomersPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-slate-800">Clientes</h2>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Clientes</h2>
         <Button onClick={openCreate}><Plus size={16}/> Nuevo</Button>
       </div>
-      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50 text-slate-600">
+          <thead className="bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-300">
             <tr>
               <th className="text-left px-4 py-3">Nombre</th>
               <th className="text-left px-4 py-3">Teléfono</th>
@@ -37,13 +37,13 @@ export default function CustomersPage() {
           </thead>
           <tbody>
             {customers.map(c => (
-              <tr key={c.id} className="border-t border-slate-100">
+              <tr key={c.id} className="border-t border-slate-100 dark:border-slate-700">
                 <td className="px-4 py-3 font-medium">{c.name}</td>
-                <td className="px-4 py-3 text-slate-500">{c.phone}</td>
-                <td className="px-4 py-3 text-slate-500">{c.branchLocation}</td>
+                <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{c.phone}</td>
+                <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{c.branchLocation}</td>
                 <td className="px-4 py-3">
                   <button onClick={()=>updateCustomer(c.id,{botEnabled:!c.botEnabled})}
-                    className={`text-xs px-2 py-1 rounded-full ${c.botEnabled?'bg-emerald-100 text-emerald-700':'bg-slate-200 text-slate-600'}`}>
+                    className={`text-xs px-2 py-1 rounded-full ${c.botEnabled?'bg-emerald-100 text-emerald-700':'bg-slate-200 text-slate-600 dark:text-slate-300'}`}>
                     {c.botEnabled?'Activo':'Desactivado'}
                   </button>
                 </td>
@@ -60,12 +60,12 @@ export default function CustomersPage() {
       <Modal open={modalOpen} onClose={()=>setModalOpen(false)} title={editing?'Editar cliente':'Nuevo cliente'}
         footer={<><Button variant="secondary" onClick={()=>setModalOpen(false)}>Cancelar</Button><Button onClick={save}>Guardar</Button></>}>
         <div className="space-y-3">
-          <input className="w-full border border-slate-200 rounded-lg px-3 py-2" placeholder="Nombre" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} />
-          <input className="w-full border border-slate-200 rounded-lg px-3 py-2" placeholder="Teléfono" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} />
-          <input className="w-full border border-slate-200 rounded-lg px-3 py-2" placeholder="Email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} />
-          <input className="w-full border border-slate-200 rounded-lg px-3 py-2" placeholder="Sucursal" value={form.branchLocation} onChange={e=>setForm({...form,branchLocation:e.target.value})} />
-          <textarea className="w-full border border-slate-200 rounded-lg px-3 py-2" placeholder="Notas" rows={2} value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} />
-          <label className="flex items-center gap-2 text-sm text-slate-600">
+          <input className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2" placeholder="Nombre" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} />
+          <input className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2" placeholder="Teléfono" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} />
+          <input className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2" placeholder="Email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} />
+          <input className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2" placeholder="Sucursal" value={form.branchLocation} onChange={e=>setForm({...form,branchLocation:e.target.value})} />
+          <textarea className="w-full border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2" placeholder="Notas" rows={2} value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} />
+          <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
             <input type="checkbox" checked={form.botEnabled} onChange={e=>setForm({...form,botEnabled:e.target.checked})} />
             Bot habilitado para este cliente
           </label>
