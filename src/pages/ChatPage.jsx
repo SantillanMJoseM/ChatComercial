@@ -44,7 +44,8 @@ export default function ChatPage() {
     });
 
     // Auto mode logic
-    if (selectedConv.mode === 'auto' && sender === 'user') {
+    const botAllowed = settings?.globalBotEnabled !== false && selectedCustomer?.bot_enabled !== false;
+    if (selectedConv.mode === 'auto' && sender === 'user' && botAllowed) {
       // close naturally?
       if (shouldCloseConversation(text) && type === 'text') {
         await updateMessage(msg.id, { reaction: '👍' });
