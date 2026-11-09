@@ -122,13 +122,10 @@ export default function OrdersPage() {
       await updateOrder(editing.id, payload);
       const old = orderItems.filter(i => i.order_id === editing.id);
       await db.order_items.bulkDelete(old.map(i=>i.id));
-      const savedItems = [];
       for (const it of form.items) {
         const oi = { id: uid(), order_id: editing.id, ...it };
         await db.order_items.put(oi);
-        savedItems.push(oi);
       }
-      setOrderItems(prev => [...savedItems, ...prev.filter(i=>i.order_id !== editing.id)]);
     }
     if (!editing) {
       const items = form.items.map(i => ({ product_id: i.product_id, quantity: i.quantity, unit_price: i.unit_price, custom_specs: i.custom_specs }));
