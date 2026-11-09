@@ -23,6 +23,7 @@ services:
     environment:
       DATABASE_URL: postgresql://chat:chat@db:5432/chatcomercial
       PORT: 4000
+      JWT_SECRET: ${JWT_SECRET:-dev-secret}
     depends_on:
       db:
         condition: service_healthy

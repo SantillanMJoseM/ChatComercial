@@ -53,7 +53,10 @@ export function AppProvider({ children }) {
   }, []);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { loadAll(); }, [loadAll]);
+  useEffect(() => {
+    if (localStorage.getItem('chatcomercial_token')) loadAll();
+    else setLoading(false);
+  }, [loadAll]);
 
   // Settings
   const updateSettings = useCallback(async (patch) => {

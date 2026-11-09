@@ -5,6 +5,7 @@ import { AppProvider } from '../context/AppContext';
 import SettingsPage from '../pages/SettingsPage';
 
 beforeEach(() => {
+  localStorage.setItem('chatcomercial_token', 'test-token');
   const settings = { id: 'global', botResponseMode: 'auto', weeklySchedule: { monday: { enabled: true, start: '09:00', end: '18:00' }, tuesday: { enabled: true, start: '09:00', end: '18:00' }, wednesday: { enabled: true, start: '09:00', end: '18:00' }, thursday: { enabled: true, start: '09:00', end: '18:00' }, friday: { enabled: true, start: '09:00', end: '18:00' }, saturday: { enabled: true, start: '09:00', end: '13:00' }, sunday: { enabled: false, start: '09:00', end: '13:00' } }, outOfHours: false, toneRules: { noOpeningQuestionMark: true, noFinalPeriod: true, useDiscreteEmojis: true }, globalBotEnabled: true };
   global.fetch = vi.fn((url, opts) => {
     if (url.endsWith('/settings') && (!opts || !opts.method || opts.method === 'GET')) {

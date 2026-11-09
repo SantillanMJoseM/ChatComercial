@@ -9,7 +9,25 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
+function requireAuth(req: any, res: any, next: any) {
+  const auth = req.headers.authorization || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+  if (!token) return res.status(401).json({ error: 'unauthorized' });
+  try {
+    const jwt = require('jsonwebtoken');
+    jwt.verify(token, process.env.JWT_SECRET || 'dev-secret');
+    next();
+  } catch {
+    return res.status(401).json({ error: 'invalid token' });
+  }
+}
+
 app.get('/health', (_req, res) => res.json({ ok: true }));
+
+app.use('/api', (req, res, next) => {
+  if (req.path.startsWith('/auth')) return next();
+  return requireAuth(req, res, next);
+});
 
 // Settings
 app.get('/api/settings', async (_req, res) => {
