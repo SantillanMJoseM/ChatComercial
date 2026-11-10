@@ -1,0 +1,246 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  email         String    @unique
+  name          String
+  emailVerified Boolean   @default(false)
+  image         String?
+  isActive      Boolean   @default(true)
+  isSuperAdmin  Boolean   @default(false)
+  createdAt     DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime  @updatedAt @db.Timestamptz(6)
+  deletedAt     DateTime? @db.Timestamptz(6)
+
+  roles         UserRole[]
+  teamMembers   TeamMember[]
+  auditLogs     AuditLog[] @relation("AuditActor")
+  sessions      Session[]
+  accounts      Account[]
+
+  @@index([email])
+  @@index([isActive])
+}
+
+model Role {
+  id          String       @id @default(uuid()) @db.Uuid
+  key         String       @unique
+  name        String
+  description String?
+  isSystem    Boolean      @default(false)
+  createdAt   DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime     @updatedAt @db.Timestamptz(6)
+
+  users       UserRole[]
+  permissions RolePermission[]
+
+  @@index([key])
+}
+
+model Permission {
+  id          String   @id @default(uuid()) @db.Uuid
+  key         String   @unique
+  name        String
+  description String?
+  module      String
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  roles       RolePermission[]
+
+  @@index([module])
+}
+
+model UserRole {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  roleId    String   @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+}
+
+model RolePermission {
+  id           String @id @default(uuid()) @db.Uuid
+  roleId       String @db.Uuid
+  permissionId String @db.Uuid
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+}
+
+model Team {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+  deletedAt   DateTime? @db.Timestamptz(6)
+
+  members TeamMember[]
+
+  @@index([name])
+}
+
+model TeamMember {
+  id        String   @id @default(uuid()) @db.Uuid
+  teamId    String   @db.Uuid
+  userId    String   @db.Uuid
+  role      String   @default("member")
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+}
+
+model Session {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  token     String   @unique
+  expiresAt DateTime @db.Timestamptz(6)
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  actorId     String?  @db.Uuid
+  action      String
+  resource    String
+  resourceId  String?
+  metadata    Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  actor User? @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+}
+
+model SystemSetting {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique
+  value     Json
+  isSecret  Boolean  @default(false)
+  updatedBy String?  @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([key])
+}
+
+model Integration {
+  id          String   @id @default(uuid()) @db.Uuid
+  key         String   @unique
+  name        String
+  type        String
+  baseUrl     String?
+  credentials Json?
+  isActive    Boolean  @default(false)
+  config      Json?
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  events IntegrationEvent[]
+
+  @@index([key])
+  @@index([type])
+}
+
+model IntegrationEvent {
+  id            String   @id @default(uuid()) @db.Uuid
+  integrationId String   @db.Uuid
+  eventType     String
+  payload       Json
+  status        String   @default("pending")
+  attempts      Int      @default(0)
+  lastError     String?
+  processedAt   DateTime? @db.Timestamptz(6)
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+
+  integration Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  @@index([integrationId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+
+model Account {
+  id                    String    @id @default(uuid()) @db.Uuid
+  accountId             String
+  providerId            String
+  userId                String    @db.Uuid
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime? @db.Timestamptz(6)
+  refreshTokenExpiresAt DateTime? @db.Timestamptz(6)
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime  @updatedAt @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([providerId])
+}
+
+model Verification {
+  id         String    @id @default(uuid()) @db.Uuid
+  identifier String
+  value      String
+  expiresAt  DateTime  @db.Timestamptz(6)
+  createdAt  DateTime? @default(now()) @db.Timestamptz(6)
+  updatedAt  DateTime? @updatedAt @db.Timestamptz(6)
+
+  @@index([identifier])
+}
+
+model OutboxMessage {
+  id          String   @id @default(uuid()) @db.Uuid
+  aggregate   String
+  eventType   String
+  payload     Json
+  status      String   @default("pending")
+  attempts    Int      @default(0)
+  lastError   String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  processedAt DateTime? @db.Timestamptz(6)
+
+  @@index([status])
+  @@index([createdAt])
+}

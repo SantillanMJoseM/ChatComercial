@@ -1,0 +1,3 @@
+# AI_START_HERE
+
+Read PROJECT_CONTEXT.md, PROJECT_STATUS.md, PROJECT_HANDOFF.md. Repo is source of truth.
