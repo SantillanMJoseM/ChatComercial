@@ -90,6 +90,60 @@ services:
         limits:
           memory: 512M
 
+  waha:
+    image: devlikeapro/waha:latest
+    container_name: cap-waha
+    profiles: ["integrations"]
+    environment:
+      WAHA_API_KEY: ${WAHA_API_KEY:-devkey}
+      WHATSAPP_DEFAULT_ENGINE: WEBJS
+    ports:
+      - "3002:3000"
+    networks: [capnet]
+    restart: unless-stopped
+
+  cw-db:
+    image: pgvector/pgvector:pg17
+    container_name: cap-cw-db
+    profiles: ["integrations"]
+    environment:
+      POSTGRES_USER: chatwoot
+      POSTGRES_PASSWORD: chatwoot
+      POSTGRES_DB: chatwoot
+    volumes:
+      - cap_cw_pg_data:/var/lib/postgresql/data
+    networks: [capnet]
+    restart: unless-stopped
+
+  cw-redis:
+    image: redis:7-alpine
+    container_name: cap-cw-redis
+    profiles: ["integrations"]
+    networks: [capnet]
+    restart: unless-stopped
+
+  chatwoot:
+    image: chatwoot/chatwoot:latest
+    container_name: cap-chatwoot
+    profiles: ["integrations"]
+    command: bundle exec rails s -p 3000 -b 0.0.0.0
+    environment:
+      RAILS_ENV: production
+      NODE_ENV: production
+      SECRET_KEY_BASE: ${CHATWOOT_SECRET_KEY_BASE:-}
+      POSTGRES_HOST: cap-cw-db
+      POSTGRES_USERNAME: chatwoot
+      POSTGRES_PASSWORD: chatwoot
+      POSTGRES_DATABASE: chatwoot
+      REDIS_URL: redis://cap-cw-redis:6379
+      FRONTEND_URL: http://localhost:3011
+      RAILS_LOG_TO_STDOUT: "true"
+    ports:
+      - "3011:3000"
+    depends_on: [cw-db, cw-redis]
+    networks: [capnet]
+    restart: unless-stopped
+
 networks:
   capnet:
     name: capnet
@@ -98,3 +152,4 @@ networks:
 volumes:
   cap_pg_data:
   cap_redis_data:
+  cap_cw_pg_data:

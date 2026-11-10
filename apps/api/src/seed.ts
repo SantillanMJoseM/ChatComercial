@@ -14,6 +14,8 @@ const permissions = [
   { key: 'system.read', name: 'Read system settings', module: 'system' },
   { key: 'system.update', name: 'Update system settings', module: 'system' },
   { key: 'audit.read', name: 'Read audit log', module: 'audit' },
+  { key: 'integrations.read', name: 'Read integrations', module: 'integrations' },
+  { key: 'integrations.manage', name: 'Manage integrations', module: 'integrations' },
 ];
 
 async function main() {

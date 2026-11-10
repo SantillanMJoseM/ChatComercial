@@ -15,6 +15,8 @@ import * as teamsCtrl from './modules/teams/teams.controller';
 import * as healthCtrl from './modules/health/health.controller';
 import * as systemCtrl from './modules/system/system.controller';
 import * as auditCtrl from './modules/audit/audit.controller';
+import * as intCtrl from './modules/integrations/integrations.controller';
+import * as whCtrl from './modules/webhooks/webhooks.controller';
 
 export function createApp() {
   const app = express();
@@ -48,6 +50,16 @@ export function createApp() {
   app.patch('/api/v1/system/settings', requireAuth, requirePermission('system.update'), systemCtrl.patchSetting);
 
   app.get('/api/v1/audit', requireAuth, requirePermission('audit.read'), auditCtrl.listAudit);
+
+  // Integrations (protected)
+  app.get('/api/v1/integrations', requireAuth, requirePermission('integrations.read'), intCtrl.listIntegrations);
+  app.get('/api/v1/integrations/:key', requireAuth, requirePermission('integrations.read'), intCtrl.getIntegration);
+  app.post('/api/v1/integrations/:key/test', requireAuth, requirePermission('integrations.manage'), intCtrl.testConnection);
+  app.patch('/api/v1/integrations/:key', requireAuth, requirePermission('integrations.manage'), intCtrl.patchIntegration);
+
+  // Webhooks (public, token-validated)
+  app.post('/api/v1/webhooks/waha', whCtrl.wahaWebhook);
+  app.post('/api/v1/webhooks/chatwoot', whCtrl.chatwootWebhook);
 
   app.use(errorHandler);
   return app;

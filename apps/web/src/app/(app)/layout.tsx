@@ -9,6 +9,7 @@ const nav = [
   { href: '/users', label: 'Usuarios' },
   { href: '/teams', label: 'Equipos' },
   { href: '/settings', label: 'Configuración' },
+  { href: '/integrations', label: 'Integraciones' },
   { href: '/system', label: 'Estado del sistema' },
   { href: '/profile', label: 'Perfil' },
 ];

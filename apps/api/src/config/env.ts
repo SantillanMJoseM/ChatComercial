@@ -16,7 +16,10 @@ const schema = z.object({
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60000),
   RATE_LIMIT_MAX: z.coerce.number().default(100),
   WAHA_BASE_URL: z.string().optional(),
+  WAHA_API_KEY: z.string().optional(),
   CHATWOOT_BASE_URL: z.string().optional(),
+  CHATWOOT_API_TOKEN: z.string().optional(),
+  CHATWOOT_ACCOUNT_ID: z.string().optional(),
 });
 
 export const env = schema.parse(process.env);

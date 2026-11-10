@@ -1,0 +1,64 @@
+openapi: 3.0.3
+info:
+  title: Plataforma Integral de Atención Comercial API
+  version: 0.2.0-f1
+  description: API-first backend. Auth via session cookie.
+servers:
+  - url: http://localhost:3010/api/v1
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses: { '200': { description: OK } }
+  /health/ready:
+    get:
+      summary: Readiness (DB + Redis)
+      responses: { '200': { description: Ready }, '503': { description: Not ready } }
+  /auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses: { '200': { description: OK } }
+  /auth/logout:
+    post: { summary: Logout, responses: { '200': { description: OK } } }
+  /auth/me:
+    get: { summary: Current user, responses: { '200': { description: OK } } }
+  /users:
+    get: { summary: List users, responses: { '200': { description: OK } } }
+    post: { summary: Create user, responses: { '201': { description: Created } } }
+  /users/{id}:
+    patch: { summary: Update user, responses: { '200': { description: OK } } }
+  /roles:
+    get: { summary: List roles, responses: { '200': { description: OK } } }
+  /permissions:
+    get: { summary: List permissions, responses: { '200': { description: OK } } }
+  /teams:
+    get: { summary: List teams, responses: { '200': { description: OK } } }
+    post: { summary: Create team, responses: { '201': { description: Created } } }
+  /system/status:
+    get: { summary: System status, responses: { '200': { description: OK } } }
+  /system/settings:
+    get: { summary: Get settings, responses: { '200': { description: OK } } }
+    patch: { summary: Patch setting, responses: { '200': { description: OK } } }
+  /audit:
+    get: { summary: Audit log, responses: { '200': { description: OK } } }
+  /integrations:
+    get: { summary: List integrations, responses: { '200': { description: OK } } }
+  /integrations/{key}:
+    get: { summary: Get integration, responses: { '200': { description: OK } } }
+    patch: { summary: Patch integration, responses: { '200': { description: OK } } }
+  /integrations/{key}/test:
+    post: { summary: Test connection, responses: { '200': { description: OK } } }
+  /webhooks/waha:
+    post: { summary: WAHA webhook, responses: { '202': { description: Accepted } } }
+  /webhooks/chatwoot:
+    post: { summary: Chatwoot webhook, responses: { '202': { description: Accepted } } }
