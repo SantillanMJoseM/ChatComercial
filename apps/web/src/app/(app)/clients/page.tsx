@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
 
 export default function ClientsPage() {
@@ -33,7 +34,7 @@ export default function ClientsPage() {
           <tbody>
             {clients.map((c:any) => (
               <tr key={c.id} className="border-t border-border">
-                <td className="p-3">{c.name}</td><td className="p-3">{c.phone}</td><td className="p-3">{c.email}</td><td className="p-3">{c.status}</td>
+                <td className="p-3"><Link href={`/clients/${c.id}`} className="text-primary hover:underline">{c.name}</Link></td><td className="p-3">{c.phone}</td><td className="p-3">{c.email}</td><td className="p-3">{c.status}</td>
               </tr>
             ))}
           </tbody>

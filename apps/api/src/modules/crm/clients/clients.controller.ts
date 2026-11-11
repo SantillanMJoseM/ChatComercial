@@ -54,6 +54,10 @@ export async function createClient(req: Request, res: Response, next: NextFuncti
       const exists = await prisma.client.findUnique({ where: { taxId: body.taxId } });
       if (exists && !exists.deletedAt) return res.status(409).json({ error: 'Tax ID already exists' });
     }
+    if (body.phone) {
+      const exists = await prisma.client.findFirst({ where: { phone: body.phone, deletedAt: null } });
+      if (exists) return res.status(409).json({ error: 'Phone already exists' });
+    }
     const client = await prisma.client.create({ data: { ...body, email: body.email || undefined, tags: body.tags || [] } });
     recordAudit((req as any).userId, 'crm.client.create', 'client', client.id, { name: client.name }, req.ip);
     res.status(201).json(client);
