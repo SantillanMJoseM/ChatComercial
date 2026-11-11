@@ -974,6 +974,8 @@ model SkillExecution {
   approvedAt     DateTime? @db.Timestamptz(6)
   error          String?
   durationMs     Int?
+  idempotencyKey String?   @unique
+  requestHash    String?
   createdAt      DateTime  @default(now()) @db.Timestamptz(6)
 
   skillVersion   SkillVersion @relation(fields: [skillVersionId], references: [id], onDelete: Cascade)

@@ -5,6 +5,8 @@ import { getPublishedSkill } from './runtime/registry';
 import { checkSkillPermission } from './runtime/permission.service';
 import { createExecution, finishExecution } from './runtime/execution.service';
 import { recordAudit } from '../audit/audit.controller';
+import { generateGrounded } from '../grounded/grounded.service';
+import crypto from 'crypto';
 
 // Skills CRUD
 export async function listSkills(req: Request, res: Response, next: NextFunction) {
@@ -93,7 +95,16 @@ export async function setToolPermission(req: Request, res: Response, next: NextF
 // Execution
 export async function executeSkill(req: Request, res: Response, next: NextFunction) {
   try {
-    const body = z.object({ assistantId: z.string().uuid().optional(), input: z.any().optional(), approved: z.boolean().optional() }).parse(req.body);
+    const body = z.object({ assistantId: z.string().uuid().optional(), input: z.any().optional(), approved: z.boolean().optional(), idempotencyKey: z.string().optional() }).parse(req.body);
+    const idemKey = body.idempotencyKey || (req.headers['idempotency-key'] as string) || undefined;
+    const requestHash = crypto.createHash('sha256').update(JSON.stringify(body.input || {})).digest('hex');
+    if (idemKey) {
+      const existing = await prisma.skillExecution.findUnique({ where: { idempotencyKey: idemKey } });
+      if (existing) {
+        if (existing.requestHash && existing.requestHash !== requestHash) return res.status(409).json({ error: 'Idempotency key reused with different payload' });
+        return res.json({ executionId: existing.id, status: existing.status, output: existing.output, replayed: true });
+      }
+    }
 
     const skill = await getPublishedSkill(req.params.key);
     if (!skill) return res.status(404).json({ error: 'Skill not found or not published' });
@@ -111,18 +122,20 @@ export async function executeSkill(req: Request, res: Response, next: NextFuncti
 
     // assist mode without approval -> awaiting_approval for write-like skills
     if (skill.executionMode === 'assist' && !body.approved) {
-      const exec = await createExecution(version.id, body.assistantId, (req as any).userId, body.input, 'awaiting_approval');
+      const exec = await createExecution(version.id, body.assistantId, (req as any).userId, body.input, 'awaiting_approval', idemKey, requestHash);
       return res.status(202).json({ executionId: exec.id, status: 'awaiting_approval' });
     }
 
     const started = Date.now();
-    const exec = await createExecution(version.id, body.assistantId, (req as any).userId, body.input, 'running');
+    const exec = await createExecution(version.id, body.assistantId, (req as any).userId, body.input, 'running', idemKey, requestHash);
 
     let output: any = null;
     let error: string | null = null;
     try {
       if (skill.key === 'knowledge-query') {
-        output = { message: 'Knowledge skill executed', query: body.input?.query };
+        const q = body.input?.query || '';
+        const grounded = await generateGrounded(skill.key, q, (req as any).userId, body.input?.collectionIds, body.input?.topK);
+        output = { answer: grounded.answer, grounded: grounded.grounded, evidenceStatus: grounded.evidenceStatus, citations: grounded.citations, handoff: grounded.suggestedHandoff, handoffReason: grounded.handoffReason };
       } else if (skill.key === 'order-status') {
         output = { orderId: body.input?.orderId, status: 'mock: shipped', estimatedDelivery: '2026-11-15' };
       } else if (skill.key === 'create-task') {
