@@ -28,6 +28,7 @@ import * as knowCtrl from './modules/knowledge/knowledge.controller';
 import * as embCtrl from './modules/embeddings/embeddings.controller';
 import * as knowUpload from './modules/knowledge/upload.controller';
 import * as skillCtrl from './modules/skills/skills.controller';
+import * as retrievalCtrl from './modules/retrieval/retrieval.controller';
 import * as healthCtrl from './modules/health/health.controller';
 import * as systemCtrl from './modules/system/system.controller';
 import * as auditCtrl from './modules/audit/audit.controller';
@@ -180,6 +181,9 @@ export function createApp() {
   app.post('/api/v1/skills', requireAuth, requirePermission('knowledge.skills.manage'), skillCtrl.createSkill);
   app.post('/api/v1/skills/versions', requireAuth, requirePermission('knowledge.skills.manage'), skillCtrl.createSkillVersion);
   app.get('/api/v1/skills/:skillId/versions', requireAuth, requirePermission('knowledge.skills.read'), skillCtrl.listSkillVersions);
+
+  // Retrieval (RAG)
+  app.post('/api/v1/retrieval/query', requireAuth, requirePermission('knowledge.documents.read'), retrievalCtrl.retrieveEndpoint);
 
   app.use(errorHandler);
   return app;
