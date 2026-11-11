@@ -6,6 +6,7 @@ export interface RetrievalQuery {
   assistantKey?: string;
   collectionIds?: string[];
   topK?: number;
+  rrfK?: number;
   userId?: string;
 }
 
@@ -16,7 +17,12 @@ export interface RetrievedChunk {
   collectionId: string;
   content: string;
   score: number;
-  method: 'vector' | 'text';
+  method: 'vector' | 'text' | 'hybrid';
+  vectorRank?: number;
+  textRank?: number;
+  vectorScore?: number;
+  textScore?: number;
+  rrfScore?: number;
   metadata: any;
 }
 
@@ -157,13 +163,41 @@ export async function retrieve(query: RetrievalQuery): Promise<RetrievalResult> 
     warnings.push('Text search failed: ' + e.message);
   }
 
-  // dedup by chunkId, keep highest score
-  const map = new Map<string, RetrievedChunk>();
-  for (const r of [...vectorResults, ...textResults]) {
-    const existing = map.get(r.chunkId);
-    if (!existing || r.score > existing.score) map.set(r.chunkId, r);
+  // RRF fusion
+  const k = 60;
+  const vectorRanked = [...vectorResults].sort((a,b) => b.score - a.score);
+  const textRanked = [...textResults].sort((a,b) => b.score - a.score);
+  const vRank = new Map<string, number>();
+  vectorRanked.forEach((r, i) => vRank.set(r.chunkId, i + 1));
+  const tRank = new Map<string, number>();
+  textRanked.forEach((r, i) => tRank.set(r.chunkId, i + 1));
+  const vScore = new Map<string, number>();
+  vectorRanked.forEach((r) => vScore.set(r.chunkId, r.score));
+  const tScore = new Map<string, number>();
+  textRanked.forEach((r) => tScore.set(r.chunkId, r.score));
+
+  const allIds = new Set<string>([...vectorResults.map(r=>r.chunkId), ...textResults.map(r=>r.chunkId)]);
+  const fused: RetrievedChunk[] = [];
+  for (const id of allIds) {
+    const vr = vRank.get(id);
+    const tr = tRank.get(id);
+    let rrf = 0;
+    if (vr) rrf += 1 / (k + vr);
+    if (tr) rrf += 1 / (k + tr);
+    // find base chunk
+    const base = vectorResults.find(r=>r.chunkId===id) || textResults.find(r=>r.chunkId===id)!;
+    fused.push({
+      ...base,
+      method: vr && tr ? 'hybrid' : (vr ? 'vector' : 'text'),
+      vectorRank: vr,
+      textRank: tr,
+      vectorScore: vScore.get(id),
+      textScore: tScore.get(id),
+      rrfScore: rrf,
+      score: rrf,
+    });
   }
-  const results = Array.from(map.values()).sort((a, b) => b.score - a.score).slice(0, topK);
+  const results = fused.sort((a,b) => (b.rrfScore||0) - (a.rrfScore||0)).slice(0, topK);
 
   return { query: q, vectorAvailable, textAvailable, results, warnings, durationMs: Date.now() - start };
 }
