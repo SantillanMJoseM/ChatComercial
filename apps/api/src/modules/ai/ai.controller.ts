@@ -139,3 +139,49 @@ export async function getUsage(req: Request, res: Response, next: NextFunction) 
     res.json(agg);
   } catch (e) { next(e); }
 }
+
+// Audit / traceability
+export async function listQueries(req: Request, res: Response, next: NextFunction) {
+  try {
+    const page = Math.max(1, parseInt((req.query.page as string) || '1'));
+    const pageSize = Math.min(100, parseInt((req.query.pageSize as string) || '20'));
+    const assistantKey = req.query.assistantKey as string | undefined;
+    const where: any = {};
+    if (assistantKey) where.assistant = { key: assistantKey };
+    const [items, total] = await Promise.all([
+      prisma.aIExecution.findMany({ where, orderBy: { createdAt: 'desc' }, skip: (page-1)*pageSize, take: pageSize, include: { assistant: true, user: true } }),
+      prisma.aIExecution.count({ where }),
+    ]);
+    res.json({ items, total, page, pageSize });
+  } catch (e) { next(e); }
+}
+
+export async function getQuery(req: Request, res: Response, next: NextFunction) {
+  try {
+    const exec = await prisma.aIExecution.findUnique({ where: { id: req.params.id }, include: { assistant: true, user: true, feedbacks: true } });
+    if (!exec) return res.status(404).json({ error: 'Not found' });
+    res.json(exec);
+  } catch (e) { next(e); }
+}
+
+export async function getCitations(req: Request, res: Response, next: NextFunction) {
+  try {
+    const refs = await prisma.knowledgeSourceReference.findMany({ where: { executionId: req.params.id }, include: { chunk: { include: { version: { include: { document: true } } } } } });
+    res.json(refs);
+  } catch (e) { next(e); }
+}
+
+export async function createFeedback(req: Request, res: Response, next: NextFunction) {
+  try {
+    const body = z.object({ executionId: z.string().uuid(), rating: z.string(), comment: z.string().optional() }).parse(req.body);
+    const fb = await prisma.aIRagFeedback.create({ data: { executionId: body.executionId, userId: (req as any).userId, rating: body.rating, comment: body.comment } });
+    res.status(201).json(fb);
+  } catch (e) { next(e); }
+}
+
+export async function listFeedback(req: Request, res: Response, next: NextFunction) {
+  try {
+    const items = await prisma.aIRagFeedback.findMany({ orderBy: { createdAt: 'desc' }, take: 200, include: { user: true } });
+    res.json(items);
+  } catch (e) { next(e); }
+}

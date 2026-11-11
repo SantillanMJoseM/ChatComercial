@@ -37,8 +37,9 @@ export async function generateGrounded(assistantKey: string, query: string, user
 
   // abstention if insufficient
   if (!ctx.sufficient || ctx.sources.length === 0) {
+    const exec = await prisma.aIExecution.create({ data: { assistantId: assistant.id, mode: assistant.mode, queryText: query, contextId: ctx.contextId, evidenceStatus: 'insufficient', abstained: true, status: 'abstained', handoffReason: 'InsufficientEvidence' } });
     return {
-      generationId: crypto.randomUUID(),
+      generationId: exec.id,
       assistantKey,
       status: 'abstained',
       answer: ABSTENTION_MSG,
@@ -75,7 +76,7 @@ export async function generateGrounded(assistantKey: string, query: string, user
   const outputTokens = data?.usage?.completion_tokens || 0;
   const answer = data?.choices?.[0]?.message?.content || '';
 
-  const exec = await prisma.aIExecution.create({ data: { assistantId: assistant.id, mode: assistant.mode, inputTokens, outputTokens, latencyMs: latency, status: r.ok ? 'completed' : 'failed', error: r.ok ? null : JSON.stringify(data).slice(0, 500) } });
+  const exec = await prisma.aIExecution.create({ data: { assistantId: assistant.id, mode: assistant.mode, queryText: query, contextId: ctx.contextId, evidenceStatus: 'sufficient', inputTokens, outputTokens, latencyMs: latency, status: r.ok ? 'completed' : 'failed', error: r.ok ? null : JSON.stringify(data).slice(0, 500), handoffReason: r.ok ? null : 'ProviderFailure' } });
 
   // persist source references
   for (const s of ctx.sources) {

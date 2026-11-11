@@ -193,6 +193,13 @@ export function createApp() {
   // Grounded generation
   app.post('/api/v1/ai/grounded', requireAuth, requirePermission('ai.execute'), groundedCtrl.groundedExecute);
 
+  // AI audit / traceability
+  app.get('/api/v1/ai/queries', requireAuth, requirePermission('ai.audit.read'), aiCtrl.listQueries);
+  app.get('/api/v1/ai/queries/:id', requireAuth, requirePermission('ai.audit.read'), aiCtrl.getQuery);
+  app.get('/api/v1/ai/queries/:id/citations', requireAuth, requirePermission('ai.citations.read'), aiCtrl.getCitations);
+  app.post('/api/v1/ai/queries/:id/feedback', requireAuth, requirePermission('ai.feedback.manage'), (req,res,next) => { req.body.executionId = req.params.id; aiCtrl.createFeedback(req,res,next); });
+  app.get('/api/v1/ai/feedback', requireAuth, requirePermission('ai.feedback.read'), aiCtrl.listFeedback);
+
   app.use(errorHandler);
   return app;
 }
