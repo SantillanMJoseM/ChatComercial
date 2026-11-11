@@ -25,6 +25,7 @@ import * as wgrpCtrl from './modules/whatsapp-groups/whatsapp-groups.controller'
 import * as cwteamCtrl from './modules/chatwoot-teams/chatwoot-teams.controller';
 import * as aiCtrl from './modules/ai/ai.controller';
 import * as knowCtrl from './modules/knowledge/knowledge.controller';
+import * as knowUpload from './modules/knowledge/upload.controller';
 import * as skillCtrl from './modules/skills/skills.controller';
 import * as healthCtrl from './modules/health/health.controller';
 import * as systemCtrl from './modules/system/system.controller';
@@ -158,6 +159,9 @@ export function createApp() {
   app.get('/api/v1/knowledge/collections', requireAuth, requirePermission('knowledge.collections.read'), knowCtrl.listCollections);
   app.post('/api/v1/knowledge/collections', requireAuth, requirePermission('knowledge.collections.manage'), knowCtrl.createCollection);
   app.get('/api/v1/knowledge/documents', requireAuth, requirePermission('knowledge.documents.read'), knowCtrl.listDocuments);
+  app.post('/api/v1/knowledge/documents/upload', requireAuth, requirePermission('knowledge.documents.upload'), knowUpload.uploadMiddleware, knowUpload.uploadDocument);
+  app.get('/api/v1/knowledge/documents/:id/download', requireAuth, requirePermission('knowledge.documents.read'), knowUpload.downloadDocument);
+  app.delete('/api/v1/knowledge/documents/:id', requireAuth, requirePermission('knowledge.documents.delete'), knowUpload.deleteDocument);
   app.post('/api/v1/knowledge/documents', requireAuth, requirePermission('knowledge.documents.upload'), knowCtrl.createDocument);
   app.get('/api/v1/knowledge/jobs', requireAuth, requirePermission('knowledge.documents.process'), knowCtrl.listJobs);
   app.post('/api/v1/knowledge/jobs', requireAuth, requirePermission('knowledge.documents.process'), knowCtrl.createJob);

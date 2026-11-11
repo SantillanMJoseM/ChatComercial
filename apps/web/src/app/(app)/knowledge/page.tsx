@@ -6,7 +6,7 @@ export default function KnowledgePage() {
   const [collections, setCollections] = useState<any[]>([]);
   const [documents, setDocuments] = useState<any[]>([]);
   const [form, setForm] = useState({ name: '', description: '' });
-  const [docForm, setDocForm] = useState({ collectionId: '', name: '', mimeType: 'text/plain', sizeBytes: 0, storagePath: '', hash: '' });
+  const [docForm, setDocForm] = useState({ collectionId: '', name: '', mimeType: 'text/plain', description: '' });
   useEffect(() => {
     apiFetch('/api/v1/knowledge/collections').then(setCollections).catch(()=>{});
     apiFetch('/api/v1/knowledge/documents').then(setDocuments).catch(()=>{});
@@ -19,7 +19,16 @@ export default function KnowledgePage() {
   }
   async function createDoc(e: React.FormEvent) {
     e.preventDefault();
-    await apiFetch('/api/v1/knowledge/documents', { method: 'POST', body: JSON.stringify({ ...docForm, sizeBytes: Number(docForm.sizeBytes) }) });
+    const input = document.getElementById('fileInput') as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file) { alert('Selecciona un archivo'); return; }
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('collectionId', docForm.collectionId);
+    fd.append('description', docForm.description || '');
+    const res = await fetch('/api/v1/knowledge/documents/upload', { method: 'POST', credentials: 'include', body: fd });
+    if (!res.ok) { alert('Error al subir'); return; }
+    input.value = '';
     apiFetch('/api/v1/knowledge/documents').then(setDocuments);
   }
   return (
@@ -36,9 +45,7 @@ export default function KnowledgePage() {
         </select>
         <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Nombre doc" value={docForm.name} onChange={e=>setDocForm({...docForm,name:e.target.value})} required />
         <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="MIME" value={docForm.mimeType} onChange={e=>setDocForm({...docForm,mimeType:e.target.value})} />
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Tamaño (bytes)" value={docForm.sizeBytes} onChange={e=>setDocForm({...docForm,sizeBytes:e.target.value as any})} />
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Storage path" value={docForm.storagePath} onChange={e=>setDocForm({...docForm,storagePath:e.target.value})} required />
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Hash SHA-256" value={docForm.hash} onChange={e=>setDocForm({...docForm,hash:e.target.value})} required />
+        <input id="fileInput" type="file" className="px-3 py-2 border border-border rounded-md bg-background" required />
         <button className="bg-primary text-primary-foreground rounded-md px-4 py-2 md:col-span-3">Registrar documento</button>
       </form>
       <div className="bg-card border border-border rounded-xl p-4">
