@@ -180,10 +180,6 @@ export function createApp() {
   app.post('/api/v1/knowledge/jobs', requireAuth, requirePermission('knowledge.documents.process'), knowCtrl.createJob);
 
   // Skills
-  app.get('/api/v1/skills', requireAuth, requirePermission('knowledge.skills.read'), skillCtrl.listSkills);
-  app.post('/api/v1/skills', requireAuth, requirePermission('knowledge.skills.manage'), skillCtrl.createSkill);
-  app.post('/api/v1/skills/versions', requireAuth, requirePermission('knowledge.skills.manage'), skillCtrl.createSkillVersion);
-  app.get('/api/v1/skills/:skillId/versions', requireAuth, requirePermission('knowledge.skills.read'), skillCtrl.listSkillVersions);
 
   // Retrieval (RAG)
   app.post('/api/v1/retrieval/query', requireAuth, requirePermission('knowledge.documents.read'), retrievalCtrl.retrieveEndpoint);
@@ -203,6 +199,23 @@ export function createApp() {
 
   // Retention
   app.post('/api/v1/retention/run', requireAuth, requirePermission('ai.audit.manage'), retentionCtrl.runRetention);
+
+  // Skills
+  app.get('/api/v1/skills', requireAuth, requirePermission('skills.read'), skillCtrl.listSkills);
+  app.post('/api/v1/skills', requireAuth, requirePermission('skills.create'), skillCtrl.createSkill);
+  app.get('/api/v1/skills/:key', requireAuth, requirePermission('skills.read'), skillCtrl.getSkill);
+  app.patch('/api/v1/skills/:key', requireAuth, requirePermission('skills.update'), skillCtrl.updateSkill);
+  app.get('/api/v1/skills/:key/versions', requireAuth, requirePermission('skills.read'), skillCtrl.listVersions);
+  app.post('/api/v1/skills/:key/versions', requireAuth, requirePermission('skills.manage'), skillCtrl.createVersion);
+  app.post('/api/v1/skills/:key/publish', requireAuth, requirePermission('skills.publish'), skillCtrl.publishVersion);
+  app.post('/api/v1/skills/:key/disable', requireAuth, requirePermission('skills.manage'), skillCtrl.disableSkill);
+  app.post('/api/v1/skills/:key/link-assistant', requireAuth, requirePermission('skills.manage'), skillCtrl.linkAssistant);
+  app.post('/api/v1/skills/:key/set-tool-permission', requireAuth, requirePermission('skills.manage'), skillCtrl.setToolPermission);
+  app.post('/api/v1/skills/:key/execute', requireAuth, requirePermission('skills.execute'), skillCtrl.executeSkill);
+  app.get('/api/v1/skill-executions', requireAuth, requirePermission('skills.audit.read'), skillCtrl.listExecutions);
+  app.get('/api/v1/skill-executions/:id', requireAuth, requirePermission('skills.audit.read'), skillCtrl.getExecution);
+  app.post('/api/v1/skill-executions/:id/approve', requireAuth, requirePermission('skills.approve'), skillCtrl.approveExecution);
+  app.post('/api/v1/skill-executions/:id/reject', requireAuth, requirePermission('skills.approve'), skillCtrl.rejectExecution);
 
   app.use(errorHandler);
   return app;

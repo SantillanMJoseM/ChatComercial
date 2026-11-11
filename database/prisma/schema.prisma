@@ -33,6 +33,8 @@ model User {
   supervisedTeams TeamSupervisor[]
   clientNotes   ClientNote[]
   interactions  ClientInteraction[] @relation("InteractionActor")
+  skillVersionsPublished SkillVersion[] @relation("SkillVersionPublisher")
+  skillExecutionsApproved SkillExecution[] @relation("SkillExecutionApprover")
   ragFeedbacks  AIRagFeedback[]
   convAssignments ConversationReference[] @relation("ConvAssignee")
   assignFrom    AssignmentHistory[] @relation("AssignFromUser")
@@ -681,6 +683,8 @@ model AIAssistant {
   tools            AIAssistantTool[]
   executions       AIExecution[]
   knowledgeCollections AIAssistantKnowledge[]
+  skillExecutions  SkillExecution[]
+  skillAssignments SkillAssistant[]
 }
 
 model AITool {
@@ -905,49 +909,97 @@ model AIAssistantKnowledge {
 }
 
 model Skill {
-  id          String    @id @default(uuid()) @db.Uuid
-  key         String    @unique
-  name        String
-  description String?
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+  id                  String    @id @default(uuid()) @db.Uuid
+  key                 String    @unique
+  name                String
+  description         String?
+  category            String?
+  objective           String?
+  status              String    @default("draft")
+  executionMode       String    @default("disabled")
+  timeoutMs           Int?      @default(30000)
+  maxRetries          Int?      @default(0)
+  publishedVersionId  String?   @db.Uuid
+  isActive            Boolean   @default(true)
+  createdAt           DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime  @updatedAt @db.Timestamptz(6)
 
-  versions    SkillVersion[]
+  versions            SkillVersion[]
+  publishedVersion    SkillVersion? @relation("PublishedVersion", fields: [publishedVersionId], references: [id], onDelete: SetNull)
+  assistants          SkillAssistant[]
+
+  @@index([status])
+  @@index([category])
 }
 
 model SkillVersion {
-  id          String    @id @default(uuid()) @db.Uuid
-  skillId     String    @db.Uuid
-  version     Int
-  instructions String
-  parameters  Json?
-  createdBy   String?   @db.Uuid
-  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  id                String    @id @default(uuid()) @db.Uuid
+  skillId           String    @db.Uuid
+  version           Int
+  status            String    @default("draft")
+  category          String?
+  instructions      String
+  parameters        Json?
+  parametersSchema  Json?
+  requiredPermissions String[] @default([])
+  publishedAt       DateTime? @db.Timestamptz(6)
+  publishedBy       String?   @db.Uuid
+  createdBy         String?   @db.Uuid
+  createdAt         DateTime  @default(now()) @db.Timestamptz(6)
 
-  skill       Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  creator     User?     @relation(fields: [createdBy], references: [id], onDelete: SetNull)
-  executions  SkillExecution[]
-  toolPermissions SkillToolPermission[]
+  skill             Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  creator           User?     @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  publisher         User?     @relation("SkillVersionPublisher", fields: [publishedBy], references: [id], onDelete: SetNull)
+  executions        SkillExecution[]
+  toolPermissions   SkillToolPermission[]
+  publishedFor      Skill[]   @relation("PublishedVersion")
 
   @@unique([skillId, version])
   @@index([skillId])
+  @@index([status])
 }
 
 model SkillExecution {
-  id          String    @id @default(uuid()) @db.Uuid
-  skillVersionId String @db.Uuid
-  userId      String?   @db.Uuid
-  input       Json?
-  output      Json?
-  status      String    @default("completed")
-  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  id             String    @id @default(uuid()) @db.Uuid
+  skillVersionId String    @db.Uuid
+  assistantId    String?   @db.Uuid
+  userId         String?   @db.Uuid
+  parentExecutionId String? @db.Uuid
+  input          Json?
+  output         Json?
+  toolsUsed      Json?
+  ragContextId   String?   @db.Uuid
+  status         String    @default("pending")
+  approvedBy     String?   @db.Uuid
+  approvedAt     DateTime? @db.Timestamptz(6)
+  error          String?
+  durationMs     Int?
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
 
-  skillVersion SkillVersion @relation(fields: [skillVersionId], references: [id], onDelete: Cascade)
-  user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  skillVersion   SkillVersion @relation(fields: [skillVersionId], references: [id], onDelete: Cascade)
+  assistant      AIAssistant? @relation(fields: [assistantId], references: [id], onDelete: SetNull)
+  user           User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  approver       User?       @relation("SkillExecutionApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
 
   @@index([skillVersionId])
+  @@index([assistantId])
+  @@index([status])
   @@index([createdAt])
+}
+
+
+model SkillAssistant {
+  id          String   @id @default(uuid()) @db.Uuid
+  skillId     String   @db.Uuid
+  assistantId String   @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  skill       Skill       @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  assistant   AIAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+
+  @@unique([skillId, assistantId])
+  @@index([skillId])
+  @@index([assistantId])
 }
 
 model SkillToolPermission {
