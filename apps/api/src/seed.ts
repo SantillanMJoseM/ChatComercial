@@ -29,6 +29,11 @@ const permissions = [
   { key: 'metrics.read', name: 'Read metrics', module: 'metrics' },
   { key: 'metrics.team', name: 'Read team metrics', module: 'metrics' },
   { key: 'metrics.global', name: 'Read global metrics', module: 'metrics' },
+  { key: 'segments.read', name: 'Read segments', module: 'segments' },
+  { key: 'segments.manage', name: 'Manage segments', module: 'segments' },
+  { key: 'consents.manage', name: 'Manage consents', module: 'consents' },
+  { key: 'whatsapp.groups.manage', name: 'Manage WhatsApp groups', module: 'whatsapp' },
+  { key: 'chatwoot.teams.manage', name: 'Manage Chatwoot teams', module: 'chatwoot' },
   { key: 'integrations.read', name: 'Read integrations', module: 'integrations' },
   { key: 'integrations.manage', name: 'Manage integrations', module: 'integrations' },
 ];

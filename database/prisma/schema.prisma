@@ -26,6 +26,9 @@ model User {
   accounts      Account[]
 
   ownedClients  Client[]        @relation("ClientOwner")
+  segmentsCreated Segment[]     @relation("SegmentCreator")
+  segmentExecutions SegmentExecution[] @relation("SegmentExecutionActor")
+  whatsappGroupsCreated WhatsAppGroup[] @relation("WhatsAppGroupCreator")
   operatorProfile OperatorProfile?
   supervisedTeams TeamSupervisor[]
   clientNotes   ClientNote[]
@@ -110,6 +113,7 @@ model Team {
   conversationRefs ConversationReference[]
   assignFrom     AssignmentHistory[] @relation("AssignFromTeam")
   assignTo       AssignmentHistory[] @relation("AssignToTeam")
+  chatwootTeamLinks ChatwootTeamLink[]
 
   @@index([name])
 }
@@ -285,6 +289,8 @@ model Client {
   team             Team?     @relation(fields: [teamId], references: [id], onDelete: SetNull)
   contacts         Contact[]
   identities       CustomerIdentity[]
+  segmentParticipants SegmentParticipant[]
+  whatsappConsents  WhatsAppConsent[]
   clientNotes     ClientNote[]
   interactions     ClientInteraction[]
   conversations    ConversationReference[]
@@ -313,8 +319,10 @@ model Contact {
   updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
   deletedAt   DateTime? @db.Timestamptz(6)
 
-  client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  conversationRefs ConversationReference[]
+  client               Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  conversationRefs     ConversationReference[]
+  segmentParticipants  SegmentParticipant[]
+  whatsappConsents     WhatsAppConsent[]
 
   @@index([clientId])
   @@index([isPrimary])
@@ -443,4 +451,152 @@ model ClientInteraction {
 
   @@index([clientId])
   @@index([occurredAt])
+}
+
+model Segment {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  criteria    Json
+  isDynamic   Boolean   @default(true)
+  createdBy   String?   @db.Uuid
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+  deletedAt   DateTime? @db.Timestamptz(6)
+
+  creator     User?     @relation("SegmentCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  participants SegmentParticipant[]
+  executions  SegmentExecution[]
+  whatsappGroups WhatsAppGroup[]
+
+  @@index([name])
+  @@index([isDynamic])
+}
+
+model SegmentParticipant {
+  id        String   @id @default(uuid()) @db.Uuid
+  segmentId String   @db.Uuid
+  clientId  String?  @db.Uuid
+  contactId String?  @db.Uuid
+  phoneE164 String?
+  snapshot  Json?
+  addedAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  segment   Segment  @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  client    Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  contact   Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  executionResults SegmentExecutionResult[]
+
+  @@index([segmentId])
+  @@index([clientId])
+  @@index([contactId])
+}
+
+model SegmentExecution {
+  id               String    @id @default(uuid()) @db.Uuid
+  segmentId        String    @db.Uuid
+  type             String
+  status           String    @default("preview")
+  totalParticipants Int      @default(0)
+  eligibleCount    Int       @default(0)
+  successCount     Int       @default(0)
+  failCount        Int       @default(0)
+  idempotencyKey   String?   @unique
+  consentValidated Boolean   @default(false)
+  snapshot         Json?
+  startedAt        DateTime  @default(now()) @db.Timestamptz(6)
+  finishedAt       DateTime? @db.Timestamptz(6)
+  actorId          String?   @db.Uuid
+  error            String?
+  createdAt        DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @db.Timestamptz(6)
+
+  segment          Segment   @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  actor            User?     @relation("SegmentExecutionActor", fields: [actorId], references: [id], onDelete: SetNull)
+  results          SegmentExecutionResult[]
+
+  @@index([segmentId])
+  @@index([status])
+  @@index([idempotencyKey])
+}
+
+model SegmentExecutionResult {
+  id            String   @id @default(uuid()) @db.Uuid
+  executionId   String   @db.Uuid
+  participantId String?  @db.Uuid
+  status        String
+  externalId    String?
+  error         String?
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+
+  execution     SegmentExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  participant   SegmentParticipant? @relation(fields: [participantId], references: [id], onDelete: SetNull)
+
+  @@index([executionId])
+  @@index([status])
+}
+
+model WhatsAppGroup {
+  id          String   @id @default(uuid()) @db.Uuid
+  segmentId   String?  @db.Uuid
+  wahaSession String
+  wahaGroupId String   @unique
+  name        String
+  createdBy   String?  @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  segment     Segment? @relation(fields: [segmentId], references: [id], onDelete: SetNull)
+  creator     User?    @relation("WhatsAppGroupCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  members     WhatsAppGroupMember[]
+
+  @@index([segmentId])
+}
+
+model WhatsAppGroupMember {
+  id        String   @id @default(uuid()) @db.Uuid
+  groupId   String   @db.Uuid
+  phoneE164 String
+  status    String   @default("added")
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  group     WhatsAppGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, phoneE164])
+  @@index([groupId])
+}
+
+model ChatwootTeamLink {
+  id             String   @id @default(uuid()) @db.Uuid
+  localTeamId    String?  @db.Uuid
+  chatwootTeamId Int      @unique
+  name           String
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+
+  localTeam      Team?    @relation(fields: [localTeamId], references: [id], onDelete: SetNull)
+
+  @@index([localTeamId])
+}
+
+model WhatsAppConsent {
+  id                String    @id @default(uuid()) @db.Uuid
+  contactId         String?   @db.Uuid
+  clientId          String?   @db.Uuid
+  phoneE164         String
+  purpose           String
+  channel           String    @default("whatsapp")
+  status            String    @default("granted")
+  capturedAt        DateTime  @default(now()) @db.Timestamptz(6)
+  source            String?
+  evidenceReference String?
+  revokedAt         DateTime? @db.Timestamptz(6)
+  createdAt         DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime  @updatedAt @db.Timestamptz(6)
+
+  contact           Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  client            Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@unique([phoneE164, purpose, channel])
+  @@index([contactId])
+  @@index([clientId])
+  @@index([status])
 }

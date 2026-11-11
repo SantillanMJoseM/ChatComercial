@@ -19,6 +19,10 @@ import * as convsCtrl from './modules/conversations/conversations.controller';
 import * as assignCtrl from './modules/assignments/assignments.controller';
 import * as metricsCtrl from './modules/metrics/metrics.controller';
 import * as notesCtrl from './modules/notes/notes.controller';
+import * as segCtrl from './modules/segments/segments.controller';
+import * as consentCtrl from './modules/consents/consents.controller';
+import * as wgrpCtrl from './modules/whatsapp-groups/whatsapp-groups.controller';
+import * as cwteamCtrl from './modules/chatwoot-teams/chatwoot-teams.controller';
 import * as healthCtrl from './modules/health/health.controller';
 import * as systemCtrl from './modules/system/system.controller';
 import * as auditCtrl from './modules/audit/audit.controller';
@@ -109,6 +113,28 @@ export function createApp() {
   app.post('/api/v1/notes', requireAuth, requirePermission('crm.clients.update'), notesCtrl.createNote);
   app.get('/api/v1/interactions', requireAuth, requirePermission('crm.clients.read'), notesCtrl.listInteractions);
   app.post('/api/v1/interactions', requireAuth, requirePermission('crm.clients.update'), notesCtrl.createInteraction);
+
+  // Segments
+  app.get('/api/v1/segments', requireAuth, requirePermission('segments.read'), segCtrl.listSegments);
+  app.post('/api/v1/segments', requireAuth, requirePermission('segments.manage'), segCtrl.createSegment);
+  app.get('/api/v1/segments/:id', requireAuth, requirePermission('segments.read'), segCtrl.getSegment);
+  app.post('/api/v1/segments/:id/preview', requireAuth, requirePermission('segments.read'), segCtrl.previewSegment);
+  app.delete('/api/v1/segments/:id', requireAuth, requirePermission('segments.manage'), segCtrl.deleteSegment);
+
+  // Consents
+  app.get('/api/v1/consents', requireAuth, requirePermission('consents.manage'), consentCtrl.listConsents);
+  app.post('/api/v1/consents', requireAuth, requirePermission('consents.manage'), consentCtrl.createConsent);
+  app.post('/api/v1/consents/:id/revoke', requireAuth, requirePermission('consents.manage'), consentCtrl.revokeConsent);
+
+  // WhatsApp groups
+  app.get('/api/v1/whatsapp-groups', requireAuth, requirePermission('whatsapp.groups.manage'), wgrpCtrl.listGroups);
+  app.post('/api/v1/whatsapp-groups/preview', requireAuth, requirePermission('whatsapp.groups.manage'), wgrpCtrl.previewGroup);
+  app.post('/api/v1/whatsapp-groups', requireAuth, requirePermission('whatsapp.groups.manage'), wgrpCtrl.createGroup);
+
+  // Chatwoot teams
+  app.get('/api/v1/chatwoot-teams', requireAuth, requirePermission('chatwoot.teams.manage'), cwteamCtrl.listChatwootTeams);
+  app.post('/api/v1/chatwoot-teams', requireAuth, requirePermission('chatwoot.teams.manage'), cwteamCtrl.createChatwootTeam);
+  app.post('/api/v1/chatwoot-teams/link', requireAuth, requirePermission('chatwoot.teams.manage'), cwteamCtrl.linkChatwootTeam);
 
   app.use(errorHandler);
   return app;
