@@ -31,6 +31,7 @@ import * as skillCtrl from './modules/skills/skills.controller';
 import * as retrievalCtrl from './modules/retrieval/retrieval.controller';
 import * as contextCtrl from './modules/context-builder/context.controller';
 import * as groundedCtrl from './modules/grounded/grounded.controller';
+import * as retentionCtrl from './modules/retention/retention.controller';
 import * as healthCtrl from './modules/health/health.controller';
 import * as systemCtrl from './modules/system/system.controller';
 import * as auditCtrl from './modules/audit/audit.controller';
@@ -199,6 +200,9 @@ export function createApp() {
   app.get('/api/v1/ai/queries/:id/citations', requireAuth, requirePermission('ai.citations.read'), aiCtrl.getCitations);
   app.post('/api/v1/ai/queries/:id/feedback', requireAuth, requirePermission('ai.feedback.manage'), (req,res,next) => { req.body.executionId = req.params.id; aiCtrl.createFeedback(req,res,next); });
   app.get('/api/v1/ai/feedback', requireAuth, requirePermission('ai.feedback.read'), aiCtrl.listFeedback);
+
+  // Retention
+  app.post('/api/v1/retention/run', requireAuth, requirePermission('ai.audit.manage'), retentionCtrl.runRetention);
 
   app.use(errorHandler);
   return app;
