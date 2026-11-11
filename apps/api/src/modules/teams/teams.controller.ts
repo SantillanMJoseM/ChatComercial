@@ -7,7 +7,7 @@ const addMemberSchema = z.object({ userId: z.string().uuid(), role: z.string().o
 
 export async function listTeams(req: Request, res: Response, next: NextFunction) {
   try {
-    const teams = await prisma.team.findMany({ where: { deletedAt: null }, include: { members: { include: { user: true } } }, orderBy: { name: 'asc' } });
+    const teams = await prisma.team.findMany({ where: { deletedAt: null }, include: { members: { include: { user: true } }, supervisors: { include: { user: true } } }, orderBy: { name: 'asc' } });
     res.json(teams.map((t) => ({
       id: t.id, name: t.name, description: t.description, isActive: t.isActive,
       members: t.members.map((m) => ({ userId: m.userId, name: m.user.name, email: m.user.email, role: m.role })),
