@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { prisma } from '../../lib/prisma';
+import { getPublishedSkill } from './runtime/registry';
+import { checkSkillPermission } from './runtime/permission.service';
+import { createExecution, finishExecution } from './runtime/execution.service';
 import { recordAudit } from '../audit/audit.controller';
 
 // Skills CRUD
@@ -90,29 +93,35 @@ export async function setToolPermission(req: Request, res: Response, next: NextF
 // Execution
 export async function executeSkill(req: Request, res: Response, next: NextFunction) {
   try {
-    const skill = await prisma.skill.findUnique({ where: { key: req.params.key }, include: { publishedVersion: true } });
-    if (!skill || skill.status !== 'published' || skill.executionMode === 'disabled') return res.status(403).json({ error: 'Skill not executable' });
+    const body = z.object({ assistantId: z.string().uuid().optional(), input: z.any().optional(), approved: z.boolean().optional() }).parse(req.body);
+
+    const skill = await getPublishedSkill(req.params.key);
+    if (!skill) return res.status(404).json({ error: 'Skill not found or not published' });
     const version = skill.publishedVersion;
     if (!version) return res.status(400).json({ error: 'No published version' });
 
-    const body = z.object({ assistantId: z.string().uuid().optional(), input: z.any().optional(), approved: z.boolean().optional() }).parse(req.body);
+    const userPerms = await (async () => {
+      const u = await prisma.user.findUnique({ where: { id: (req as any).userId }, include: { roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } } } });
+      if (!u) return [];
+      if (u.isSuperAdmin) return ['*'];
+      return Array.from(new Set(u.roles.flatMap((ur:any) => ur.role.permissions.map((rp:any) => rp.permission.key))));
+    })();
+    const perm = await checkSkillPermission(skill, body.assistantId, (req as any).userId, userPerms);
+    if (!perm.allowed) return res.status(403).json({ error: perm.reason });
 
-    // mode auto requires approved or assist mode
-    if (skill.executionMode === 'auto' && !body.approved) {
-      // create pending execution
-      const exec = await prisma.skillExecution.create({ data: { skillVersionId: version.id, assistantId: body.assistantId, userId: (req as any).userId, input: body.input, status: 'awaiting_approval' } });
+    // assist mode without approval -> awaiting_approval for write-like skills
+    if (skill.executionMode === 'assist' && !body.approved) {
+      const exec = await createExecution(version.id, body.assistantId, (req as any).userId, body.input, 'awaiting_approval');
       return res.status(202).json({ executionId: exec.id, status: 'awaiting_approval' });
     }
 
     const started = Date.now();
-    const exec = await prisma.skillExecution.create({ data: { skillVersionId: version.id, assistantId: body.assistantId, userId: (req as any).userId, input: body.input, status: 'running' } });
+    const exec = await createExecution(version.id, body.assistantId, (req as any).userId, body.input, 'running');
 
-    // execute based on skill key (reference skills)
     let output: any = null;
     let error: string | null = null;
     try {
       if (skill.key === 'knowledge-query') {
-        // call retrieval via internal fetch? Use prisma context not available; return placeholder
         output = { message: 'Knowledge skill executed', query: body.input?.query };
       } else if (skill.key === 'order-status') {
         output = { orderId: body.input?.orderId, status: 'mock: shipped', estimatedDelivery: '2026-11-15' };
@@ -126,7 +135,7 @@ export async function executeSkill(req: Request, res: Response, next: NextFuncti
     } catch (e: any) { error = e.message; }
 
     const duration = Date.now() - started;
-    await prisma.skillExecution.update({ where: { id: exec.id }, data: { status: error ? 'failed' : 'completed', output, error, durationMs: duration } });
+    await finishExecution(exec.id, error ? 'failed' : 'completed', output, error, duration);
 
     recordAudit((req as any).userId, 'skill.execute', 'skill', skill.key, { version: version.version, status: error ? 'failed' : 'completed' }, req.ip);
     res.json({ executionId: exec.id, status: error ? 'failed' : 'completed', output, error, durationMs: duration });
