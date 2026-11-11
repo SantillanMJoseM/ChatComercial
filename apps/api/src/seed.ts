@@ -45,6 +45,7 @@ const permissions = [
   { key: 'knowledge.documents.delete', name: 'Delete knowledge documents', module: 'knowledge' },
   { key: 'knowledge.documents.process', name: 'Process knowledge documents', module: 'knowledge' },
   { key: 'knowledge.embeddings.manage', name: 'Manage embeddings', module: 'knowledge' },
+  { key: 'knowledge.embeddings.read', name: 'Read embeddings', module: 'knowledge' },
   { key: 'knowledge.skills.read', name: 'Read skills', module: 'knowledge' },
   { key: 'knowledge.skills.manage', name: 'Manage skills', module: 'knowledge' },
   { key: 'knowledge.skills.execute', name: 'Execute skills', module: 'knowledge' },

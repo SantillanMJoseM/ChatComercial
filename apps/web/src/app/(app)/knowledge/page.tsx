@@ -6,12 +6,14 @@ export default function KnowledgePage() {
   const [collections, setCollections] = useState<any[]>([]);
   const [documents, setDocuments] = useState<any[]>([]);
   const [jobs, setJobs] = useState<any[]>([]);
+  const [embStatus, setEmbStatus] = useState<any>(null);
   const [form, setForm] = useState({ name: '', description: '' });
   const [docForm, setDocForm] = useState({ collectionId: '', name: '', mimeType: 'text/plain', description: '' });
   useEffect(() => {
     apiFetch('/api/v1/knowledge/collections').then(setCollections).catch(()=>{});
     apiFetch('/api/v1/knowledge/documents').then(setDocuments).catch(()=>{});
     apiFetch('/api/v1/knowledge/jobs').then(setJobs).catch(()=>{});
+    apiFetch('/api/v1/embeddings/status').then(setEmbStatus).catch(()=>{});
   }, []);
   async function createCol(e: React.FormEvent) {
     e.preventDefault();
@@ -57,6 +59,10 @@ export default function KnowledgePage() {
       <div className="bg-card border border-border rounded-xl p-4">
         <h3 className="font-semibold mb-2">Documentos</h3>
         <ul className="text-sm">{documents.map((d:any)=><li key={d.id}>{d.name} - {d.status}</li>)}</ul>
+      </div>
+      <div className="bg-card border border-border rounded-xl p-4">
+        <h3 className="font-semibold mb-2">Embeddings</h3>
+        <pre className="text-xs">{JSON.stringify(embStatus,null,2)}</pre>
       </div>
       <div className="bg-card border border-border rounded-xl p-4">
         <h3 className="font-semibold mb-2">Procesamiento</h3>

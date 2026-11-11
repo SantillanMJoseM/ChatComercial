@@ -25,6 +25,7 @@ import * as wgrpCtrl from './modules/whatsapp-groups/whatsapp-groups.controller'
 import * as cwteamCtrl from './modules/chatwoot-teams/chatwoot-teams.controller';
 import * as aiCtrl from './modules/ai/ai.controller';
 import * as knowCtrl from './modules/knowledge/knowledge.controller';
+import * as embCtrl from './modules/embeddings/embeddings.controller';
 import * as knowUpload from './modules/knowledge/upload.controller';
 import * as skillCtrl from './modules/skills/skills.controller';
 import * as healthCtrl from './modules/health/health.controller';
@@ -164,6 +165,13 @@ export function createApp() {
   app.delete('/api/v1/knowledge/documents/:id', requireAuth, requirePermission('knowledge.documents.delete'), knowUpload.deleteDocument);
   app.post('/api/v1/knowledge/documents', requireAuth, requirePermission('knowledge.documents.upload'), knowCtrl.createDocument);
   app.get('/api/v1/knowledge/jobs', requireAuth, requirePermission('knowledge.documents.process'), knowCtrl.listJobs);
+  app.get('/api/v1/knowledge/chunks', requireAuth, requirePermission('knowledge.documents.read'), knowCtrl.listChunks);
+  app.get('/api/v1/embeddings/config', requireAuth, requirePermission('knowledge.embeddings.read'), embCtrl.getConfig);
+  app.post('/api/v1/embeddings/config', requireAuth, requirePermission('knowledge.embeddings.manage'), embCtrl.setConfig);
+  app.post('/api/v1/embeddings/test', requireAuth, requirePermission('knowledge.embeddings.manage'), embCtrl.testConfig);
+  app.post('/api/v1/embeddings/index', requireAuth, requirePermission('knowledge.embeddings.manage'), embCtrl.indexDocument);
+  app.get('/api/v1/embeddings/status', requireAuth, requirePermission('knowledge.embeddings.read'), embCtrl.getStatus);
+  app.post('/api/v1/embeddings/search', requireAuth, requirePermission('knowledge.embeddings.read'), embCtrl.search);
   app.get('/api/v1/knowledge/chunks', requireAuth, requirePermission('knowledge.documents.read'), knowCtrl.listChunks);
   app.post('/api/v1/knowledge/jobs', requireAuth, requirePermission('knowledge.documents.process'), knowCtrl.createJob);
 

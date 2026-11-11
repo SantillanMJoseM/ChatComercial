@@ -4,6 +4,7 @@ import { env } from './config/env';
 import { startOutboxWorker } from './workers/outbox.worker';
 import { startWebhookWorker } from './workers/webhook.worker';
 import { startDocumentWorker } from './workers/document.worker';
+import { startEmbeddingsWorker } from './workers/embeddings.worker';
 import { logger } from './lib/logger';
 
 const app = createApp();
@@ -13,4 +14,5 @@ app.listen(port, () => {
   try { startOutboxWorker(); } catch (e) { logger.warn({ err: e }, 'outbox worker failed to start'); }
   try { startWebhookWorker(); } catch (e) { logger.warn({ err: e }, 'webhook worker failed to start'); }
   try { startDocumentWorker(); } catch (e) { logger.warn({ err: e }, 'document worker failed to start'); }
+  try { startEmbeddingsWorker(); } catch (e) { logger.warn({ err: e }, 'embeddings worker failed to start'); }
 });
