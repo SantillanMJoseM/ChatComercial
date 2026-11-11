@@ -30,6 +30,7 @@ import * as knowUpload from './modules/knowledge/upload.controller';
 import * as skillCtrl from './modules/skills/skills.controller';
 import * as retrievalCtrl from './modules/retrieval/retrieval.controller';
 import * as contextCtrl from './modules/context-builder/context.controller';
+import * as groundedCtrl from './modules/grounded/grounded.controller';
 import * as healthCtrl from './modules/health/health.controller';
 import * as systemCtrl from './modules/system/system.controller';
 import * as auditCtrl from './modules/audit/audit.controller';
@@ -188,6 +189,9 @@ export function createApp() {
 
   // Context Builder
   app.post('/api/v1/context/build', requireAuth, requirePermission('knowledge.documents.read'), contextCtrl.buildContextEndpoint);
+
+  // Grounded generation
+  app.post('/api/v1/ai/grounded', requireAuth, requirePermission('ai.execute'), groundedCtrl.groundedExecute);
 
   app.use(errorHandler);
   return app;

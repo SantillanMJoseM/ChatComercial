@@ -53,7 +53,7 @@ async function allowedCollections(userId: string | undefined, assistantKey: stri
     allowed = allowed.length ? allowed.filter((c) => requested.includes(c)) : requested;
   }
   // RBAC: if no assistant, allow all collections user can read? For simplicity, all collections.
-  if (!allowed.length && !assistantKey) {
+  if (!allowed.length) {
     const cols = await prisma.knowledgeCollection.findMany({ where: { deletedAt: null }, select: { id: true } });
     allowed = cols.map((c) => c.id);
   }
