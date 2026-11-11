@@ -5,11 +5,13 @@ import { apiFetch } from '@/lib/api';
 export default function KnowledgePage() {
   const [collections, setCollections] = useState<any[]>([]);
   const [documents, setDocuments] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<any[]>([]);
   const [form, setForm] = useState({ name: '', description: '' });
   const [docForm, setDocForm] = useState({ collectionId: '', name: '', mimeType: 'text/plain', description: '' });
   useEffect(() => {
     apiFetch('/api/v1/knowledge/collections').then(setCollections).catch(()=>{});
     apiFetch('/api/v1/knowledge/documents').then(setDocuments).catch(()=>{});
+    apiFetch('/api/v1/knowledge/jobs').then(setJobs).catch(()=>{});
   }, []);
   async function createCol(e: React.FormEvent) {
     e.preventDefault();
@@ -55,6 +57,10 @@ export default function KnowledgePage() {
       <div className="bg-card border border-border rounded-xl p-4">
         <h3 className="font-semibold mb-2">Documentos</h3>
         <ul className="text-sm">{documents.map((d:any)=><li key={d.id}>{d.name} - {d.status}</li>)}</ul>
+      </div>
+      <div className="bg-card border border-border rounded-xl p-4">
+        <h3 className="font-semibold mb-2">Procesamiento</h3>
+        <ul className="text-sm">{jobs.map((j:any)=><li key={j.id}>{j.status} - {j.step} - chunks? {j.versionId}</li>)}</ul>
       </div>
     </div>
   );

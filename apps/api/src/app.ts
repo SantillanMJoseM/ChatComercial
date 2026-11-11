@@ -164,6 +164,7 @@ export function createApp() {
   app.delete('/api/v1/knowledge/documents/:id', requireAuth, requirePermission('knowledge.documents.delete'), knowUpload.deleteDocument);
   app.post('/api/v1/knowledge/documents', requireAuth, requirePermission('knowledge.documents.upload'), knowCtrl.createDocument);
   app.get('/api/v1/knowledge/jobs', requireAuth, requirePermission('knowledge.documents.process'), knowCtrl.listJobs);
+  app.get('/api/v1/knowledge/chunks', requireAuth, requirePermission('knowledge.documents.read'), knowCtrl.listChunks);
   app.post('/api/v1/knowledge/jobs', requireAuth, requirePermission('knowledge.documents.process'), knowCtrl.createJob);
 
   // Skills

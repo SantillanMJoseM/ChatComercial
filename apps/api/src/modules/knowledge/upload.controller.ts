@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
 import { prisma } from '../../lib/prisma';
+import { documentQueue } from '../../workers/document.worker';
 import { env } from '../../config/env';
 import { recordAudit } from '../audit/audit.controller';
 
@@ -54,6 +55,8 @@ export async function uploadDocument(req: Request, res: Response, next: NextFunc
       data: { documentId: doc.id, version: 1, storagePath: destPath, hash, status: 'pending', publishedAt: new Date() },
     });
     await prisma.knowledgeDocument.update({ where: { id: doc.id }, data: { currentVersionId: ver.id } });
+    const job = await prisma.knowledgeProcessingJob.create({ data: { versionId: ver.id, status: 'queued' } });
+    await documentQueue.add('process', { jobId: job.id }, { attempts: 3, backoff: { type: 'exponential', delay: 2000 } });
 
     recordAudit((req as any).userId, 'knowledge.document.upload', 'knowledge_document', doc.id, { name: doc.name, hash }, req.ip);
     res.status(201).json({ document: doc, version: ver });

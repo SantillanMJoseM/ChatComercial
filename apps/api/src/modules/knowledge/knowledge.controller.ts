@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { prisma } from '../../lib/prisma';
+import { documentQueue } from '../../workers/document.worker';
 import { recordAudit } from '../audit/audit.controller';
 
 export async function listCollections(req: Request, res: Response, next: NextFunction) {
@@ -38,7 +39,16 @@ export async function listJobs(req: Request, res: Response, next: NextFunction) 
 export async function createJob(req: Request, res: Response, next: NextFunction) {
   try {
     const body = z.object({ versionId: z.string().uuid() }).parse(req.body);
-    const j = await prisma.knowledgeProcessingJob.create({ data: { versionId: body.versionId } });
+    const j = await prisma.knowledgeProcessingJob.create({ data: { versionId: body.versionId, status: 'queued' } });
+    await documentQueue.add('process', { jobId: j.id }, { attempts: 3, backoff: { type: 'exponential', delay: 2000 } });
     res.status(201).json(j);
+  } catch (e) { next(e); }
+}
+
+export async function listChunks(req: Request, res: Response, next: NextFunction) {
+  try {
+    const versionId = req.query.versionId as string;
+    const items = await prisma.knowledgeChunk.findMany({ where: versionId ? { versionId } : undefined, orderBy: { chunkIndex: 'asc' }, take: 200 });
+    res.json(items);
   } catch (e) { next(e); }
 }
