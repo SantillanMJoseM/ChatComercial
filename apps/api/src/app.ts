@@ -12,6 +12,13 @@ import * as usersCtrl from './modules/users/users.controller';
 import * as rolesCtrl from './modules/roles/roles.controller';
 import * as permsCtrl from './modules/permissions/permissions.controller';
 import * as teamsCtrl from './modules/teams/teams.controller';
+import * as clientsCtrl from './modules/crm/clients/clients.controller';
+import * as contactsCtrl from './modules/crm/contacts/contacts.controller';
+import * as opsCtrl from './modules/operators/operators.controller';
+import * as convsCtrl from './modules/conversations/conversations.controller';
+import * as assignCtrl from './modules/assignments/assignments.controller';
+import * as metricsCtrl from './modules/metrics/metrics.controller';
+import * as notesCtrl from './modules/notes/notes.controller';
 import * as healthCtrl from './modules/health/health.controller';
 import * as systemCtrl from './modules/system/system.controller';
 import * as auditCtrl from './modules/audit/audit.controller';
@@ -60,6 +67,48 @@ export function createApp() {
   // Webhooks (public, token-validated)
   app.post('/api/v1/webhooks/waha', whCtrl.wahaWebhook);
   app.post('/api/v1/webhooks/chatwoot', whCtrl.chatwootWebhook);
+
+  // CRM clients
+  app.get('/api/v1/clients', requireAuth, requirePermission('crm.clients.read'), clientsCtrl.listClients);
+  app.post('/api/v1/clients', requireAuth, requirePermission('crm.clients.create'), clientsCtrl.createClient);
+  app.get('/api/v1/clients/:id', requireAuth, requirePermission('crm.clients.read'), clientsCtrl.getClient);
+  app.patch('/api/v1/clients/:id', requireAuth, requirePermission('crm.clients.update'), clientsCtrl.updateClient);
+  app.delete('/api/v1/clients/:id', requireAuth, requirePermission('crm.clients.delete'), clientsCtrl.deleteClient);
+
+  // Contacts
+  app.get('/api/v1/contacts', requireAuth, requirePermission('crm.contacts.read'), contactsCtrl.listContacts);
+  app.post('/api/v1/contacts', requireAuth, requirePermission('crm.contacts.manage'), contactsCtrl.createContact);
+  app.patch('/api/v1/contacts/:id', requireAuth, requirePermission('crm.contacts.manage'), contactsCtrl.updateContact);
+  app.delete('/api/v1/contacts/:id', requireAuth, requirePermission('crm.contacts.manage'), contactsCtrl.deleteContact);
+
+  // Operators
+  app.get('/api/v1/operators', requireAuth, requirePermission('operators.read'), opsCtrl.listOperators);
+  app.post('/api/v1/operators', requireAuth, requirePermission('operators.manage'), opsCtrl.createOperatorProfile);
+  app.patch('/api/v1/operators/:id', requireAuth, requirePermission('operators.manage'), opsCtrl.updateOperatorProfile);
+  app.get('/api/v1/operators/user/:userId', requireAuth, requirePermission('operators.read'), opsCtrl.getOperatorProfileByUser);
+
+  // Teams supervisors
+  app.get('/api/v1/teams/:id/supervisors', requireAuth, requirePermission('teams.read'), teamsCtrl.listSupervisors);
+  app.post('/api/v1/teams/:id/supervisors', requireAuth, requirePermission('teams.manage'), teamsCtrl.addSupervisor);
+  app.delete('/api/v1/teams/:id/supervisors/:supervisorId', requireAuth, requirePermission('teams.manage'), teamsCtrl.removeSupervisor);
+  app.patch('/api/v1/teams/:id', requireAuth, requirePermission('teams.manage'), teamsCtrl.patchTeam);
+
+  // Conversations
+  app.get('/api/v1/conversations', requireAuth, requirePermission('conversations.read'), convsCtrl.listConversations);
+  app.post('/api/v1/conversations/assign', requireAuth, requirePermission('conversations.assign'), convsCtrl.assignConversation);
+  app.post('/api/v1/conversations/link-client', requireAuth, requirePermission('conversations.manage'), convsCtrl.linkClient);
+
+  // Assignments history
+  app.get('/api/v1/assignments', requireAuth, requirePermission('conversations.read'), assignCtrl.listAssignmentHistory);
+
+  // Metrics
+  app.get('/api/v1/metrics', requireAuth, requirePermission('metrics.read'), metricsCtrl.getMetrics);
+
+  // Notes & interactions
+  app.get('/api/v1/notes', requireAuth, requirePermission('crm.clients.read'), notesCtrl.listNotes);
+  app.post('/api/v1/notes', requireAuth, requirePermission('crm.clients.update'), notesCtrl.createNote);
+  app.get('/api/v1/interactions', requireAuth, requirePermission('crm.clients.read'), notesCtrl.listInteractions);
+  app.post('/api/v1/interactions', requireAuth, requirePermission('crm.clients.update'), notesCtrl.createInteraction);
 
   app.use(errorHandler);
   return app;

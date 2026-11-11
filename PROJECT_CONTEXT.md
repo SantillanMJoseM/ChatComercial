@@ -11,6 +11,7 @@
 
 ## Architecture
 Modular monorepo: apps/web, apps/api, packages, database, agents, docs, tests, infra.
+Servicios integrados: cap-web, cap-api, cap-postgres, cap-redis, cap-waha, cap-cw-db, cap-cw-redis, cap-chatwoot (misma red capnet).
 
 ## Stack
 Next.js, React, TS, Tailwind, shadcn/ui; Node, Express, Prisma, PostgreSQL 17, Redis, BullMQ, Better Auth, RBAC, Docker Compose.

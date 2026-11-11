@@ -6,3 +6,5 @@
 - docs: documentation
 - tests: unit/integration/architecture/security/e2e
 - infra: docker scripts
+
+- Servicios Docker: core (web/api/postgres/redis) + integraciones (waha/cw-db/cw-redis/chatwoot) con profile 'integrations'.
