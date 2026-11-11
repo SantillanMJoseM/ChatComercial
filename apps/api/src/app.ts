@@ -23,6 +23,7 @@ import * as segCtrl from './modules/segments/segments.controller';
 import * as consentCtrl from './modules/consents/consents.controller';
 import * as wgrpCtrl from './modules/whatsapp-groups/whatsapp-groups.controller';
 import * as cwteamCtrl from './modules/chatwoot-teams/chatwoot-teams.controller';
+import * as aiCtrl from './modules/ai/ai.controller';
 import * as healthCtrl from './modules/health/health.controller';
 import * as systemCtrl from './modules/system/system.controller';
 import * as auditCtrl from './modules/audit/audit.controller';
@@ -135,6 +136,21 @@ export function createApp() {
   app.get('/api/v1/chatwoot-teams', requireAuth, requirePermission('chatwoot.teams.manage'), cwteamCtrl.listChatwootTeams);
   app.post('/api/v1/chatwoot-teams', requireAuth, requirePermission('chatwoot.teams.manage'), cwteamCtrl.createChatwootTeam);
   app.post('/api/v1/chatwoot-teams/link', requireAuth, requirePermission('chatwoot.teams.manage'), cwteamCtrl.linkChatwootTeam);
+
+  // AI
+  app.get('/api/v1/ai/providers', requireAuth, requirePermission('ai.providers.manage'), aiCtrl.listProviders);
+  app.post('/api/v1/ai/providers', requireAuth, requirePermission('ai.providers.manage'), aiCtrl.createProvider);
+  app.patch('/api/v1/ai/providers/:key', requireAuth, requirePermission('ai.providers.manage'), aiCtrl.updateProvider);
+  app.post('/api/v1/ai/providers/:key/test', requireAuth, requirePermission('ai.providers.manage'), aiCtrl.testProvider);
+  app.get('/api/v1/ai/models', requireAuth, requirePermission('ai.providers.manage'), aiCtrl.listModels);
+  app.post('/api/v1/ai/models', requireAuth, requirePermission('ai.providers.manage'), aiCtrl.createModel);
+  app.get('/api/v1/ai/assistants', requireAuth, requirePermission('ai.assistants.manage'), aiCtrl.listAssistants);
+  app.post('/api/v1/ai/assistants', requireAuth, requirePermission('ai.assistants.manage'), aiCtrl.createAssistant);
+  app.patch('/api/v1/ai/assistants/:key', requireAuth, requirePermission('ai.assistants.manage'), aiCtrl.updateAssistant);
+  app.get('/api/v1/ai/tools', requireAuth, requirePermission('ai.assistants.manage'), aiCtrl.listTools);
+  app.post('/api/v1/ai/tools', requireAuth, requirePermission('ai.assistants.manage'), aiCtrl.createTool);
+  app.post('/api/v1/ai/execute', requireAuth, requirePermission('ai.execute'), aiCtrl.executeChat);
+  app.get('/api/v1/ai/usage', requireAuth, requirePermission('ai.usage.read'), aiCtrl.getUsage);
 
   app.use(errorHandler);
   return app;

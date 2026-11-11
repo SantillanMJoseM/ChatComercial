@@ -37,6 +37,7 @@ model User {
   assignFrom    AssignmentHistory[] @relation("AssignFromUser")
   assignTo      AssignmentHistory[] @relation("AssignToUser")
   assignActor   AssignmentHistory[] @relation("AssignActor")
+  aiExecutions  AIExecution[]
 
   @@index([email])
   @@index([isActive])
@@ -291,6 +292,7 @@ model Client {
   identities       CustomerIdentity[]
   segmentParticipants SegmentParticipant[]
   whatsappConsents  WhatsAppConsent[]
+  aiExecutions     AIExecution[]
   clientNotes     ClientNote[]
   interactions     ClientInteraction[]
   conversations    ConversationReference[]
@@ -390,6 +392,8 @@ model ConversationReference {
   localAssignee         User?     @relation("ConvAssignee", fields: [localAssigneeId], references: [id], onDelete: SetNull)
   localTeam             Team?     @relation(fields: [localTeamId], references: [id], onDelete: SetNull)
   assignments           AssignmentHistory[]
+  aiExecutions          AIExecution[]
+  aiHandoffs            AIHandoff[]
 
   @@index([status])
   @@index([clientId])
@@ -599,4 +603,134 @@ model WhatsAppConsent {
   @@index([contactId])
   @@index([clientId])
   @@index([status])
+}
+
+model AIProvider {
+  id              String   @id @default(uuid()) @db.Uuid
+  key             String   @unique
+  name            String
+  baseUrl         String
+  apiKeyEncrypted String
+  isActive        Boolean  @default(false)
+  capabilities    Json?
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+  models          AIModel[]
+  assistants      AIAssistant[]
+}
+
+model AIModel {
+  id             String   @id @default(uuid()) @db.Uuid
+  providerKey    String
+  modelId        String
+  displayName    String
+  capabilities   Json
+  contextWindow  Int?
+  maxOutputTokens Int?
+  inputPrice     Decimal?  @db.Decimal(18,6)
+  outputPrice    Decimal?  @db.Decimal(18,6)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  provider       AIProvider @relation(fields: [providerKey], references: [key], onDelete: Cascade)
+  assistants     AIAssistant[]
+  @@unique([providerKey, modelId])
+}
+
+model AIAssistant {
+  id               String   @id @default(uuid()) @db.Uuid
+  key              String   @unique
+  name             String
+  description      String?
+  providerKey      String
+  modelKey         String?  // references AIModel.id? use model id
+  modelId          String   @db.Uuid
+  systemPrompt     String
+  temperature      Float?   @default(0.7)
+  topP             Float?
+  maxTokens        Int?
+  mode             String   @default("disabled")
+  humanHandoffPolicy Json?
+  usageLimits      Json?
+  isActive         Boolean  @default(true)
+  version          Int      @default(1)
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @db.Timestamptz(6)
+  provider         AIProvider @relation(fields: [providerKey], references: [key])
+  model            AIModel    @relation(fields: [modelId], references: [id])
+  tools            AIAssistantTool[]
+  executions       AIExecution[]
+}
+
+model AITool {
+  id          String   @id @default(uuid()) @db.Uuid
+  key         String   @unique
+  name        String
+  description String?
+  schema      Json
+  requiredPermission String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  assistants  AIAssistantTool[]
+}
+
+model AIAssistantTool {
+  id          String   @id @default(uuid()) @db.Uuid
+  assistantId String   @db.Uuid
+  toolId      String   @db.Uuid
+  assistant   AIAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  tool        AITool      @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  @@unique([assistantId, toolId])
+}
+
+model AIExecution {
+  id               String   @id @default(uuid()) @db.Uuid
+  assistantId      String   @db.Uuid
+  conversationRefId String? @db.Uuid
+  clientId         String?  @db.Uuid
+  userId           String?  @db.Uuid
+  mode             String
+  inputTokens      Int      @default(0)
+  outputTokens     Int      @default(0)
+  estimatedCost    Decimal? @db.Decimal(18,6)
+  latencyMs        Int?
+  status           String
+  error            String?
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+  assistant        AIAssistant @relation(fields: [assistantId], references: [id])
+  conversationRef  ConversationReference? @relation(fields: [conversationRefId], references: [id], onDelete: SetNull)
+  client           Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  user             User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  @@index([assistantId])
+  @@index([createdAt])
+}
+
+model AIUsageRecord {
+  id           String   @id @default(uuid()) @db.Uuid
+  providerKey  String
+  modelId      String   @db.Uuid
+  assistantId  String?  @db.Uuid
+  executionId  String?  @db.Uuid
+  inputTokens  Int
+  outputTokens Int
+  cost         Decimal? @db.Decimal(18,6)
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  @@index([providerKey])
+  @@index([createdAt])
+}
+
+model AIHandoff {
+  id               String   @id @default(uuid()) @db.Uuid
+  conversationRefId String  @db.Uuid
+  fromAssistantId  String?  @db.Uuid
+  toUserId         String?  @db.Uuid
+  reason           String?
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+  conversationRef  ConversationReference @relation(fields: [conversationRefId], references: [id], onDelete: Cascade)
+}
+
+model AIConfiguration {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
 }

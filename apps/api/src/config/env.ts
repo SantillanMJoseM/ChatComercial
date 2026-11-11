@@ -20,6 +20,7 @@ const schema = z.object({
   CHATWOOT_BASE_URL: z.string().optional(),
   CHATWOOT_API_TOKEN: z.string().optional(),
   CHATWOOT_ACCOUNT_ID: z.string().optional(),
+  AI_ENCRYPTION_KEY: z.string().min(32).optional(),
 });
 
 export const env = schema.parse(process.env);

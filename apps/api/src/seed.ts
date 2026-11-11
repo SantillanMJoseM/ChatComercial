@@ -34,6 +34,10 @@ const permissions = [
   { key: 'consents.manage', name: 'Manage consents', module: 'consents' },
   { key: 'whatsapp.groups.manage', name: 'Manage WhatsApp groups', module: 'whatsapp' },
   { key: 'chatwoot.teams.manage', name: 'Manage Chatwoot teams', module: 'chatwoot' },
+  { key: 'ai.providers.manage', name: 'Manage AI providers', module: 'ai' },
+  { key: 'ai.assistants.manage', name: 'Manage AI assistants', module: 'ai' },
+  { key: 'ai.execute', name: 'Execute AI', module: 'ai' },
+  { key: 'ai.usage.read', name: 'Read AI usage', module: 'ai' },
   { key: 'integrations.read', name: 'Read integrations', module: 'integrations' },
   { key: 'integrations.manage', name: 'Manage integrations', module: 'integrations' },
 ];

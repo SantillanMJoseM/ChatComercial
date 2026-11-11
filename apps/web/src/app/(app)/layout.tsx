@@ -18,6 +18,7 @@ const nav = [
   { href: '/consents', label: 'Consentimientos' },
   { href: '/whatsapp-groups', label: 'Grupos WA' },
   { href: '/chatwoot-teams', label: 'Equipos CW' },
+  { href: '/ai', label: 'IA' },
   { href: '/settings', label: 'Configuración' },
   { href: '/integrations', label: 'Integraciones' },
   { href: '/system', label: 'Estado del sistema' },
