@@ -24,6 +24,8 @@ import * as consentCtrl from './modules/consents/consents.controller';
 import * as wgrpCtrl from './modules/whatsapp-groups/whatsapp-groups.controller';
 import * as cwteamCtrl from './modules/chatwoot-teams/chatwoot-teams.controller';
 import * as aiCtrl from './modules/ai/ai.controller';
+import * as knowCtrl from './modules/knowledge/knowledge.controller';
+import * as skillCtrl from './modules/skills/skills.controller';
 import * as healthCtrl from './modules/health/health.controller';
 import * as systemCtrl from './modules/system/system.controller';
 import * as auditCtrl from './modules/audit/audit.controller';
@@ -151,6 +153,20 @@ export function createApp() {
   app.post('/api/v1/ai/tools', requireAuth, requirePermission('ai.assistants.manage'), aiCtrl.createTool);
   app.post('/api/v1/ai/execute', requireAuth, requirePermission('ai.execute'), aiCtrl.executeChat);
   app.get('/api/v1/ai/usage', requireAuth, requirePermission('ai.usage.read'), aiCtrl.getUsage);
+
+  // Knowledge
+  app.get('/api/v1/knowledge/collections', requireAuth, requirePermission('knowledge.collections.read'), knowCtrl.listCollections);
+  app.post('/api/v1/knowledge/collections', requireAuth, requirePermission('knowledge.collections.manage'), knowCtrl.createCollection);
+  app.get('/api/v1/knowledge/documents', requireAuth, requirePermission('knowledge.documents.read'), knowCtrl.listDocuments);
+  app.post('/api/v1/knowledge/documents', requireAuth, requirePermission('knowledge.documents.upload'), knowCtrl.createDocument);
+  app.get('/api/v1/knowledge/jobs', requireAuth, requirePermission('knowledge.documents.process'), knowCtrl.listJobs);
+  app.post('/api/v1/knowledge/jobs', requireAuth, requirePermission('knowledge.documents.process'), knowCtrl.createJob);
+
+  // Skills
+  app.get('/api/v1/skills', requireAuth, requirePermission('knowledge.skills.read'), skillCtrl.listSkills);
+  app.post('/api/v1/skills', requireAuth, requirePermission('knowledge.skills.manage'), skillCtrl.createSkill);
+  app.post('/api/v1/skills/versions', requireAuth, requirePermission('knowledge.skills.manage'), skillCtrl.createSkillVersion);
+  app.get('/api/v1/skills/:skillId/versions', requireAuth, requirePermission('knowledge.skills.read'), skillCtrl.listSkillVersions);
 
   app.use(errorHandler);
   return app;

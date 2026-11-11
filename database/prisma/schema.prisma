@@ -38,6 +38,10 @@ model User {
   assignTo      AssignmentHistory[] @relation("AssignToUser")
   assignActor   AssignmentHistory[] @relation("AssignActor")
   aiExecutions  AIExecution[]
+  knowledgeDocuments KnowledgeDocument[]
+  knowledgeCollections KnowledgeCollection[]
+  skillVersions     SkillVersion[]
+  skillExecutions   SkillExecution[]
 
   @@index([email])
   @@index([isActive])
@@ -659,6 +663,7 @@ model AIAssistant {
   model            AIModel    @relation(fields: [modelId], references: [id])
   tools            AIAssistantTool[]
   executions       AIExecution[]
+  knowledgeCollections AIAssistantKnowledge[]
 }
 
 model AITool {
@@ -670,6 +675,7 @@ model AITool {
   requiredPermission String?
   createdAt   DateTime @default(now()) @db.Timestamptz(6)
   assistants  AIAssistantTool[]
+  skillToolPermissions SkillToolPermission[]
 }
 
 model AIAssistantTool {
@@ -733,4 +739,202 @@ model AIConfiguration {
   value     Json
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
+}
+
+model KnowledgeCollection {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  isPublic    Boolean   @default(false)
+  createdBy   String?   @db.Uuid
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+  deletedAt   DateTime? @db.Timestamptz(6)
+
+  creator     User?     @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  documents   KnowledgeDocument[]
+  assistantLinks AIAssistantKnowledge[]
+
+  @@index([name])
+}
+
+model KnowledgeDocument {
+  id            String    @id @default(uuid()) @db.Uuid
+  collectionId  String    @db.Uuid
+  name          String
+  description   String?
+  mimeType      String
+  sizeBytes     Int
+  storagePath   String
+  hash          String
+  status        String    @default("pending")
+  currentVersionId String? @db.Uuid
+  createdBy     String?   @db.Uuid
+  createdAt     DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime  @updatedAt @db.Timestamptz(6)
+  deletedAt     DateTime? @db.Timestamptz(6)
+
+  collection    KnowledgeCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  creator       User?     @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  versions      KnowledgeDocumentVersion[]
+
+  @@unique([collectionId, hash])
+  @@index([collectionId])
+  @@index([status])
+  @@index([hash])
+}
+
+model KnowledgeDocumentVersion {
+  id          String    @id @default(uuid()) @db.Uuid
+  documentId  String    @db.Uuid
+  version     Int
+  storagePath String
+  hash        String
+  status      String    @default("processing")
+  error       String?
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  publishedAt DateTime? @db.Timestamptz(6)
+
+  document    KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  chunks      KnowledgeChunk[]
+  jobs        KnowledgeProcessingJob[]
+
+  @@unique([documentId, version])
+  @@index([documentId])
+  @@index([status])
+}
+
+model KnowledgeChunk {
+  id          String    @id @default(uuid()) @db.Uuid
+  versionId   String    @db.Uuid
+  chunkIndex  Int
+  content     String
+  tokenCount  Int?
+  metadata    Json?
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+
+  version     KnowledgeDocumentVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  embeddings  KnowledgeEmbedding[]
+  sourceReferences KnowledgeSourceReference[]
+
+  @@unique([versionId, chunkIndex])
+  @@index([versionId])
+}
+
+model KnowledgeEmbedding {
+  id          String    @id @default(uuid()) @db.Uuid
+  chunkId     String    @db.Uuid
+  providerKey String
+  modelId     String    @db.Uuid
+  dimension   Int
+  vector      Unsupported("vector")
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+
+  chunk       KnowledgeChunk @relation(fields: [chunkId], references: [id], onDelete: Cascade)
+
+  @@index([chunkId])
+  @@index([modelId])
+}
+
+model KnowledgeProcessingJob {
+  id          String    @id @default(uuid()) @db.Uuid
+  versionId   String    @db.Uuid
+  status      String    @default("pending")
+  step        String?
+  error       String?
+  attempts    Int       @default(0)
+  startedAt   DateTime? @db.Timestamptz(6)
+  finishedAt  DateTime? @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+
+  version     KnowledgeDocumentVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  @@index([versionId])
+  @@index([status])
+}
+
+model KnowledgeSourceReference {
+  id            String   @id @default(uuid()) @db.Uuid
+  executionId   String?  @db.Uuid
+  chunkId       String   @db.Uuid
+  score         Float?
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+
+  chunk         KnowledgeChunk @relation(fields: [chunkId], references: [id], onDelete: Cascade)
+
+  @@index([chunkId])
+}
+
+model AIAssistantKnowledge {
+  id            String   @id @default(uuid()) @db.Uuid
+  assistantId   String   @db.Uuid
+  collectionId  String   @db.Uuid
+  relevanceThreshold Float? @default(0.7)
+  maxChunks     Int?     @default(5)
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+
+  assistant     AIAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  collection    KnowledgeCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@unique([assistantId, collectionId])
+  @@index([assistantId])
+  @@index([collectionId])
+}
+
+model Skill {
+  id          String    @id @default(uuid()) @db.Uuid
+  key         String    @unique
+  name        String
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+
+  versions    SkillVersion[]
+}
+
+model SkillVersion {
+  id          String    @id @default(uuid()) @db.Uuid
+  skillId     String    @db.Uuid
+  version     Int
+  instructions String
+  parameters  Json?
+  createdBy   String?   @db.Uuid
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+
+  skill       Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  creator     User?     @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  executions  SkillExecution[]
+  toolPermissions SkillToolPermission[]
+
+  @@unique([skillId, version])
+  @@index([skillId])
+}
+
+model SkillExecution {
+  id          String    @id @default(uuid()) @db.Uuid
+  skillVersionId String @db.Uuid
+  userId      String?   @db.Uuid
+  input       Json?
+  output      Json?
+  status      String    @default("completed")
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+
+  skillVersion SkillVersion @relation(fields: [skillVersionId], references: [id], onDelete: Cascade)
+  user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([skillVersionId])
+  @@index([createdAt])
+}
+
+model SkillToolPermission {
+  id             String   @id @default(uuid()) @db.Uuid
+  skillVersionId String   @db.Uuid
+  toolId         String   @db.Uuid
+  allowed        Boolean  @default(true)
+
+  skillVersion   SkillVersion @relation(fields: [skillVersionId], references: [id], onDelete: Cascade)
+  tool           AITool       @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  @@unique([skillVersionId, toolId])
 }

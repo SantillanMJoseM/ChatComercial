@@ -21,6 +21,7 @@ const schema = z.object({
   CHATWOOT_API_TOKEN: z.string().optional(),
   CHATWOOT_ACCOUNT_ID: z.string().optional(),
   AI_ENCRYPTION_KEY: z.string().min(32).optional(),
+  KNOWLEDGE_STORAGE_PATH: z.string().default('/data/knowledge'),
 });
 
 export const env = schema.parse(process.env);

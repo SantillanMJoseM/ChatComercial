@@ -19,6 +19,8 @@ const nav = [
   { href: '/whatsapp-groups', label: 'Grupos WA' },
   { href: '/chatwoot-teams', label: 'Equipos CW' },
   { href: '/ai', label: 'IA' },
+  { href: '/knowledge', label: 'Conocimiento' },
+  { href: '/skills', label: 'Skills' },
   { href: '/settings', label: 'Configuración' },
   { href: '/integrations', label: 'Integraciones' },
   { href: '/system', label: 'Estado del sistema' },

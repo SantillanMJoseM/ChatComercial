@@ -1,7 +1,7 @@
 name: commercial-attention-platform
 services:
   postgres:
-    image: postgres:17-alpine
+    image: pgvector/pgvector:pg17
     container_name: cap-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-cap}
@@ -45,6 +45,8 @@ services:
       dockerfile: apps/api/Dockerfile
     container_name: cap-api
     env_file: .env
+    volumes:
+      - cap_knowledge_storage:/data/knowledge
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-cap}:${POSTGRES_PASSWORD:-cap}@postgres:5432/${POSTGRES_DB:-cap}
       REDIS_URL: redis://redis:6379
@@ -151,5 +153,6 @@ networks:
 
 volumes:
   cap_pg_data:
+  cap_knowledge_storage:
   cap_redis_data:
   cap_cw_pg_data:
