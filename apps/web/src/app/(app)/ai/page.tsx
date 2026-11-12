@@ -67,7 +67,12 @@ export default function AIPage() {
           <input className="px-3 py-2 border border-border rounded-md bg-background text-sm" placeholder="API key" type="password" value={pform.apiKey} onChange={e=>setPform({...pform,apiKey:e.target.value})} required />
           <button className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm md:col-span-4">Crear proveedor</button>
         </form>
-        <ul className="text-sm">{providers.map((p:any)=><li key={p.key}>{p.name} ({p.key}) - {p.isActive?'activo':'inactivo'}</li>)}</ul>
+        <ul className="text-sm space-y-2">{providers.map((p:any)=>(
+          <li key={p.key} className="flex items-center justify-between border-b border-border pb-1">
+            <span>{p.name} ({p.key}) - {p.isActive?'activo':'inactivo'} · estado: {p.status || 'not_checked'}{p.lastLatencyMs ? ` · ${p.lastLatencyMs}ms` : ''}</span>
+            <button onClick={async()=>{ try { await apiFetch(`/api/v1/ai/providers/${p.key}/test`, {method:'POST'}); load(); } catch{} }} className="text-xs text-primary hover:underline">Probar conexión</button>
+          </li>
+        ))}</ul>
         <button onClick={createModel} className="mt-2 text-xs text-primary hover:underline">+ Registrar modelo (prompt)</button>
       </section>
 

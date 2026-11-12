@@ -37,13 +37,36 @@ export async function testProvider(req: Request, res: Response, next: NextFuncti
     const p = await prisma.aIProvider.findUnique({ where: { key: req.params.key } });
     if (!p) return res.status(404).json({ error: 'Not found' });
     const apiKey = decrypt(p.apiKeyEncrypted);
+    const started = Date.now();
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 10000);
     const url = p.baseUrl.replace(/\/$/, '') + '/models';
-    const r = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` }, signal: ctrl.signal });
-    clearTimeout(t);
-    const text = await r.text();
-    res.json({ ok: r.ok, status: r.status, preview: text.slice(0, 200) });
+    let fetchRes: any;
+    let text = '';
+    let ok = false;
+    let latency = 0;
+    let status = 0;
+    let err: string | null = null;
+    let providerStatus = 'unavailable';
+    try {
+      fetchRes = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}`, 'x-opencode-session': crypto.randomUUID() }, signal: ctrl.signal });
+      clearTimeout(t);
+      text = await fetchRes.text();
+      latency = Date.now() - started;
+      status = fetchRes.status;
+      ok = fetchRes.ok;
+      if (fetchRes.ok) { providerStatus = 'available'; }
+      else if (fetchRes.status === 401 || fetchRes.status === 403) { providerStatus = 'invalid_config'; }
+      else { providerStatus = 'degraded'; }
+    } catch (e: any) {
+      clearTimeout(t);
+      latency = Date.now() - started;
+      err = e.message;
+      providerStatus = 'unavailable';
+    }
+    await prisma.aIProvider.update({ where: { key: req.params.key }, data: { status: providerStatus, lastCheckedAt: new Date(), lastSuccessAt: ok ? new Date() : p.lastSuccessAt, lastError: ok ? null : (err || `HTTP ${status}`), lastLatencyMs: latency, lastModel: null } });
+    if (ok) res.json({ ok: true, status, latencyMs: latency, preview: text.slice(0, 200) });
+    else res.status(502).json({ ok: false, status, error: err || `HTTP ${status}`, latencyMs: latency, preview: text.slice(0, 200) });
   } catch (e: any) { res.status(502).json({ ok: false, error: e.message }); }
 }
 

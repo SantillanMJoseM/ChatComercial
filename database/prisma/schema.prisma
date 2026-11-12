@@ -644,6 +644,12 @@ model AIProvider {
   apiKeyEncrypted String
   isActive        Boolean  @default(false)
   capabilities    Json?
+  status          String   @default("not_checked")
+  lastCheckedAt   DateTime? @db.Timestamptz(6)
+  lastSuccessAt   DateTime? @db.Timestamptz(6)
+  lastError       String?
+  lastLatencyMs   Int?
+  lastModel       String?
   createdAt       DateTime @default(now()) @db.Timestamptz(6)
   updatedAt       DateTime @updatedAt @db.Timestamptz(6)
   models          AIModel[]
