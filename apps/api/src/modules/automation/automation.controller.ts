@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { prisma } from '../../lib/prisma';
 import { recordAudit } from '../audit/audit.controller';
+import { ingestEvent, validateEvent } from './events.service';
+import { TRIGGER_TYPES } from './triggers.service';
 
 export async function listAutomations(req: Request, res: Response, next: NextFunction) {
   try { res.json(await prisma.automation.findMany({ where: { deletedAt: null }, orderBy: { createdAt: 'desc' } })); } catch (e) { next(e); }
@@ -81,5 +83,28 @@ export async function markNotificationRead(req: Request, res: Response, next: Ne
   try {
     const n = await prisma.notification.update({ where: { id: req.params.id }, data: { read: true } });
     res.json(n);
+  } catch (e) { next(e); }
+}
+
+
+export async function ingestEventEndpoint(req: Request, res: Response, next: NextFunction) {
+  try {
+    const parsed = validateEvent(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'Invalid event', details: parsed.error.errors });
+    const r = await ingestEvent(req.body);
+    res.status(202).json(r);
+  } catch (e) { next(e); }
+}
+
+export async function listTriggerTypes(req: Request, res: Response, next: NextFunction) {
+  try { res.json(TRIGGER_TYPES); } catch (e) { next(e); }
+}
+
+export async function dryRunTrigger(req: Request, res: Response, next: NextFunction) {
+  try {
+    const body = req.body;
+    const { findCandidateAutomations } = await import('./triggers.service');
+    const candidates = await findCandidateAutomations(body);
+    res.json({ event: body, candidates: candidates.map((c: any) => ({ automationId: c.automation.id, name: c.automation.name, versionId: c.version.id, triggerType: c.trigger.type })), wouldCreate: candidates.length });
   } catch (e) { next(e); }
 }

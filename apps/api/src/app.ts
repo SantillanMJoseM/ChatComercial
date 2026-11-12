@@ -237,6 +237,11 @@ export function createApp() {
   app.get('/api/v1/notifications', requireAuth, autoCtrl.listNotifications);
   app.post('/api/v1/notifications/:id/read', requireAuth, autoCtrl.markNotificationRead);
 
+  // Automation triggers/events
+  app.post('/api/v1/automation-events', requireAuth, autoCtrl.ingestEventEndpoint);
+  app.get('/api/v1/automation-triggers', requireAuth, requirePermission('automation.read'), autoCtrl.listTriggerTypes);
+  app.post('/api/v1/automation-triggers/dry-run', requireAuth, requirePermission('automation.read'), autoCtrl.dryRunTrigger);
+
   app.use(errorHandler);
   return app;
 }
