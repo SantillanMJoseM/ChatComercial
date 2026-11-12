@@ -45,7 +45,7 @@ export function createApp() {
   const app = express();
   app.use(helmet());
   app.use(compression());
-  app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
+  app.use(cors({ origin: env.CORS_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean), credentials: true }));
   app.use(express.json({ limit: '1mb' }));
   app.use(rateLimit({ windowMs: env.RATE_LIMIT_WINDOW_MS, max: env.RATE_LIMIT_MAX, standardHeaders: true, legacyHeaders: false }));
 

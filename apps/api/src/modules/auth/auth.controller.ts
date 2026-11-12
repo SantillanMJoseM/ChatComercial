@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { auth } from '../../lib/auth';
 import { prisma } from '../../lib/prisma';
+import { env } from '../../config/env';
 import { getUserPermissions } from '../../lib/rbac';
 import { recordAudit } from '../audit/audit.controller';
 
@@ -16,7 +17,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     res.cookie('session_token', token, {
       httpOnly: true,
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      secure: env.COOKIE_SECURE,
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
     });
@@ -40,7 +41,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     res.cookie('session_token', token, {
       httpOnly: true,
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      secure: env.COOKIE_SECURE,
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
     });

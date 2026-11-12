@@ -13,6 +13,7 @@ const schema = z.object({
   BOOTSTRAP_ADMIN_PASSWORD: z.string().min(8).optional(),
   BOOTSTRAP_ADMIN_NAME: z.string().optional(),
   CORS_ORIGIN: z.string().default('http://localhost:3010'),
+  COOKIE_SECURE: z.string().default('false').transform((v) => v === 'true'),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60000),
   RATE_LIMIT_MAX: z.coerce.number().default(100),
   WAHA_BASE_URL: z.string().optional(),

@@ -20,7 +20,7 @@ export const auth = betterAuth({
       generateId: 'uuid',
     },
   },
-  trustedOrigins: [env.CORS_ORIGIN],
+  trustedOrigins: env.CORS_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean),
 });
 
 export type Auth = typeof auth;
