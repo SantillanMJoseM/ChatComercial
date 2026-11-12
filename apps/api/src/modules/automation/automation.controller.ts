@@ -125,3 +125,33 @@ export async function dryRunExecution(req: Request, res: Response, next: NextFun
     res.json({ automationId: auto.id, versionId: version.id, conditions: cond, wouldExecute, dryRun: true });
   } catch (e) { next(e); }
 }
+
+export async function submitAutomationApproval(req: Request, res: Response, next: NextFunction) {
+  try {
+    const a = await prisma.automation.update({ where: { id: req.params.id }, data: { status: 'pending_approval' } });
+    recordAudit((req as any).userId, 'automation.submit_approval', 'automation', a.id, undefined, req.ip);
+    res.json(a);
+  } catch (e) { next(e); }
+}
+export async function approveAutomation(req: Request, res: Response, next: NextFunction) {
+  try {
+    const a = await prisma.automation.update({ where: { id: req.params.id }, data: { status: 'approved' } });
+    recordAudit((req as any).userId, 'automation.approve', 'automation', a.id, undefined, req.ip);
+    res.json(a);
+  } catch (e) { next(e); }
+}
+export async function rejectAutomation(req: Request, res: Response, next: NextFunction) {
+  try {
+    const body = z.object({ reason: z.string().min(1) }).parse(req.body);
+    const a = await prisma.automation.update({ where: { id: req.params.id }, data: { status: 'rejected' } });
+    recordAudit((req as any).userId, 'automation.reject', 'automation', a.id, { reason: body.reason }, req.ip);
+    res.json(a);
+  } catch (e) { next(e); }
+}
+export async function listPendingApprovals(req: Request, res: Response, next: NextFunction) {
+  try {
+    const execs = await prisma.automationExecution.findMany({ where: { status: 'awaiting_approval' }, orderBy: { startedAt: 'desc' }, include: { automation: true } });
+    const autos = await prisma.automation.findMany({ where: { status: 'pending_approval' }, orderBy: { updatedAt: 'desc' } });
+    res.json({ automations: autos, executions: execs });
+  } catch (e) { next(e); }
+}

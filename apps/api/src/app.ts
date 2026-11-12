@@ -244,6 +244,11 @@ export function createApp() {
 
   app.post('/api/v1/automations/:id/dry-run', requireAuth, requirePermission('automation.read'), autoCtrl.dryRunExecution);
 
+  app.post('/api/v1/automations/:id/submit-approval', requireAuth, requirePermission('automation.approve'), autoCtrl.submitAutomationApproval);
+  app.post('/api/v1/automations/:id/approve', requireAuth, requirePermission('automation.approve'), autoCtrl.approveAutomation);
+  app.post('/api/v1/automations/:id/reject', requireAuth, requirePermission('automation.approve'), autoCtrl.rejectAutomation);
+  app.get('/api/v1/automations/pending-approvals', requireAuth, requirePermission('automation.approve'), autoCtrl.listPendingApprovals);
+
   app.use(errorHandler);
   return app;
 }

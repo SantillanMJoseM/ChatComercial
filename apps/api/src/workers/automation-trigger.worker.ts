@@ -9,6 +9,8 @@ const connection = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379'
 export function startAutomationTriggerWorker() {
   const worker = new Worker('automation-triggers', async (job) => {
     const { outboxId, event } = job.data;
+    const depth = (event?.metadata?.depth || 0);
+    if (depth > 10) { await prisma.outboxMessage.update({ where: { id: outboxId }, data: { status: 'failed', lastError: 'Max depth exceeded' } }).catch(()=>{}); return { skipped: 'max_depth' }; }
     const candidates = await findCandidateAutomations(event);
     const created: string[] = [];
     for (const c of candidates) {

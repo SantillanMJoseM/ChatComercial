@@ -27,6 +27,7 @@ const nav = [
   { href: '/skills', label: 'Skills' },
   { href: '/automations', label: 'Automatizaciones' },
   { href: '/automations/builder', label: 'Constructor' },
+  { href: '/automations/supervision', label: 'Supervisión' },
   { href: '/reports', label: 'Reportes' },
   { href: '/notifications', label: 'Notificaciones' },
   { href: '/settings', label: 'Configuración' },
