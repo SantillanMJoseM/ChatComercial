@@ -1,4 +1,9 @@
 name: commercial-attention-platform
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
 services:
   postgres:
     image: pgvector/pgvector:pg17
@@ -16,6 +21,7 @@ services:
       retries: 5
     networks: [capnet]
     restart: unless-stopped
+    logging: *default-logging
     deploy:
       resources:
         limits:
@@ -34,6 +40,7 @@ services:
       retries: 5
     networks: [capnet]
     restart: unless-stopped
+    logging: *default-logging
     deploy:
       resources:
         limits:
@@ -63,6 +70,7 @@ services:
       retries: 5
     networks: [capnet]
     restart: unless-stopped
+    logging: *default-logging
     deploy:
       resources:
         limits:
@@ -87,6 +95,7 @@ services:
       retries: 5
     networks: [capnet]
     restart: unless-stopped
+    logging: *default-logging
     deploy:
       resources:
         limits:
@@ -103,6 +112,7 @@ services:
       - "3002:3000"
     networks: [capnet]
     restart: unless-stopped
+    logging: *default-logging
 
   cw-db:
     image: pgvector/pgvector:pg17
@@ -116,6 +126,7 @@ services:
       - cap_cw_pg_data:/var/lib/postgresql/data
     networks: [capnet]
     restart: unless-stopped
+    logging: *default-logging
 
   cw-redis:
     image: redis:7-alpine
@@ -123,6 +134,7 @@ services:
     profiles: ["integrations"]
     networks: [capnet]
     restart: unless-stopped
+    logging: *default-logging
 
   chatwoot:
     image: chatwoot/chatwoot:latest
@@ -145,6 +157,7 @@ services:
     depends_on: [cw-db, cw-redis]
     networks: [capnet]
     restart: unless-stopped
+    logging: *default-logging
 
 networks:
   capnet:
