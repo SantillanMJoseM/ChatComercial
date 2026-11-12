@@ -16,7 +16,7 @@ export default function SkillExecutionsPage() {
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">
       <table className="w-full text-sm">
-        <thead className="bg-muted"><tr><th className="p-3 text-left">Fecha</th><th className="p-3 text-left">Skill</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Duración</th><th className="p-3 text-left">Acción</th></tr></thead>
+        <thead className="bg-slate-700"><tr><th className="p-3 text-left">Fecha</th><th className="p-3 text-left">Skill</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Duración</th><th className="p-3 text-left">Acción</th></tr></thead>
         <tbody>
           {items.map((e:any)=>(
             <tr key={e.id} className="border-t border-border">

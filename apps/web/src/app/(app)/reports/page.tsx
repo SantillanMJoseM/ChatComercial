@@ -17,20 +17,20 @@ export default function ReportsPage() {
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-4">
-        <div className="bg-white border border-slate-200 rounded-xl p-4"><div className="text-xs text-slate-500">Clientes</div><div className="text-2xl font-bold">{overview?.clients?.total}</div></div>
-        <div className="bg-white border border-slate-200 rounded-xl p-4"><div className="text-xs text-slate-500">Clientes nuevos</div><div className="text-2xl font-bold">{overview?.clients?.new}</div></div>
-        <div className="bg-white border border-slate-200 rounded-xl p-4"><div className="text-xs text-slate-500">Conversaciones</div><div className="text-2xl font-bold">{overview?.conversations?.total}</div></div>
-        <div className="bg-white border border-slate-200 rounded-xl p-4"><div className="text-xs text-slate-500">Consultas IA</div><div className="text-2xl font-bold">{overview?.ai?.queries}</div></div>
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-4"><div className="text-xs text-slate-500">Clientes</div><div className="text-2xl font-bold">{overview?.clients?.total}</div></div>
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-4"><div className="text-xs text-slate-500">Clientes nuevos</div><div className="text-2xl font-bold">{overview?.clients?.new}</div></div>
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-4"><div className="text-xs text-slate-500">Conversaciones</div><div className="text-2xl font-bold">{overview?.conversations?.total}</div></div>
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-4"><div className="text-xs text-slate-500">Consultas IA</div><div className="text-2xl font-bold">{overview?.ai?.queries}</div></div>
       </div>
-      <div className="bg-white border border-slate-200 rounded-xl p-4">
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-4">
         <h3 className="font-semibold mb-2">Atención por estado</h3>
         <pre className="text-xs">{JSON.stringify(attention?.byStatus, null, 2)}</pre>
       </div>
-      <div className="bg-white border border-slate-200 rounded-xl p-4">
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-4">
         <h3 className="font-semibold mb-2">IA</h3>
         <pre className="text-xs">{JSON.stringify(ai, null, 2)}</pre>
       </div>
-      <div className="bg-white border border-slate-200 rounded-xl p-4">
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-4">
         <h3 className="font-semibold mb-2">Automatizaciones</h3>
         <pre className="text-xs">{JSON.stringify(automations, null, 2)}</pre>
       </div>

@@ -13,7 +13,7 @@ export default function CollectionDetailPage() {
       <h3 className="font-semibold">Documentos de la colección</h3>
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Hash</th></tr></thead>
+          <thead className="bg-slate-700"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Hash</th></tr></thead>
           <tbody>
             {docs.map((d:any)=>(
               <tr key={d.id} className="border-t border-border">

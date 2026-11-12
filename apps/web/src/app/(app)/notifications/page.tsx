@@ -11,12 +11,12 @@ export default function NotificationsPage() {
     apiFetch('/api/v1/notifications').then(setItems);
   }
   return (
-    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+    <div className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
       <table className="w-full text-sm">
-        <thead className="bg-slate-50"><tr><th className="p-3 text-left">Fecha</th><th className="p-3 text-left">Título</th><th className="p-3 text-left">Leído</th><th className="p-3 text-left">Acción</th></tr></thead>
+        <thead className="bg-slate-700/50"><tr><th className="p-3 text-left">Fecha</th><th className="p-3 text-left">Título</th><th className="p-3 text-left">Leído</th><th className="p-3 text-left">Acción</th></tr></thead>
         <tbody>
           {items.map((n:any)=>(
-            <tr key={n.id} className="border-t border-slate-200">
+            <tr key={n.id} className="border-t border-slate-700">
               <td className="p-3 text-xs">{new Date(n.createdAt).toLocaleString()}</td>
               <td className="p-3">{n.title}</td>
               <td className="p-3">{n.read?'Sí':'No'}</td>

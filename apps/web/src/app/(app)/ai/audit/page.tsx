@@ -10,7 +10,7 @@ export default function AuditPage() {
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted"><tr><th className="p-3 text-left">Fecha</th><th className="p-3 text-left">Asistente</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Tokens</th><th className="p-3 text-left">Latencia</th></tr></thead>
+          <thead className="bg-slate-700"><tr><th className="p-3 text-left">Fecha</th><th className="p-3 text-left">Asistente</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Tokens</th><th className="p-3 text-left">Latencia</th></tr></thead>
           <tbody>
             {(data.items||[]).map((q:any)=>(
               <tr key={q.id} className="border-t border-border">

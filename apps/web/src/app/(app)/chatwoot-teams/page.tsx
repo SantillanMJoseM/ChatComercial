@@ -14,16 +14,16 @@ export default function ChatwootTeamsPage() {
   }
   return (
     <div className="space-y-4">
-      <form onSubmit={create} className="bg-white border border-slate-200 rounded-xl p-4 grid gap-2 md:grid-cols-3">
-        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Nombre equipo" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required />
-        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Descripción" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} />
+      <form onSubmit={create} className="bg-slate-800 border border-slate-700 rounded-xl p-4 grid gap-2 md:grid-cols-3">
+        <input className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" placeholder="Nombre equipo" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required />
+        <input className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" placeholder="Descripción" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} />
         <button className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-md px-4 py-2">Crear en Chatwoot</button>
       </form>
-      <div className="bg-white border border-slate-200 rounded-xl p-4">
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-4">
         <h3 className="font-semibold mb-2">Equipos Chatwoot</h3>
         <pre className="text-xs overflow-auto">{JSON.stringify(teams.chatwoot, null, 2)}</pre>
       </div>
-      <div className="bg-white border border-slate-200 rounded-xl p-4">
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-4">
         <h3 className="font-semibold mb-2">Vínculos locales</h3>
         <pre className="text-xs overflow-auto">{JSON.stringify(teams.links, null, 2)}</pre>
       </div>

@@ -8,7 +8,7 @@ export default function JobsPage() {
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">
       <table className="w-full text-sm">
-        <thead className="bg-muted"><tr><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Step</th><th className="p-3 text-left">Versión</th><th className="p-3 text-left">Error</th></tr></thead>
+        <thead className="bg-slate-700"><tr><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Step</th><th className="p-3 text-left">Versión</th><th className="p-3 text-left">Error</th></tr></thead>
         <tbody>
           {jobs.map((j:any)=>(
             <tr key={j.id} className="border-t border-border">

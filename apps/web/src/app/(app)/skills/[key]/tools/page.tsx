@@ -33,7 +33,7 @@ export default function SkillToolsPage() {
       </div>
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted"><tr><th className="p-3 text-left">Herramienta</th><th className="p-3 text-left">Descripción</th><th className="p-3 text-left">Permitida</th></tr></thead>
+          <thead className="bg-slate-700"><tr><th className="p-3 text-left">Herramienta</th><th className="p-3 text-left">Descripción</th><th className="p-3 text-left">Permitida</th></tr></thead>
           <tbody>
             {tools.map((t:any)=>(
               <tr key={t.id} className="border-t border-border">

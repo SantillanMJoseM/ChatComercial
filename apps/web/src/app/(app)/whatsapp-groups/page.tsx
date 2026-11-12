@@ -23,29 +23,29 @@ export default function WhatsAppGroupsPage() {
   }
   return (
     <div className="space-y-4">
-      <div className="bg-white border border-slate-200 rounded-xl p-4 text-sm">
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 text-sm">
         Sesión WAHA debe estar conectada (QR) para crear grupos. Estado verificable vía integraciones.
       </div>
-      <form onSubmit={doPreview} className="bg-white border border-slate-200 rounded-xl p-4 grid gap-2 md:grid-cols-3">
-        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Sesión" value={form.session} onChange={e=>setForm({...form,session:e.target.value})} />
-        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Nombre grupo" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} />
-        <select className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" value={form.segmentId} onChange={e=>setForm({...form,segmentId:e.target.value})}>
+      <form onSubmit={doPreview} className="bg-slate-800 border border-slate-700 rounded-xl p-4 grid gap-2 md:grid-cols-3">
+        <input className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" placeholder="Sesión" value={form.session} onChange={e=>setForm({...form,session:e.target.value})} />
+        <input className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" placeholder="Nombre grupo" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} />
+        <select className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" value={form.segmentId} onChange={e=>setForm({...form,segmentId:e.target.value})}>
           <option value="">Segmento (opcional)</option>
           {segments.map((s:any)=><option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
-        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50 md:col-span-2" placeholder="Teléfonos (coma)" value={form.phones} onChange={e=>setForm({...form,phones:e.target.value})} />
+        <input className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50 md:col-span-2" placeholder="Teléfonos (coma)" value={form.phones} onChange={e=>setForm({...form,phones:e.target.value})} />
         <div className="flex gap-2">
-          <button type="submit" className="bg-slate-50 px-4 py-2 rounded-md text-sm">Preview</button>
+          <button type="submit" className="bg-slate-700/50 px-4 py-2 rounded-md text-sm">Preview</button>
           <button type="button" onClick={create as any} className="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm">Crear grupo</button>
         </div>
       </form>
-      {preview && <div className="bg-white border border-slate-200 rounded-xl p-4 text-sm">Conectado: {String(preview.sessionConnected)} · Elegibles: {preview.eligible}/{preview.total} · Excluidos: {preview.excluded?.length}</div>}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      {preview && <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 text-sm">Conectado: {String(preview.sessionConnected)} · Elegibles: {preview.eligible}/{preview.total} · Excluidos: {preview.excluded?.length}</div>}
+      <div className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">WAHA ID</th><th className="p-3 text-left">Miembros</th></tr></thead>
+          <thead className="bg-slate-700/50"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">WAHA ID</th><th className="p-3 text-left">Miembros</th></tr></thead>
           <tbody>
             {groups.map((g:any)=>(
-              <tr key={g.id} className="border-t border-slate-200">
+              <tr key={g.id} className="border-t border-slate-700">
                 <td className="p-3">{g.name}</td><td className="p-3 text-xs">{g.wahaGroupId}</td><td className="p-3">{g.members?.length}</td>
               </tr>
             ))}

@@ -16,19 +16,19 @@ export default function SkillsPage() {
   }
   return (
     <div className="space-y-4">
-      <form onSubmit={create} className="bg-white border border-slate-200 rounded-xl p-4 grid gap-2 md:grid-cols-3">
-        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="key" value={form.key} onChange={e=>setForm({...form,key:e.target.value})} required />
-        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="nombre" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required />
-        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="categoría" value={form.category} onChange={e=>setForm({...form,category:e.target.value})} />
-        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50 md:col-span-2" placeholder="descripción" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} />
+      <form onSubmit={create} className="bg-slate-800 border border-slate-700 rounded-xl p-4 grid gap-2 md:grid-cols-3">
+        <input className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" placeholder="key" value={form.key} onChange={e=>setForm({...form,key:e.target.value})} required />
+        <input className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" placeholder="nombre" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required />
+        <input className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" placeholder="categoría" value={form.category} onChange={e=>setForm({...form,category:e.target.value})} />
+        <input className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50 md:col-span-2" placeholder="descripción" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} />
         <button className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-md px-4 py-2">Crear skill</button>
       </form>
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      <div className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-slate-50"><tr><th className="p-3 text-left">Key</th><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Modo</th><th className="p-3 text-left">Versión</th><th className="p-3 text-left">Acción</th></tr></thead>
+          <thead className="bg-slate-700/50"><tr><th className="p-3 text-left">Key</th><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Modo</th><th className="p-3 text-left">Versión</th><th className="p-3 text-left">Acción</th></tr></thead>
           <tbody>
             {skills.map((s:any)=>(
-              <tr key={s.key} className="border-t border-slate-200">
+              <tr key={s.key} className="border-t border-slate-700">
                 <td className="p-3">{s.key}</td><td className="p-3">{s.name}</td><td className="p-3">{s.status}</td><td className="p-3">{s.executionMode}</td>
                 <td className="p-3">{s.publishedVersionId?.slice(0,8) || '-'}</td>
                 <td className="p-3"><Link href={`/skills/${s.key}`} className="text-primary text-xs hover:underline">Gestionar</Link></td>

@@ -18,7 +18,7 @@ export default function SkillPermissionsPage() {
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-xl p-6">
         <h3 className="font-semibold mb-2">Permisos requeridos</h3>
-        <p className="text-sm text-muted-foreground">Los permisos se configuran en la creación de versión (campo requiredPermissions). Skill: {skill?.key}</p>
+        <p className="text-sm text-slate-400">Los permisos se configuran en la creación de versión (campo requiredPermissions). Skill: {skill?.key}</p>
       </div>
     </div>
   );

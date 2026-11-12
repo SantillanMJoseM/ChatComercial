@@ -9,7 +9,7 @@ export default function CollectionsPage() {
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden">
       <table className="w-full text-sm">
-        <thead className="bg-muted"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">ID</th><th className="p-3 text-left">Acción</th></tr></thead>
+        <thead className="bg-slate-700"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">ID</th><th className="p-3 text-left">Acción</th></tr></thead>
         <tbody>
           {collections.map((c:any)=>(
             <tr key={c.id} className="border-t border-border">

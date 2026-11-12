@@ -16,14 +16,14 @@ export default function HelpPage() {
   const filtered = categories.map((c) => ({ ...c, items: c.items.filter((i) => i.toLowerCase().includes(q.toLowerCase())) })).filter((c) => c.items.length > 0 || q === '');
   return (
     <div className="space-y-4">
-      <div className="bg-white border border-slate-200 rounded-xl p-6">
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
         <h2 className="text-xl font-bold mb-2">Centro de ayuda</h2>
         <p className="text-sm text-slate-500 mb-4">Documentación funcional de la plataforma. Buscá un módulo o tema.</p>
-        <input className="w-full px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Buscar en la ayuda..." value={q} onChange={(e) => setQ(e.target.value)} />
+        <input className="w-full px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" placeholder="Buscar en la ayuda..." value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         {filtered.map((c) => (
-          <div key={c.title} className="bg-white border border-slate-200 rounded-xl p-4">
+          <div key={c.title} className="bg-slate-800 border border-slate-700 rounded-xl p-4">
             <h3 className="font-semibold mb-2">{c.title}</h3>
             <ul className="text-sm space-y-1">
               {c.items.map((i) => <li key={i} className="text-slate-500">• {i}</li>)}
@@ -31,7 +31,7 @@ export default function HelpPage() {
           </div>
         ))}
       </div>
-      <div className="bg-white border border-slate-200 rounded-xl p-6 text-sm">
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 text-sm">
         <h3 className="font-semibold mb-2">Circuitos operativos</h3>
         <ul className="space-y-1 text-slate-500">
           <li>• Circuito A — Atención comercial: Cliente → Contacto → Conversación → Bandeja → Operador → Resolución.</li>
@@ -43,7 +43,7 @@ export default function HelpPage() {
           <li>• Circuito G — Reportes: Origen de datos → Métricas → Filtros → Reporte → Exportación.</li>
         </ul>
       </div>
-      <div className="bg-white border border-slate-200 rounded-xl p-6 text-sm">
+      <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 text-sm">
         <h3 className="font-semibold mb-2">Guía de configuración inicial</h3>
         <ol className="list-decimal list-inside space-y-1 text-slate-500">
           <li>Administrador y usuarios.</li>

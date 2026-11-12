@@ -7,7 +7,7 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<any[]>([]);
   useEffect(() => { apiFetch('/api/v1/system/settings').then(setSettings).catch(()=>{}); }, []);
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-6">
+    <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
       <pre className="text-xs overflow-auto">{JSON.stringify(settings, null, 2)}</pre>
     </div>
   );

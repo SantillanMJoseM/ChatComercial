@@ -21,7 +21,7 @@ export default function SupervisionPage() {
       <div className="bg-card border border-border rounded-xl p-4">
         <h3 className="font-semibold mb-2">Automatizaciones pendientes de aprobación</h3>
         <table className="w-full text-sm">
-          <thead className="bg-muted"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Acción</th></tr></thead>
+          <thead className="bg-slate-700"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Acción</th></tr></thead>
           <tbody>
             {(data.automations||[]).map((a:any)=>(
               <tr key={a.id} className="border-t border-border">
@@ -43,7 +43,7 @@ export default function SupervisionPage() {
       <div className="bg-card border border-border rounded-xl p-4">
         <h3 className="font-semibold mb-2">Ejecuciones pendientes de autorización</h3>
         <table className="w-full text-sm">
-          <thead className="bg-muted"><tr><th className="p-3 text-left">ID</th><th className="p-3 text-left">Estado</th></tr></thead>
+          <thead className="bg-slate-700"><tr><th className="p-3 text-left">ID</th><th className="p-3 text-left">Estado</th></tr></thead>
           <tbody>
             {(data.executions||[]).map((e:any)=>(
               <tr key={e.id} className="border-t border-border">

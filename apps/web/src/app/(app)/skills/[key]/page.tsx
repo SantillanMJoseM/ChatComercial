@@ -47,7 +47,7 @@ export default function SkillDetailPage() {
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-xl p-6">
         <h2 className="text-xl font-bold">{skill.name}</h2>
-        <div className="text-sm text-muted-foreground">{skill.key} · {skill.status} · modo: {skill.executionMode}</div>
+        <div className="text-sm text-slate-400">{skill.key} · {skill.status} · modo: {skill.executionMode}</div>
         <div className="mt-3 flex gap-2">
           <button onClick={()=>setMode('disabled')} className="px-3 py-1 border border-border rounded text-xs">Disabled</button>
           <button onClick={()=>setMode('assist')} className="px-3 py-1 border border-border rounded text-xs">Assist</button>
@@ -71,7 +71,7 @@ export default function SkillDetailPage() {
           {versions.map((v:any)=>(
             <li key={v.id} className="border-b border-border pb-2">
               <div>v{v.version} · {v.status}</div>
-              <div className="text-xs text-muted-foreground">{v.instructions?.slice(0,80)}</div>
+              <div className="text-xs text-slate-400">{v.instructions?.slice(0,80)}</div>
               {v.status==='draft' && <button onClick={()=>publish(v.id)} className="text-primary text-xs hover:underline mt-1">Publicar</button>}
             </li>
           ))}
@@ -84,7 +84,7 @@ export default function SkillDetailPage() {
           <textarea className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm" rows={3} value={execInput} onChange={e=>setExecInput(e.target.value)} />
           <button className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm">Ejecutar</button>
         </form>
-        {execResult && <pre className="mt-3 text-xs bg-muted p-2 rounded">{JSON.stringify(execResult,null,2)}</pre>}
+        {execResult && <pre className="mt-3 text-xs bg-slate-700 p-2 rounded">{JSON.stringify(execResult,null,2)}</pre>}
       </div>
     </div>
   );

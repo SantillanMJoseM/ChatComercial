@@ -37,7 +37,7 @@ export default function PlaygroundPage() {
               <ul className="text-xs space-y-1">{result.citations.map((c:any)=><li key={c.ref}>[{c.ref}] {c.documentName || c.documentId} (chunk {c.chunkId?.slice(0,8)})</li>)}</ul>
             </div>
           ) : null}
-          <div className="text-xs text-muted-foreground">Tokens: {result.tokenUsage?.inputTokens}/{result.tokenUsage?.outputTokens} · Latencia: {result.latencyMs}ms · {result.provider}/{result.model}</div>
+          <div className="text-xs text-slate-400">Tokens: {result.tokenUsage?.inputTokens}/{result.tokenUsage?.outputTokens} · Latencia: {result.latencyMs}ms · {result.provider}/{result.model}</div>
           {result.warnings?.length ? <div className="text-xs text-red-600">{result.warnings.join(', ')}</div> : null}
         </div>
       )}
