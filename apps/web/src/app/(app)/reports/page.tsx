@@ -3,29 +3,35 @@ import { useEffect, useState } from 'react';
 import { apiFetch } from '@/lib/api';
 
 export default function ReportsPage() {
-  const [items, setItems] = useState<any[]>([]);
-  const [form, setForm] = useState({ name: '', description: '', query: {} });
-  useEffect(() => { apiFetch('/api/v1/reports').then(setItems).catch(()=>{}); }, []);
-  async function create(e: React.FormEvent) {
-    e.preventDefault();
-    await apiFetch('/api/v1/reports', { method: 'POST', body: JSON.stringify({ name: form.name, description: form.description, query: form.query }) });
-    setForm({ name: '', description: '', query: {} });
-    apiFetch('/api/v1/reports').then(setItems);
-  }
+  const [overview, setOverview] = useState<any>(null);
+  const [attention, setAttention] = useState<any>(null);
+  const [ai, setAi] = useState<any>(null);
+  const [automations, setAutomations] = useState<any>(null);
+  useEffect(() => {
+    apiFetch('/api/v1/reports/overview').then(setOverview).catch(()=>{});
+    apiFetch('/api/v1/reports/attention').then(setAttention).catch(()=>{});
+    apiFetch('/api/v1/reports/ai').then(setAi).catch(()=>{});
+    apiFetch('/api/v1/reports/automations').then(setAutomations).catch(()=>{});
+  }, []);
   return (
     <div className="space-y-4">
-      <form onSubmit={create} className="bg-card border border-border rounded-xl p-4 grid gap-2 md:grid-cols-3">
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Nombre reporte" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required />
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Descripción" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} />
-        <button className="bg-primary text-primary-foreground rounded-md px-4 py-2">Crear reporte</button>
-      </form>
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-muted"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">Descripción</th></tr></thead>
-          <tbody>
-            {items.map((r:any)=>(<tr key={r.id} className="border-t border-border"><td className="p-3">{r.name}</td><td className="p-3">{r.description}</td></tr>))}
-          </tbody>
-        </table>
+      <div className="grid gap-4 md:grid-cols-4">
+        <div className="bg-card border border-border rounded-xl p-4"><div className="text-xs text-muted-foreground">Clientes</div><div className="text-2xl font-bold">{overview?.clients?.total}</div></div>
+        <div className="bg-card border border-border rounded-xl p-4"><div className="text-xs text-muted-foreground">Clientes nuevos</div><div className="text-2xl font-bold">{overview?.clients?.new}</div></div>
+        <div className="bg-card border border-border rounded-xl p-4"><div className="text-xs text-muted-foreground">Conversaciones</div><div className="text-2xl font-bold">{overview?.conversations?.total}</div></div>
+        <div className="bg-card border border-border rounded-xl p-4"><div className="text-xs text-muted-foreground">Consultas IA</div><div className="text-2xl font-bold">{overview?.ai?.queries}</div></div>
+      </div>
+      <div className="bg-card border border-border rounded-xl p-4">
+        <h3 className="font-semibold mb-2">Atención por estado</h3>
+        <pre className="text-xs">{JSON.stringify(attention?.byStatus, null, 2)}</pre>
+      </div>
+      <div className="bg-card border border-border rounded-xl p-4">
+        <h3 className="font-semibold mb-2">IA</h3>
+        <pre className="text-xs">{JSON.stringify(ai, null, 2)}</pre>
+      </div>
+      <div className="bg-card border border-border rounded-xl p-4">
+        <h3 className="font-semibold mb-2">Automatizaciones</h3>
+        <pre className="text-xs">{JSON.stringify(automations, null, 2)}</pre>
       </div>
     </div>
   );

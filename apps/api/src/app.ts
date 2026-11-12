@@ -25,6 +25,7 @@ import * as wgrpCtrl from './modules/whatsapp-groups/whatsapp-groups.controller'
 import * as cwteamCtrl from './modules/chatwoot-teams/chatwoot-teams.controller';
 import * as aiCtrl from './modules/ai/ai.controller';
 import * as autoCtrl from './modules/automation/automation.controller';
+import * as reportCtrl from './modules/reports/reports.controller';
 import * as knowCtrl from './modules/knowledge/knowledge.controller';
 import * as embCtrl from './modules/embeddings/embeddings.controller';
 import * as knowUpload from './modules/knowledge/upload.controller';
@@ -230,8 +231,6 @@ export function createApp() {
   app.get('/api/v1/automations/:id/executions', requireAuth, requirePermission('automation.read'), autoCtrl.listExecutions);
 
   // Reports
-  app.get('/api/v1/reports', requireAuth, requirePermission('report.read'), autoCtrl.listReports);
-  app.post('/api/v1/reports', requireAuth, requirePermission('report.read'), autoCtrl.createReport);
 
   // Notifications
   app.get('/api/v1/notifications', requireAuth, autoCtrl.listNotifications);
@@ -248,6 +247,18 @@ export function createApp() {
   app.post('/api/v1/automations/:id/approve', requireAuth, requirePermission('automation.approve'), autoCtrl.approveAutomation);
   app.post('/api/v1/automations/:id/reject', requireAuth, requirePermission('automation.approve'), autoCtrl.rejectAutomation);
   app.get('/api/v1/automations/pending-approvals', requireAuth, requirePermission('automation.approve'), autoCtrl.listPendingApprovals);
+
+  // Reports
+  app.get('/api/v1/reports/overview', requireAuth, requirePermission('report.read'), reportCtrl.overview);
+  app.get('/api/v1/reports/attention', requireAuth, requirePermission('report.attention.read'), reportCtrl.attention);
+  app.get('/api/v1/reports/operators', requireAuth, requirePermission('report.operators.read'), reportCtrl.operators);
+  app.get('/api/v1/reports/teams', requireAuth, requirePermission('report.teams.read'), reportCtrl.teams);
+  app.get('/api/v1/reports/automations', requireAuth, requirePermission('report.automations.read'), reportCtrl.automations);
+  app.get('/api/v1/reports/ai', requireAuth, requirePermission('report.ai.read'), reportCtrl.ai);
+  app.get('/api/v1/reports/commercial', requireAuth, requirePermission('report.commercial.read'), reportCtrl.commercial);
+  app.get('/api/v1/reports/trends', requireAuth, requirePermission('report.read'), reportCtrl.trends);
+  app.get('/api/v1/reports', requireAuth, requirePermission('report.read'), autoCtrl.listReports);
+  app.post('/api/v1/reports', requireAuth, requirePermission('report.read'), autoCtrl.createReport);
 
   app.use(errorHandler);
   return app;
