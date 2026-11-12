@@ -26,6 +26,7 @@ import * as cwteamCtrl from './modules/chatwoot-teams/chatwoot-teams.controller'
 import * as aiCtrl from './modules/ai/ai.controller';
 import * as autoCtrl from './modules/automation/automation.controller';
 import * as reportCtrl from './modules/reports/reports.controller';
+import * as exportCtrl from './modules/exports/exports.controller';
 import * as knowCtrl from './modules/knowledge/knowledge.controller';
 import * as embCtrl from './modules/embeddings/embeddings.controller';
 import * as knowUpload from './modules/knowledge/upload.controller';
@@ -259,6 +260,9 @@ export function createApp() {
   app.get('/api/v1/reports/trends', requireAuth, requirePermission('report.read'), reportCtrl.trends);
   app.get('/api/v1/reports', requireAuth, requirePermission('report.read'), autoCtrl.listReports);
   app.post('/api/v1/reports', requireAuth, requirePermission('report.read'), autoCtrl.createReport);
+
+  // Exports
+  app.post('/api/v1/reports/export', requireAuth, requirePermission('report.export'), exportCtrl.exportReport);
 
   app.use(errorHandler);
   return app;
