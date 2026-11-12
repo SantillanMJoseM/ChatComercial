@@ -78,6 +78,10 @@ export function createApp() {
   app.get('/api/v1/integrations', requireAuth, requirePermission('integrations.read'), intCtrl.listIntegrations);
   app.get('/api/v1/integrations/:key', requireAuth, requirePermission('integrations.read'), intCtrl.getIntegration);
   app.post('/api/v1/integrations/:key/test', requireAuth, requirePermission('integrations.manage'), intCtrl.testConnection);
+  app.get('/api/v1/integrations/waha/qr', requireAuth, requirePermission('integrations.read'), intCtrl.wahaQr);
+  app.get('/api/v1/integrations/waha/session', requireAuth, requirePermission('integrations.read'), intCtrl.wahaSession);
+  app.get('/api/v1/integrations/chatwoot/inboxes', requireAuth, requirePermission('integrations.read'), intCtrl.chatwootInboxes);
+  app.post('/api/v1/integrations/chatwoot/inboxes', requireAuth, requirePermission('integrations.manage'), intCtrl.createChatwootInbox);
   app.patch('/api/v1/integrations/:key', requireAuth, requirePermission('integrations.manage'), intCtrl.patchIntegration);
 
   // Webhooks (public, token-validated)

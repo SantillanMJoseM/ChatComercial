@@ -31,6 +31,7 @@ export class ChatwootAdapter {
   }
   async createContact(payload: any): Promise<any> { return this.request(this.accountPath('/contacts'), { method: 'POST', body: JSON.stringify(payload) }); }
   async createConversation(payload: any): Promise<any> { return this.request(this.accountPath('/conversations'), { method: 'POST', body: JSON.stringify(payload) }); }
+  async createInbox(payload: any): Promise<any> { return this.request(this.accountPath('/inboxes'), { method: 'POST', body: JSON.stringify(payload) }); }
 }
 
 export function createChatwootAdapter() { return new ChatwootAdapter(); }

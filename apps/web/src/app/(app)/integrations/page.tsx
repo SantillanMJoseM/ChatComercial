@@ -6,9 +6,12 @@ export default function IntegrationsPage() {
   const [integrations, setIntegrations] = useState<any[]>([]);
   const [testing, setTesting] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
+  const [qr, setQr] = useState<any>(null);
+  const [session, setSession] = useState<any>(null);
 
   async function load() { setIntegrations(await apiFetch('/api/v1/integrations')); }
-  useEffect(() => { load().catch(()=>{}); }, []);
+  async function loadWaha() { try { setSession(await apiFetch('/api/v1/integrations/waha/session?session=default')); } catch {} }
+  useEffect(() => { load().catch(()=>{}); loadWaha(); }, []);
 
   async function test(key: string) {
     setTesting(key); setResult(null);
@@ -27,13 +30,19 @@ export default function IntegrationsPage() {
               <div className="text-sm text-muted-foreground">Tipo: {i.type} · Activo: {i.isActive ? 'Sí' : 'No'}</div>
               {i.eventCounts?.length ? <div className="text-xs mt-2">Eventos: {i.eventCounts.map((e:any)=>`${e.status}:${e.count}`).join(', ')}</div> : null}
             </div>
-            <button onClick={() => test(i.key)} disabled={testing===i.key} className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm disabled:opacity-50">
-              {testing===i.key ? 'Probando...' : 'Probar conexión'}
-            </button>
+            <div className="flex gap-2">
+              {i.key==='waha' && <button onClick={async()=>{ try { setQr(await apiFetch('/api/v1/integrations/waha/qr?session=default')); } catch(e:any){ setQr({error:e.message}); } }} className="px-3 py-2 border border-border rounded-md text-sm">Ver QR</button>}
+              <button onClick={() => test(i.key)} disabled={testing===i.key} className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm disabled:opacity-50">
+                {testing===i.key ? 'Probando...' : 'Probar conexión'}
+              </button>
+            </div>
           </div>
           {result && testing===null && <pre className="mt-3 text-xs bg-muted p-2 rounded">{JSON.stringify(result,null,2)}</pre>}
         </div>
       ))}
+      {session && <div className="bg-card border border-border rounded-xl p-4 text-sm">WAHA sesión: {session.status} · {session.me?.id || 'sin vincular'}</div>}
+      {qr && qr.base64 && <div className="bg-card border border-border rounded-xl p-4"><img src={`data:${qr.mime};base64,${qr.base64}`} alt="QR" className="w-48 h-48" /></div>}
+      {qr && qr.error && <div className="text-red-600 text-sm">{qr.error}</div>}
       {integrations.length === 0 && <div className="text-muted-foreground">Sin integraciones</div>}
     </div>
   );

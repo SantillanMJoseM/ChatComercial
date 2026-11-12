@@ -66,6 +66,39 @@ export async function testConnection(req: Request, res: Response, next: NextFunc
   }
 }
 
+export async function wahaQr(req: Request, res: Response, next: NextFunction) {
+  try {
+    const session = (req.query.session as string) || 'default';
+    const a = createWahaAdapter();
+    const qr = await a.getQr(session);
+    res.json(qr);
+  } catch (e: any) { res.status(502).json({ error: e.message }); }
+}
+
+export async function wahaSession(req: Request, res: Response, next: NextFunction) {
+  try {
+    const session = (req.query.session as string) || 'default';
+    const a = createWahaAdapter();
+    const s2 = await a.getSession(session);
+    res.json(s2);
+  } catch (e: any) { res.status(502).json({ error: e.message }); }
+}
+
+export async function chatwootInboxes(req: Request, res: Response, next: NextFunction) {
+  try {
+    const a = createChatwootAdapter();
+    res.json(await a.inboxes());
+  } catch (e: any) { res.status(502).json({ error: e.message }); }
+}
+
+export async function createChatwootInbox(req: Request, res: Response, next: NextFunction) {
+  try {
+    const a = createChatwootAdapter();
+    const r = await a.createInbox(req.body);
+    res.status(201).json(r);
+  } catch (e: any) { res.status(502).json({ error: e.message }); }
+}
+
 export async function patchIntegration(req: Request, res: Response, next: NextFunction) {
   try {
     const body = z.object({ isActive: z.boolean().optional(), baseUrl: z.string().optional(), config: z.any().optional() }).parse(req.body);

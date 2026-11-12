@@ -28,6 +28,18 @@ export class WahaAdapter {
   async getSession(name: string): Promise<WahaSession> { return this.request(`/api/sessions/${encodeURIComponent(name)}`); }
   async startSession(name: string): Promise<any> { return this.request('/api/sessions/start', { method: 'POST', body: JSON.stringify({ name }) }); }
   async contacts(session: string): Promise<any> { return this.request(`/api/contacts?session=${encodeURIComponent(session)}`); }
+  async getQr(session: string): Promise<{ base64: string; mime: string }> {
+    if (!this.baseUrl) throw new Error('WAHA_BASE_URL not configured');
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 10000);
+    try {
+      const res = await fetch(`${this.baseUrl}/api/${encodeURIComponent(session)}/auth/qr`, { headers: this.headers(), signal: ctrl.signal });
+      if (!res.ok) throw new Error(`WAHA qr -> ${res.status}`);
+      const buf = Buffer.from(await res.arrayBuffer());
+      return { base64: buf.toString('base64'), mime: res.headers.get('content-type') || 'image/png' };
+    } finally { clearTimeout(t); }
+  }
+
   async sendText(session: string, chatId: string, text: string): Promise<any> {
     return this.request('/api/sendText', { method: 'POST', body: JSON.stringify({ session, chatId, text }) });
   }
