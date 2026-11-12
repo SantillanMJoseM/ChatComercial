@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { apiFetch } from '@/lib/api';
+import { PageHeader } from '@/components/ui/page-header';
 export default function AssignmentsPage() {
   const [items, setItems] = useState<any[]>([]);
   useEffect(() => { apiFetch('/api/v1/assignments').then(setItems).catch(()=>{}); }, []);

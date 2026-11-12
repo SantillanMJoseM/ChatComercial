@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { apiFetch } from '@/lib/api';
+import { PageHeader } from '@/components/ui/page-header';
 export default function MetricsPage() {
   const [m, setM] = useState<any>(null);
   useEffect(() => { apiFetch('/api/v1/metrics').then(setM).catch(()=>{}); }, []);

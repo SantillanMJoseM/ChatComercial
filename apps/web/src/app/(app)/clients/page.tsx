@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
+import { PageHeader } from '@/components/ui/page-header';
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<any[]>([]);
@@ -19,6 +20,7 @@ export default function ClientsPage() {
 
   return (
     <div className="space-y-4">
+      <PageHeader title="Clientes" description="Gestión de clientes del CRM. Alta, edición, búsqueda y seguimiento." />
       <form onSubmit={create} className="bg-card border border-border rounded-xl p-4 grid gap-2 md:grid-cols-3">
         <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Nombre" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required />
         <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Teléfono" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} />

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { apiFetch } from '@/lib/api';
+import { PageHeader } from '@/components/ui/page-header';
 
 export default function IntegrationsPage() {
   const [integrations, setIntegrations] = useState<any[]>([]);
