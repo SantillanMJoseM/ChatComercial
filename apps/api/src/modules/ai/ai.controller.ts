@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import crypto from 'crypto';
 import { z } from 'zod';
 import { prisma } from '../../lib/prisma';
 import { encrypt, decrypt } from '../../lib/crypto';
@@ -116,7 +117,7 @@ export async function executeChat(req: Request, res: Response, next: NextFunctio
     const started = Date.now();
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 30000);
-    const r = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ctrl.signal });
+    const r = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'x-opencode-session': crypto.randomUUID() }, body: JSON.stringify(payload), signal: ctrl.signal });
     clearTimeout(t);
     const data = await r.json();
     const latency = Date.now() - started;

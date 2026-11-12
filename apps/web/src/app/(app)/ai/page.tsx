@@ -35,10 +35,18 @@ export default function AIPage() {
     await apiFetch('/api/v1/ai/assistants', { method: 'POST', body: JSON.stringify({ ...aform, isActive: true }) });
     setAform({ key: '', name: '', providerKey: '', modelId: '', systemPrompt: 'Eres un asistente comercial.', mode: 'assist' }); load();
   }
+  const [chatLoading, setChatLoading] = useState(false);
   async function runChat(e: React.FormEvent) {
     e.preventDefault();
-    const r = await apiFetch('/api/v1/ai/execute', { method: 'POST', body: JSON.stringify({ assistantKey: chat.assistantKey, messages: [{ role: 'user', content: chat.message }] }) });
-    setChat({ ...chat, result: r.content });
+    setChatLoading(true);
+    try {
+      const r = await apiFetch('/api/v1/ai/execute', { method: 'POST', body: JSON.stringify({ assistantKey: chat.assistantKey, messages: [{ role: 'user', content: chat.message }] }) });
+      setChat({ ...chat, result: r.content });
+    } catch (err: any) {
+      setChat({ ...chat, result: 'Error: ' + (err.message || 'No se pudo ejecutar') });
+    } finally {
+      setChatLoading(false);
+    }
   }
 
   return (
@@ -89,7 +97,7 @@ export default function AIPage() {
             {assistants.map((a:any)=><option key={a.key} value={a.key}>{a.name}</option>)}
           </select>
           <textarea className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm" value={chat.message} onChange={e=>setChat({...chat,message:e.target.value})} placeholder="Mensaje" required />
-          <button className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm">Ejecutar</button>
+          <button disabled={chatLoading} className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm disabled:opacity-50">{chatLoading ? "Ejecutando..." : "Ejecutar"}</button>
         </form>
         {chat.result && <div className="mt-3 text-sm whitespace-pre-wrap bg-muted p-3 rounded">{chat.result}</div>}
       </section>

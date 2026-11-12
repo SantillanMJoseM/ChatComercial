@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { prisma } from '../../lib/prisma';
 import { decrypt } from '../../lib/crypto';
 
