@@ -7,10 +7,13 @@ export default function PlaygroundPage() {
   const [form, setForm] = useState({ assistantKey: '', query: '' });
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [sessionId, setSessionId] = useState<string>('');
   useEffect(() => { apiFetch('/api/v1/ai/assistants').then(setAssistants).catch(()=>{}); }, []);
   async function run(e: React.FormEvent) {
     e.preventDefault(); setLoading(true); setResult(null);
-    try { setResult(await apiFetch('/api/v1/ai/grounded', { method: 'POST', body: JSON.stringify({ assistantKey: form.assistantKey, query: form.query }) })); }
+    const sid = sessionId || (globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2));
+    if (!sessionId) setSessionId(sid);
+    try { setResult(await apiFetch('/api/v1/ai/grounded', { method: 'POST', body: JSON.stringify({ assistantKey: form.assistantKey, query: form.query, sessionId: sid }) })); }
     catch (err: any) { setResult({ error: err.message }); }
     finally { setLoading(false); }
   }

@@ -9,6 +9,7 @@ export default function AIPage() {
   const [aform, setAform] = useState({ key: '', name: '', providerKey: '', modelId: '', systemPrompt: 'Eres un asistente comercial.', mode: 'assist' });
   const [models, setModels] = useState<any[]>([]);
   const [chat, setChat] = useState({ assistantKey: '', message: '', result: '' });
+  const [sessionId, setSessionId] = useState<string>('');
 
   async function load() {
     setProviders(await apiFetch('/api/v1/ai/providers').catch(()=>[]));
@@ -39,8 +40,10 @@ export default function AIPage() {
   async function runChat(e: React.FormEvent) {
     e.preventDefault();
     setChatLoading(true);
+    const sid = sessionId || (globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2));
+    if (!sessionId) setSessionId(sid);
     try {
-      const r = await apiFetch('/api/v1/ai/execute', { method: 'POST', body: JSON.stringify({ assistantKey: chat.assistantKey, messages: [{ role: 'user', content: chat.message }] }) });
+      const r = await apiFetch('/api/v1/ai/execute', { method: 'POST', body: JSON.stringify({ assistantKey: chat.assistantKey, messages: [{ role: 'user', content: chat.message }], sessionId: sid }) });
       setChat({ ...chat, result: r.content });
     } catch (err: any) {
       setChat({ ...chat, result: 'Error: ' + (err.message || 'No se pudo ejecutar') });
