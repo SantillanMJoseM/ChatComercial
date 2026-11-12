@@ -30,8 +30,10 @@ export async function generateEmbeddings(providerKey: string, modelDbId: string,
     signal: ctrl.signal,
   });
   clearTimeout(t);
-  const data = await r.json();
-  if (!r.ok) throw new Error(`Embedding provider error: ${JSON.stringify(data).slice(0, 300)}`);
+  const text = await r.text();
+  let data: any = null;
+  try { data = text ? JSON.parse(text) : null; } catch { data = { raw: text }; }
+  if (!r.ok) throw new Error(`Embedding provider error (${r.status}): ${data?.error?.message || data?.raw?.slice(0,200) || 'unknown'}`);
   const vectors: number[][] = (data.data || []).map((d: any) => d.embedding);
   const dimension = vectors[0]?.length || 0;
   const tokens = data.usage?.total_tokens;

@@ -68,7 +68,7 @@ export async function generateGrounded(assistantKey: string, query: string, user
   const payload = { model: assistant.model.modelId, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: assistant.temperature ?? 0.3, max_tokens: assistant.maxTokens ?? 500 };
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 30000);
-  const r = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ctrl.signal });
+  const r = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'x-opencode-session': crypto.randomUUID() }, body: JSON.stringify(payload), signal: ctrl.signal });
   clearTimeout(t);
   const data = await r.json();
   const latency = Date.now() - started;

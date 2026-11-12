@@ -10,6 +10,7 @@ export default function AIPage() {
   const [models, setModels] = useState<any[]>([]);
   const [chat, setChat] = useState({ assistantKey: '', message: '', result: '' });
   const [sessionId, setSessionId] = useState<string>('');
+  const [lastAssistant, setLastAssistant] = useState<string>('');
 
   async function load() {
     setProviders(await apiFetch('/api/v1/ai/providers').catch(()=>[]));
@@ -40,8 +41,8 @@ export default function AIPage() {
   async function runChat(e: React.FormEvent) {
     e.preventDefault();
     setChatLoading(true);
-    const sid = sessionId || (globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2));
-    if (!sessionId) setSessionId(sid);
+    let sid = sessionId;
+    if (!sid || lastAssistant !== chat.assistantKey) { sid = globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2); setSessionId(sid); setLastAssistant(chat.assistantKey); }
     try {
       const r = await apiFetch('/api/v1/ai/execute', { method: 'POST', body: JSON.stringify({ assistantKey: chat.assistantKey, messages: [{ role: 'user', content: chat.message }], sessionId: sid }) });
       setChat({ ...chat, result: r.content });
