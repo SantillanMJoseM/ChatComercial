@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { prisma } from '../../lib/prisma';
+import { evaluateConditions } from './conditions/evaluator';
+import { getActionDef } from './actions/registry';
 import { recordAudit } from '../audit/audit.controller';
 import { ingestEvent, validateEvent } from './events.service';
 import { TRIGGER_TYPES } from './triggers.service';
@@ -106,5 +108,20 @@ export async function dryRunTrigger(req: Request, res: Response, next: NextFunct
     const { findCandidateAutomations } = await import('./triggers.service');
     const candidates = await findCandidateAutomations(body);
     res.json({ event: body, candidates: candidates.map((c: any) => ({ automationId: c.automation.id, name: c.automation.name, versionId: c.version.id, triggerType: c.trigger.type })), wouldCreate: candidates.length });
+  } catch (e) { next(e); }
+}
+
+export async function dryRunExecution(req: Request, res: Response, next: NextFunction) {
+  try {
+    const body = z.object({ automationId: z.string().uuid(), versionId: z.string().uuid().optional(), event: z.any() }).parse(req.body);
+    const auto = await prisma.automation.findUnique({ where: { id: body.automationId }, include: { publishedVersion: true } });
+    if (!auto) return res.status(404).json({ error: 'Not found' });
+    const version = body.versionId ? await prisma.automationVersion.findUnique({ where: { id: body.versionId } }) : auto.publishedVersion;
+    if (!version) return res.status(400).json({ error: 'No version' });
+    const ctx = body.event || {};
+    const cond = evaluateConditions(version.conditions, ctx);
+    const actions = (version.actions as any[]) || [];
+    const wouldExecute = cond.result ? actions.map((a) => ({ type: a.type, def: getActionDef(a.type)?.name, risk: getActionDef(a.type)?.risk, params: a.params })) : [];
+    res.json({ automationId: auto.id, versionId: version.id, conditions: cond, wouldExecute, dryRun: true });
   } catch (e) { next(e); }
 }

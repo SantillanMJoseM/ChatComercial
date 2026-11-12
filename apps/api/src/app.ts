@@ -242,6 +242,8 @@ export function createApp() {
   app.get('/api/v1/automation-triggers', requireAuth, requirePermission('automation.read'), autoCtrl.listTriggerTypes);
   app.post('/api/v1/automation-triggers/dry-run', requireAuth, requirePermission('automation.read'), autoCtrl.dryRunTrigger);
 
+  app.post('/api/v1/automations/:id/dry-run', requireAuth, requirePermission('automation.read'), autoCtrl.dryRunExecution);
+
   app.use(errorHandler);
   return app;
 }

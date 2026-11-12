@@ -2,6 +2,7 @@ import { Worker } from 'bullmq';
 import { prisma } from '../lib/prisma';
 import IORedis from 'ioredis';
 import { findCandidateAutomations } from '../modules/automation/triggers.service';
+import { automationExecutionQueue } from './automation-execution.worker';
 
 const connection = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379', { maxRetriesPerRequest: null });
 
@@ -15,8 +16,9 @@ export function startAutomationTriggerWorker() {
       const existing = await prisma.automationExecution.findFirst({ where: { automationId: c.automation.id, idempotencyKey } });
       if (existing) { created.push(existing.id); continue; }
       const exec = await prisma.automationExecution.create({
-        data: { automationId: c.automation.id, versionId: c.version.id, status: 'queued', triggerEvent: event, idempotencyKey },
+        data: { automationId: c.automation.id, versionId: c.version.id, status: 'queued', triggerEvent: event as any, idempotencyKey },
       });
+      await automationExecutionQueue.add('process', { executionId: exec.id }, { attempts: 3, backoff: { type: 'exponential', delay: 2000 } });
       created.push(exec.id);
     }
     // mark outbox processed
