@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: 'Plataforma Integral de Atención Com
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang="es" className="dark" suppressHydrationWarning>
       <body className="min-h-screen bg-background text-foreground antialiased">{children}</body>
     </html>
   );
