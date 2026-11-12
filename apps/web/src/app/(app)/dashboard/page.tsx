@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { apiFetch } from '@/lib/api';
 
 function Kpi({ title, value, color }: { title: string; value: any; color?: string }) {
@@ -16,11 +17,13 @@ export default function DashboardPage() {
   const [attention, setAttention] = useState<any>(null);
   const [status, setStatus] = useState<any>(null);
   const [ai, setAi] = useState<any>(null);
+  const [trends, setTrends] = useState<any>(null);
   useEffect(() => {
     apiFetch('/api/v1/reports/overview').then(setOverview).catch(()=>{});
     apiFetch('/api/v1/reports/attention').then(setAttention).catch(()=>{});
     apiFetch('/api/v1/system/status').then(setStatus).catch(()=>{});
     apiFetch('/api/v1/ai/usage').then(setAi).catch(()=>{});
+    apiFetch('/api/v1/reports/trends').then(setTrends).catch(()=>{});
   }, []);
   return (
     <div className="space-y-6">
@@ -53,6 +56,21 @@ export default function DashboardPage() {
           <Kpi title="Base de datos" value={status?.checks?.database} />
           <Kpi title="Redis" value={status?.checks?.redis} />
           <Kpi title="Consultas IA" value={overview?.ai?.queries} />
+        </div>
+      </section>
+      <section>
+        <h2 className="text-lg font-semibold mb-3">Evolución de clientes</h2>
+        <div className="bg-card border border-border rounded-xl p-4" style={{ height: 260 }}>
+          {trends?.clientsByDay?.length ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={trends.clientsByDay}>
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Line type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : <div className="text-sm text-muted-foreground">Sin datos suficientes.</div>}
         </div>
       </section>
       {ai && Array.isArray(ai) && ai.length > 0 && (
