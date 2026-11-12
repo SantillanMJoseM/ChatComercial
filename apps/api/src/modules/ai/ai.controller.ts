@@ -14,8 +14,8 @@ export async function listProviders(req: Request, res: Response, next: NextFunct
 
 export async function createProvider(req: Request, res: Response, next: NextFunction) {
   try {
-    const body = z.object({ key: z.string().min(1), name: z.string().min(1), baseUrl: z.string().url(), apiKey: z.string().min(1), capabilities: z.any().optional(), isActive: z.boolean().optional() }).parse(req.body);
-    const p = await prisma.aIProvider.create({ data: { key: body.key, name: body.name, baseUrl: body.baseUrl, apiKeyEncrypted: encrypt(body.apiKey), capabilities: body.capabilities, isActive: body.isActive ?? false } });
+    const body = z.object({ key: z.string().min(1), name: z.string().min(1), type: z.enum(['openai','anthropic','deepseek','openai-compatible']).optional(), baseUrl: z.string().url(), apiKey: z.string().min(1), capabilities: z.any().optional(), isActive: z.boolean().optional() }).parse(req.body);
+    const p = await prisma.aIProvider.create({ data: { key: body.key, name: body.name, type: body.type || 'openai', baseUrl: body.baseUrl, apiKeyEncrypted: encrypt(body.apiKey), capabilities: body.capabilities, isActive: body.isActive ?? false } });
     recordAudit((req as any).userId, 'ai.provider.create', 'ai_provider', p.key, { name: p.name }, req.ip);
     res.status(201).json({ ...p, apiKeyEncrypted: undefined });
   } catch (e) { next(e); }
@@ -23,7 +23,7 @@ export async function createProvider(req: Request, res: Response, next: NextFunc
 
 export async function updateProvider(req: Request, res: Response, next: NextFunction) {
   try {
-    const body = z.object({ name: z.string().optional(), baseUrl: z.string().url().optional(), apiKey: z.string().optional(), capabilities: z.any().optional(), isActive: z.boolean().optional() }).parse(req.body);
+    const body = z.object({ name: z.string().optional(), type: z.enum(['openai','anthropic','deepseek','openai-compatible']).optional(), baseUrl: z.string().url().optional(), apiKey: z.string().optional(), capabilities: z.any().optional(), isActive: z.boolean().optional() }).parse(req.body);
     const data: any = { ...body };
     if (body.apiKey) { data.apiKeyEncrypted = encrypt(body.apiKey); delete data.apiKey; }
     const p = await prisma.aIProvider.update({ where: { key: req.params.key }, data });

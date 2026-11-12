@@ -639,6 +639,7 @@ model AIProvider {
   id              String   @id @default(uuid()) @db.Uuid
   key             String   @unique
   name            String
+  type            String   @default("openai")
   baseUrl         String
   apiKeyEncrypted String
   isActive        Boolean  @default(false)

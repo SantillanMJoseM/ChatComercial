@@ -5,7 +5,7 @@ import { apiFetch } from '@/lib/api';
 export default function AIPage() {
   const [providers, setProviders] = useState<any[]>([]);
   const [assistants, setAssistants] = useState<any[]>([]);
-  const [pform, setPform] = useState({ key: '', name: '', baseUrl: '', apiKey: '' });
+  const [pform, setPform] = useState({ key: '', name: '', type: 'openai', baseUrl: '', apiKey: '' });
   const [aform, setAform] = useState({ key: '', name: '', providerKey: '', modelId: '', systemPrompt: 'Eres un asistente comercial.', mode: 'assist' });
   const [models, setModels] = useState<any[]>([]);
   const [chat, setChat] = useState({ assistantKey: '', message: '', result: '' });
@@ -20,7 +20,7 @@ export default function AIPage() {
   async function createProvider(e: React.FormEvent) {
     e.preventDefault();
     await apiFetch('/api/v1/ai/providers', { method: 'POST', body: JSON.stringify({ ...pform, isActive: true }) });
-    setPform({ key: '', name: '', baseUrl: '', apiKey: '' }); load();
+    setPform({ key: '', name: '', type: 'openai', baseUrl: '', apiKey: '' }); load();
   }
   async function createModel(e: React.FormEvent) {
     e.preventDefault();
@@ -48,7 +48,10 @@ export default function AIPage() {
         <form onSubmit={createProvider} className="grid gap-2 md:grid-cols-4 mb-3">
           <input className="px-3 py-2 border border-border rounded-md bg-background text-sm" placeholder="key" value={pform.key} onChange={e=>setPform({...pform,key:e.target.value})} required />
           <input className="px-3 py-2 border border-border rounded-md bg-background text-sm" placeholder="nombre" value={pform.name} onChange={e=>setPform({...pform,name:e.target.value})} required />
-          <input className="px-3 py-2 border border-border rounded-md bg-background text-sm" placeholder="base URL" value={pform.baseUrl} onChange={e=>setPform({...pform,baseUrl:e.target.value})} required />
+          <select className="px-3 py-2 border border-border rounded-md bg-background text-sm" value={pform.type} onChange={e=>setPform({...pform,type:e.target.value})}>
+          <option value="openai">openai</option><option value="anthropic">anthropic</option><option value="deepseek">deepseek</option><option value="openai-compatible">openai-compatible</option>
+        </select>
+        <input className="px-3 py-2 border border-border rounded-md bg-background text-sm" placeholder="base URL" value={pform.baseUrl} onChange={e=>setPform({...pform,baseUrl:e.target.value})} required />
           <input className="px-3 py-2 border border-border rounded-md bg-background text-sm" placeholder="API key" type="password" value={pform.apiKey} onChange={e=>setPform({...pform,apiKey:e.target.value})} required />
           <button className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm md:col-span-4">Crear proveedor</button>
         </form>
