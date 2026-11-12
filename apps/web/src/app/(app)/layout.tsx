@@ -26,6 +26,7 @@ const nav = [
   { href: '/ai/metrics', label: 'Métricas IA' },
   { href: '/skills', label: 'Skills' },
   { href: '/automations', label: 'Automatizaciones' },
+  { href: '/automations/builder', label: 'Constructor' },
   { href: '/reports', label: 'Reportes' },
   { href: '/notifications', label: 'Notificaciones' },
   { href: '/settings', label: 'Configuración' },
