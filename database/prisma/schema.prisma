@@ -36,6 +36,13 @@ model User {
   skillVersionsPublished SkillVersion[] @relation("SkillVersionPublisher")
   skillExecutionsApproved SkillExecution[] @relation("SkillExecutionApprover")
   ragFeedbacks  AIRagFeedback[]
+  automationsCreated Automation[]
+  automationVersionsCreated AutomationVersion[]
+  notifications Notification[]
+  reportDefinitions ReportDefinition[]
+  reportExecutions ReportExecution[]
+  automationApprovalsRequested AutomationApproval[] @relation("AutomationApprovalRequester")
+  automationApprovalsGiven AutomationApproval[] @relation("AutomationApprovalApprover")
   convAssignments ConversationReference[] @relation("ConvAssignee")
   assignFrom    AssignmentHistory[] @relation("AssignFromUser")
   assignTo      AssignmentHistory[] @relation("AssignToUser")
@@ -1014,4 +1021,207 @@ model SkillToolPermission {
   tool           AITool       @relation(fields: [toolId], references: [id], onDelete: Cascade)
 
   @@unique([skillVersionId, toolId])
+}
+
+model Automation {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  category    String?
+  status      String    @default("draft")
+  publishedVersionId String? @db.Uuid
+  createdBy   String?   @db.Uuid
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+  deletedAt   DateTime? @db.Timestamptz(6)
+
+  creator     User?     @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  versions    AutomationVersion[]
+  publishedVersion AutomationVersion? @relation("PublishedAutomationVersion", fields: [publishedVersionId], references: [id], onDelete: SetNull)
+  executions  AutomationExecution[]
+  schedules   AutomationSchedule[]
+
+  @@index([status])
+  @@index([category])
+}
+
+model AutomationVersion {
+  id            String    @id @default(uuid()) @db.Uuid
+  automationId  String    @db.Uuid
+  version       Int
+  status        String    @default("draft")
+  trigger       Json
+  conditions    Json?
+  actions       Json
+  timezone      String    @default("America/Argentina/Buenos_Aires")
+  createdBy     String?   @db.Uuid
+  createdAt     DateTime  @default(now()) @db.Timestamptz(6)
+  publishedAt   DateTime? @db.Timestamptz(6)
+
+  automation    Automation @relation(fields: [automationId], references: [id], onDelete: Cascade)
+  creator       User?      @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  publishedFor  Automation[] @relation("PublishedAutomationVersion")
+  triggers      AutomationTrigger[]
+  executions    AutomationExecution[]
+  schedules     AutomationSchedule[]
+
+  @@unique([automationId, version])
+  @@index([automationId])
+  @@index([status])
+}
+
+model AutomationTrigger {
+  id            String   @id @default(uuid()) @db.Uuid
+  automationVersionId String @db.Uuid
+  type          String
+  config        Json?
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+
+  version       AutomationVersion @relation(fields: [automationVersionId], references: [id], onDelete: Cascade)
+
+  @@index([automationVersionId])
+  @@index([type])
+}
+
+model AutomationExecution {
+  id             String    @id @default(uuid()) @db.Uuid
+  automationId   String    @db.Uuid
+  versionId      String    @db.Uuid
+  status         String    @default("pending")
+  triggerEvent   Json?
+  idempotencyKey String?
+  startedAt      DateTime  @default(now()) @db.Timestamptz(6)
+  finishedAt     DateTime? @db.Timestamptz(6)
+  error          String?
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+
+  automation     Automation @relation(fields: [automationId], references: [id], onDelete: Cascade)
+  version        AutomationVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  steps          AutomationExecutionStep[]
+  approvals      AutomationApproval[]
+  logs           AutomationLog[]
+
+  @@index([automationId])
+  @@index([status])
+  @@index([idempotencyKey])
+}
+
+model AutomationExecutionStep {
+  id          String    @id @default(uuid()) @db.Uuid
+  executionId String    @db.Uuid
+  stepIndex   Int
+  type        String
+  status      String    @default("pending")
+  input       Json?
+  output      Json?
+  error       String?
+  startedAt   DateTime? @db.Timestamptz(6)
+  finishedAt  DateTime? @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+
+  execution   AutomationExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  @@index([executionId])
+  @@index([status])
+}
+
+model AutomationApproval {
+  id          String    @id @default(uuid()) @db.Uuid
+  executionId String    @db.Uuid
+  stepId      String?   @db.Uuid
+  status      String    @default("pending")
+  requestedBy String?   @db.Uuid
+  approvedBy  String?   @db.Uuid
+  approvedAt  DateTime? @db.Timestamptz(6)
+  reason      String?
+  expiresAt   DateTime? @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+
+  execution   AutomationExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  requester   User?     @relation("AutomationApprovalRequester", fields: [requestedBy], references: [id], onDelete: SetNull)
+  approver    User?     @relation("AutomationApprovalApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
+
+  @@index([executionId])
+  @@index([status])
+}
+
+model AutomationSchedule {
+  id            String    @id @default(uuid()) @db.Uuid
+  automationId  String    @db.Uuid
+  versionId     String    @db.Uuid
+  cron          String
+  timezone      String    @default("America/Argentina/Buenos_Aires")
+  nextRunAt     DateTime? @db.Timestamptz(6)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime  @updatedAt @db.Timestamptz(6)
+
+  automation    Automation @relation(fields: [automationId], references: [id], onDelete: Cascade)
+  version       AutomationVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  @@index([automationId])
+  @@index([nextRunAt])
+}
+
+model AutomationLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  executionId String   @db.Uuid
+  level       String   @default("info")
+  message     String
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  execution   AutomationExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  @@index([executionId])
+  @@index([createdAt])
+}
+
+model ReportDefinition {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  query       Json
+  filters     Json?
+  createdBy   String?   @db.Uuid
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+  deletedAt   DateTime? @db.Timestamptz(6)
+
+  creator     User?     @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  executions  ReportExecution[]
+
+  @@index([name])
+}
+
+model ReportExecution {
+  id          String    @id @default(uuid()) @db.Uuid
+  reportId    String    @db.Uuid
+  status      String    @default("pending")
+  params      Json?
+  result      Json?
+  startedAt   DateTime  @default(now()) @db.Timestamptz(6)
+  finishedAt  DateTime? @db.Timestamptz(6)
+  createdBy   String?   @db.Uuid
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+
+  report      ReportDefinition @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  creator     User?     @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@index([reportId])
+  @@index([status])
+}
+
+model Notification {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  type      String
+  title     String
+  body      String?
+  read      Boolean   @default(false)
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
 }

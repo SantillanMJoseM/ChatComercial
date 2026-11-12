@@ -24,6 +24,7 @@ import * as consentCtrl from './modules/consents/consents.controller';
 import * as wgrpCtrl from './modules/whatsapp-groups/whatsapp-groups.controller';
 import * as cwteamCtrl from './modules/chatwoot-teams/chatwoot-teams.controller';
 import * as aiCtrl from './modules/ai/ai.controller';
+import * as autoCtrl from './modules/automation/automation.controller';
 import * as knowCtrl from './modules/knowledge/knowledge.controller';
 import * as embCtrl from './modules/embeddings/embeddings.controller';
 import * as knowUpload from './modules/knowledge/upload.controller';
@@ -216,6 +217,25 @@ export function createApp() {
   app.get('/api/v1/skill-executions/:id', requireAuth, requirePermission('skills.audit.read'), skillCtrl.getExecution);
   app.post('/api/v1/skill-executions/:id/approve', requireAuth, requirePermission('skills.approve'), skillCtrl.approveExecution);
   app.post('/api/v1/skill-executions/:id/reject', requireAuth, requirePermission('skills.approve'), skillCtrl.rejectExecution);
+
+  // Automations
+  app.get('/api/v1/automations', requireAuth, requirePermission('automation.read'), autoCtrl.listAutomations);
+  app.post('/api/v1/automations', requireAuth, requirePermission('automation.create'), autoCtrl.createAutomation);
+  app.get('/api/v1/automations/:id', requireAuth, requirePermission('automation.read'), autoCtrl.getAutomation);
+  app.patch('/api/v1/automations/:id', requireAuth, requirePermission('automation.update'), autoCtrl.updateAutomation);
+  app.delete('/api/v1/automations/:id', requireAuth, requirePermission('automation.update'), autoCtrl.deleteAutomation);
+  app.get('/api/v1/automations/:id/versions', requireAuth, requirePermission('automation.read'), autoCtrl.listVersions);
+  app.post('/api/v1/automations/:id/versions', requireAuth, requirePermission('automation.create'), autoCtrl.createVersion);
+  app.post('/api/v1/automations/:id/publish', requireAuth, requirePermission('automation.publish'), autoCtrl.publishVersion);
+  app.get('/api/v1/automations/:id/executions', requireAuth, requirePermission('automation.read'), autoCtrl.listExecutions);
+
+  // Reports
+  app.get('/api/v1/reports', requireAuth, requirePermission('report.read'), autoCtrl.listReports);
+  app.post('/api/v1/reports', requireAuth, requirePermission('report.read'), autoCtrl.createReport);
+
+  // Notifications
+  app.get('/api/v1/notifications', requireAuth, autoCtrl.listNotifications);
+  app.post('/api/v1/notifications/:id/read', requireAuth, autoCtrl.markNotificationRead);
 
   app.use(errorHandler);
   return app;
