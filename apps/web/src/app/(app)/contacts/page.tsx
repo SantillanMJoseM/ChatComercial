@@ -19,24 +19,24 @@ export default function ContactsPage() {
   }
   return (
     <div className="space-y-4">
-      <form onSubmit={create} className="bg-card border border-border rounded-xl p-4 grid gap-2 md:grid-cols-3">
-        <select className="px-3 py-2 border border-border rounded-md bg-background" value={form.clientId} onChange={e=>setForm({...form,clientId:e.target.value})} required>
+      <form onSubmit={create} className="bg-white border border-slate-200 rounded-xl p-4 grid gap-2 md:grid-cols-3">
+        <select className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" value={form.clientId} onChange={e=>setForm({...form,clientId:e.target.value})} required>
           <option value="">Cliente</option>
           {clients.map((c:any)=> <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Nombre" value={form.firstName} onChange={e=>setForm({...form,firstName:e.target.value})} required />
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Apellido" value={form.lastName} onChange={e=>setForm({...form,lastName:e.target.value})} />
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="WhatsApp" value={form.whatsapp} onChange={e=>setForm({...form,whatsapp:e.target.value})} />
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} />
+        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Nombre" value={form.firstName} onChange={e=>setForm({...form,firstName:e.target.value})} required />
+        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Apellido" value={form.lastName} onChange={e=>setForm({...form,lastName:e.target.value})} />
+        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="WhatsApp" value={form.whatsapp} onChange={e=>setForm({...form,whatsapp:e.target.value})} />
+        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} />
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.isPrimary} onChange={e=>setForm({...form,isPrimary:e.target.checked})} /> Principal</label>
-        <button className="bg-primary text-primary-foreground rounded-md px-4 py-2">Crear contacto</button>
+        <button className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-md px-4 py-2">Crear contacto</button>
       </form>
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">WhatsApp</th><th className="p-3 text-left">Email</th><th className="p-3 text-left">Principal</th></tr></thead>
+          <thead className="bg-slate-50"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">WhatsApp</th><th className="p-3 text-left">Email</th><th className="p-3 text-left">Principal</th></tr></thead>
           <tbody>
             {contacts.map((c:any)=>(
-              <tr key={c.id} className="border-t border-border">
+              <tr key={c.id} className="border-t border-slate-200">
                 <td className="p-3">{c.firstName} {c.lastName}</td><td className="p-3">{c.whatsapp}</td><td className="p-3">{c.email}</td><td className="p-3">{c.isPrimary?'Sí':'No'}</td>
               </tr>
             ))}

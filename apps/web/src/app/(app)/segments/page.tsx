@@ -20,17 +20,17 @@ export default function SegmentsPage() {
   }
   return (
     <div className="space-y-4">
-      <form onSubmit={create} className="bg-card border border-border rounded-xl p-4 grid gap-2 md:grid-cols-3">
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Nombre segmento" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required />
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Descripción" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} />
-        <button className="bg-primary text-primary-foreground rounded-md px-4 py-2">Crear segmento</button>
+      <form onSubmit={create} className="bg-white border border-slate-200 rounded-xl p-4 grid gap-2 md:grid-cols-3">
+        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Nombre segmento" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required />
+        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Descripción" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} />
+        <button className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-md px-4 py-2">Crear segmento</button>
       </form>
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">Dinámico</th><th className="p-3 text-left">Acciones</th></tr></thead>
+          <thead className="bg-slate-50"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">Dinámico</th><th className="p-3 text-left">Acciones</th></tr></thead>
           <tbody>
             {segments.map((s:any)=>(
-              <tr key={s.id} className="border-t border-border">
+              <tr key={s.id} className="border-t border-slate-200">
                 <td className="p-3">{s.name}</td><td className="p-3">{s.isDynamic?'Sí':'No'}</td>
                 <td className="p-3"><button onClick={()=>previewSeg(s.id)} className="text-primary text-xs hover:underline">Preview</button></td>
               </tr>
@@ -38,7 +38,7 @@ export default function SegmentsPage() {
           </tbody>
         </table>
       </div>
-      {preview && <div className="bg-card border border-border rounded-xl p-4 text-sm">Participantes: {preview.count}</div>}
+      {preview && <div className="bg-white border border-slate-200 rounded-xl p-4 text-sm">Participantes: {preview.count}</div>}
     </div>
   );
 }

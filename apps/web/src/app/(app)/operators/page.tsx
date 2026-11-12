@@ -18,23 +18,23 @@ export default function OperatorsPage() {
   }
   return (
     <div className="space-y-4">
-      <form onSubmit={create} className="bg-card border border-border rounded-xl p-4 grid gap-2 md:grid-cols-3">
-        <select className="px-3 py-2 border border-border rounded-md bg-background" value={form.userId} onChange={e=>setForm({...form,userId:e.target.value})} required>
+      <form onSubmit={create} className="bg-white border border-slate-200 rounded-xl p-4 grid gap-2 md:grid-cols-3">
+        <select className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" value={form.userId} onChange={e=>setForm({...form,userId:e.target.value})} required>
           <option value="">Usuario</option>
           {users.map((u:any)=><option key={u.id} value={u.id}>{u.email}</option>)}
         </select>
-        <select className="px-3 py-2 border border-border rounded-md bg-background" value={form.availability} onChange={e=>setForm({...form,availability:e.target.value})}>
+        <select className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" value={form.availability} onChange={e=>setForm({...form,availability:e.target.value})}>
           <option value="online">online</option><option value="offline">offline</option><option value="busy">busy</option>
         </select>
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Chatwoot Agent ID" value={form.chatwootAgentId} onChange={e=>setForm({...form,chatwootAgentId:e.target.value})} />
-        <button className="bg-primary text-primary-foreground rounded-md px-4 py-2">Crear perfil</button>
+        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Chatwoot Agent ID" value={form.chatwootAgentId} onChange={e=>setForm({...form,chatwootAgentId:e.target.value})} />
+        <button className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-md px-4 py-2">Crear perfil</button>
       </form>
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted"><tr><th className="p-3 text-left">Usuario</th><th className="p-3 text-left">Disponibilidad</th><th className="p-3 text-left">Chatwoot Agent</th></tr></thead>
+          <thead className="bg-slate-50"><tr><th className="p-3 text-left">Usuario</th><th className="p-3 text-left">Disponibilidad</th><th className="p-3 text-left">Chatwoot Agent</th></tr></thead>
           <tbody>
             {operators.map((o:any)=>(
-              <tr key={o.id} className="border-t border-border">
+              <tr key={o.id} className="border-t border-slate-200">
                 <td className="p-3">{o.user?.email}</td><td className="p-3">{o.availability}</td><td className="p-3">{o.chatwootAgentId ?? '-'}</td>
               </tr>
             ))}

@@ -25,27 +25,27 @@ export default function TeamsPage() {
 
   return (
     <div className="space-y-4">
-      <form onSubmit={create} className="bg-card border border-border rounded-xl p-4 grid gap-2 md:grid-cols-3">
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Nombre equipo" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required />
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Descripción" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} />
-        <button className="bg-primary text-primary-foreground rounded-md px-4 py-2">Crear equipo</button>
+      <form onSubmit={create} className="bg-white border border-slate-200 rounded-xl p-4 grid gap-2 md:grid-cols-3">
+        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Nombre equipo" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required />
+        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Descripción" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} />
+        <button className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-md px-4 py-2">Crear equipo</button>
       </form>
-      <form onSubmit={addSup} className="bg-card border border-border rounded-xl p-4 grid gap-2 md:grid-cols-3">
-        <select className="px-3 py-2 border border-border rounded-md bg-background" value={sup.teamId} onChange={e=>setSup({...sup,teamId:e.target.value})} required>
+      <form onSubmit={addSup} className="bg-white border border-slate-200 rounded-xl p-4 grid gap-2 md:grid-cols-3">
+        <select className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" value={sup.teamId} onChange={e=>setSup({...sup,teamId:e.target.value})} required>
           <option value="">Equipo</option>
           {teams.map((t:any)=><option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
-        <select className="px-3 py-2 border border-border rounded-md bg-background" value={sup.userId} onChange={e=>setSup({...sup,userId:e.target.value})} required>
+        <select className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" value={sup.userId} onChange={e=>setSup({...sup,userId:e.target.value})} required>
           <option value="">Supervisor</option>
           {users.map((u:any)=><option key={u.id} value={u.id}>{u.email}</option>)}
         </select>
-        <button className="bg-primary text-primary-foreground rounded-md px-4 py-2">Asignar supervisor</button>
+        <button className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-md px-4 py-2">Asignar supervisor</button>
       </form>
       <div className="space-y-3">
         {teams.map((t:any)=>(
-          <div key={t.id} className="bg-card border border-border rounded-xl p-4">
+          <div key={t.id} className="bg-white border border-slate-200 rounded-xl p-4">
             <div className="font-semibold">{t.name}</div>
-            <div className="text-sm text-muted-foreground">{t.description}</div>
+            <div className="text-sm text-slate-500">{t.description}</div>
             <div className="text-sm mt-2">Miembros: {t.members?.length ?? 0}</div>
             <div className="text-sm">Supervisores: {(t.supervisors||[]).map((s:any)=>s.user?.email).join(', ') || '-'}</div>
           </div>

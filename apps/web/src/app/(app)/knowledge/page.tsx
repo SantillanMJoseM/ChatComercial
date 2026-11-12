@@ -38,34 +38,34 @@ export default function KnowledgePage() {
   }
   return (
     <div className="space-y-4">
-      <form onSubmit={createCol} className="bg-card border border-border rounded-xl p-4 grid gap-2 md:grid-cols-3">
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Colección" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required />
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Descripción" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} />
-        <button className="bg-primary text-primary-foreground rounded-md px-4 py-2">Crear colección</button>
+      <form onSubmit={createCol} className="bg-white border border-slate-200 rounded-xl p-4 grid gap-2 md:grid-cols-3">
+        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Colección" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required />
+        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Descripción" value={form.description} onChange={e=>setForm({...form,description:e.target.value})} />
+        <button className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-md px-4 py-2">Crear colección</button>
       </form>
-      <form onSubmit={createDoc} className="bg-card border border-border rounded-xl p-4 grid gap-2 md:grid-cols-3">
-        <select className="px-3 py-2 border border-border rounded-md bg-background" value={docForm.collectionId} onChange={e=>setDocForm({...docForm,collectionId:e.target.value})} required>
+      <form onSubmit={createDoc} className="bg-white border border-slate-200 rounded-xl p-4 grid gap-2 md:grid-cols-3">
+        <select className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" value={docForm.collectionId} onChange={e=>setDocForm({...docForm,collectionId:e.target.value})} required>
           <option value="">Colección</option>
           {collections.map((c:any)=><option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="Nombre doc" value={docForm.name} onChange={e=>setDocForm({...docForm,name:e.target.value})} required />
-        <input className="px-3 py-2 border border-border rounded-md bg-background" placeholder="MIME" value={docForm.mimeType} onChange={e=>setDocForm({...docForm,mimeType:e.target.value})} />
-        <input id="fileInput" type="file" className="px-3 py-2 border border-border rounded-md bg-background" required />
-        <button className="bg-primary text-primary-foreground rounded-md px-4 py-2 md:col-span-3">Registrar documento</button>
+        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="Nombre doc" value={docForm.name} onChange={e=>setDocForm({...docForm,name:e.target.value})} required />
+        <input className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" placeholder="MIME" value={docForm.mimeType} onChange={e=>setDocForm({...docForm,mimeType:e.target.value})} />
+        <input id="fileInput" type="file" className="px-3 py-2 border border-slate-200 rounded-md bg-slate-50" required />
+        <button className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-md px-4 py-2 md:col-span-3">Registrar documento</button>
       </form>
-      <div className="bg-card border border-border rounded-xl p-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
         <h3 className="font-semibold mb-2">Colecciones</h3>
         <ul className="text-sm">{collections.map((c:any)=><li key={c.id}>{c.name} ({c.id})</li>)}</ul>
       </div>
-      <div className="bg-card border border-border rounded-xl p-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
         <h3 className="font-semibold mb-2">Documentos</h3>
         <ul className="text-sm">{documents.map((d:any)=><li key={d.id}>{d.name} - {d.status}</li>)}</ul>
       </div>
-      <div className="bg-card border border-border rounded-xl p-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
         <h3 className="font-semibold mb-2">Embeddings</h3>
         <pre className="text-xs">{JSON.stringify(embStatus,null,2)}</pre>
       </div>
-      <div className="bg-card border border-border rounded-xl p-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
         <h3 className="font-semibold mb-2">Procesamiento</h3>
         <ul className="text-sm">{jobs.map((j:any)=><li key={j.id}>{j.status} - {j.step} - chunks? {j.versionId}</li>)}</ul>
       </div>

@@ -10,12 +10,12 @@ export default function UsersPage() {
   return (
     <div>
       {error && <div className="text-red-600 mb-4">{error}</div>}
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted"><tr><th className="text-left p-3">Email</th><th className="text-left p-3">Nombre</th><th className="text-left p-3">Roles</th><th className="text-left p-3">Activo</th></tr></thead>
+          <thead className="bg-slate-50"><tr><th className="text-left p-3">Email</th><th className="text-left p-3">Nombre</th><th className="text-left p-3">Roles</th><th className="text-left p-3">Activo</th></tr></thead>
           <tbody>
             {users.map((u) => (
-              <tr key={u.id} className="border-t border-border">
+              <tr key={u.id} className="border-t border-slate-200">
                 <td className="p-3">{u.email}</td>
                 <td className="p-3">{u.name}</td>
                 <td className="p-3">{u.roles?.join(', ')}</td>
