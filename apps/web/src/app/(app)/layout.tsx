@@ -45,6 +45,7 @@ const groups: NavGroup[] = [
     { href: '/settings', label: 'Configuración', icon: '⚙️' },
     { href: '/system', label: 'Estado del sistema', icon: '🖥️' },
     { href: '/profile', label: 'Perfil', icon: '👤' },
+    { href: '/notifications', label: 'Notificaciones', icon: '🔔' },
   ]},
   { title: 'AYUDA', icon: '❓', items: [
     { href: '/help', label: 'Centro de ayuda', icon: '📖' },

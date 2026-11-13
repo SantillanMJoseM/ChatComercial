@@ -8,7 +8,7 @@ export default function AIMetricsPage() {
   return (
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-xl p-6">
-        <h3 className="font-semibold mb-2">Consumo por proveedor</h3>
+        <h2 className="font-semibold mb-2">Consumo por proveedor</h2>
         <pre className="text-xs overflow-auto">{JSON.stringify(usage, null, 2)}</pre>
       </div>
     </div>

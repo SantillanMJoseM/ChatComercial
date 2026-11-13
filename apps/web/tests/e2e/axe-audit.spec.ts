@@ -1,12 +1,15 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 const ADMIN_PASS = 'ChangeMeF0!2026';
 const ROUTES = [
-  '/dashboard','/clients','/ai','/knowledge','/automations','/reports','/users','/help','/integrations','/settings',
+  '/dashboard','/clients','/contacts','/segments','/whatsapp-groups','/conversations','/assignments','/operators','/teams','/metrics',
+  '/ai','/ai/playground','/knowledge','/skills','/ai/audit','/ai/feedback','/ai/metrics',
+  '/automations','/automations/builder','/automations/supervision',
+  '/reports','/users','/integrations','/settings','/system','/profile','/help','/notifications',
 ];
 
-test('axe audit', async ({ page }) => {
+test('axe audit all routes', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/login');
   await page.fill('input[type="email"]', 'admin@cap.local');
@@ -20,6 +23,7 @@ test('axe audit', async ({ page }) => {
     console.log(`AXE ${r}: violations=${results.violations.length}`);
     for (const v of results.violations) {
       console.log(`  - ${v.id}: ${v.description} (nodes: ${v.nodes.length})`);
+      for (const n of v.nodes.slice(0,3)) console.log(`      NODE: ${n.html?.slice(0,120)}`);
     }
   }
 });

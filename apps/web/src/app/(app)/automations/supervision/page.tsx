@@ -19,7 +19,7 @@ export default function SupervisionPage() {
   return (
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-xl p-4">
-        <h3 className="font-semibold mb-2">Automatizaciones pendientes de aprobación</h3>
+        <h2 className="font-semibold mb-2">Automatizaciones pendientes de aprobación</h2>
         <table className="w-full text-sm">
           <thead className="bg-slate-700"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Acción</th></tr></thead>
           <tbody>
@@ -41,7 +41,7 @@ export default function SupervisionPage() {
         </table>
       </div>
       <div className="bg-card border border-border rounded-xl p-4">
-        <h3 className="font-semibold mb-2">Ejecuciones pendientes de autorización</h3>
+        <h2 className="font-semibold mb-2">Ejecuciones pendientes de autorización</h2>
         <table className="w-full text-sm">
           <thead className="bg-slate-700"><tr><th className="p-3 text-left">ID</th><th className="p-3 text-left">Estado</th></tr></thead>
           <tbody>
