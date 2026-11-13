@@ -31,7 +31,7 @@ export default function SkillsPage() {
               <tr key={s.key} className="border-t border-slate-700">
                 <td className="p-3">{s.key}</td><td className="p-3">{s.name}</td><td className="p-3">{s.status}</td><td className="p-3">{s.executionMode}</td>
                 <td className="p-3">{s.publishedVersionId?.slice(0,8) || '-'}</td>
-                <td className="p-3"><Link href={`/skills/${s.key}`} className="text-primary text-xs hover:underline">Gestionar</Link></td>
+                <td className="p-3"><Link href={`/skills/${s.key}`} className="text-indigo-400 text-xs hover:underline">Gestionar</Link></td>
               </tr>
             ))}
           </tbody>

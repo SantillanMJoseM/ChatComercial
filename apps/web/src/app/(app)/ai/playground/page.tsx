@@ -20,12 +20,12 @@ export default function PlaygroundPage() {
   return (
     <div className="space-y-4">
       <form onSubmit={run} className="bg-card border border-border rounded-xl p-4 space-y-3">
-        <select className="w-full px-3 py-2 border border-border rounded-md bg-background" value={form.assistantKey} onChange={e=>setForm({...form,assistantKey:e.target.value})} required>
+        <select aria-label="selector" className="w-full px-3 py-2 border border-border rounded-md bg-background" value={form.assistantKey} onChange={e=>setForm({...form,assistantKey:e.target.value})} required>
           <option value="">Asistente</option>
           {assistants.map((a:any)=><option key={a.key} value={a.key}>{a.name}</option>)}
         </select>
-        <textarea className="w-full px-3 py-2 border border-border rounded-md bg-background" rows={4} value={form.query} onChange={e=>setForm({...form,query:e.target.value})} placeholder="Consulta" required />
-        <button disabled={loading} className="bg-primary text-primary-foreground rounded-md px-4 py-2 disabled:opacity-50">{loading?'Ejecutando...':'Ejecutar'}</button>
+        <textarea aria-label="texto" className="w-full px-3 py-2 border border-border rounded-md bg-background" rows={4} value={form.query} onChange={e=>setForm({...form,query:e.target.value})} placeholder="Consulta" required />
+        <button disabled={loading} className="bg-primary text-indigo-400-foreground rounded-md px-4 py-2 disabled:opacity-50">{loading?'Ejecutando...':'Ejecutar'}</button>
       </form>
       {result && (
         <div className="bg-card border border-border rounded-xl p-4 space-y-3">
@@ -37,7 +37,7 @@ export default function PlaygroundPage() {
               <ul className="text-xs space-y-1">{result.citations.map((c:any)=><li key={c.ref}>[{c.ref}] {c.documentName || c.documentId} (chunk {c.chunkId?.slice(0,8)})</li>)}</ul>
             </div>
           ) : null}
-          <div className="text-xs text-slate-400">Tokens: {result.tokenUsage?.inputTokens}/{result.tokenUsage?.outputTokens} · Latencia: {result.latencyMs}ms · {result.provider}/{result.model}</div>
+          <div className="text-xs text-slate-300">Tokens: {result.tokenUsage?.inputTokens}/{result.tokenUsage?.outputTokens} · Latencia: {result.latencyMs}ms · {result.provider}/{result.model}</div>
           {result.warnings?.length ? <div className="text-xs text-red-600">{result.warnings.join(', ')}</div> : null}
         </div>
       )}

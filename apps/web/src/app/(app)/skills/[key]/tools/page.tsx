@@ -27,7 +27,7 @@ export default function SkillToolsPage() {
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-xl p-4">
         <label className="text-sm">Versión</label>
-        <select className="ml-2 px-3 py-2 border border-border rounded-md bg-background text-sm" value={versionId} onChange={e=>setVersionId(e.target.value)}>
+        <select aria-label="selector" className="ml-2 px-3 py-2 border border-border rounded-md bg-background text-sm" value={versionId} onChange={e=>setVersionId(e.target.value)}>
           {versions.map((v:any)=><option key={v.id} value={v.id}>v{v.version} ({v.status})</option>)}
         </select>
       </div>

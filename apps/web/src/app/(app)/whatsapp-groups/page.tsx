@@ -29,7 +29,7 @@ export default function WhatsAppGroupsPage() {
       <form onSubmit={doPreview} className="bg-slate-800 border border-slate-700 rounded-xl p-4 grid gap-2 md:grid-cols-3">
         <input className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" placeholder="Sesión" value={form.session} onChange={e=>setForm({...form,session:e.target.value})} />
         <input className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" placeholder="Nombre grupo" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} />
-        <select className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" value={form.segmentId} onChange={e=>setForm({...form,segmentId:e.target.value})}>
+        <select aria-label="selector" className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" value={form.segmentId} onChange={e=>setForm({...form,segmentId:e.target.value})}>
           <option value="">Segmento (opcional)</option>
           {segments.map((s:any)=><option key={s.id} value={s.id}>{s.name}</option>)}
         </select>

@@ -21,11 +21,11 @@ export default function SkillAssistantsPage() {
   return (
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-xl p-4 flex gap-2">
-        <select className="px-3 py-2 border border-border rounded-md bg-background text-sm" value={selected} onChange={e=>setSelected(e.target.value)}>
+        <select aria-label="selector" className="px-3 py-2 border border-border rounded-md bg-background text-sm" value={selected} onChange={e=>setSelected(e.target.value)}>
           <option value="">Asistente</option>
           {assistants.map((a:any)=><option key={a.id} value={a.id}>{a.name}</option>)}
         </select>
-        <button onClick={link} className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm">Vincular</button>
+        <button onClick={link} className="bg-primary text-indigo-400-foreground rounded-md px-4 py-2 text-sm">Vincular</button>
       </div>
       <div className="bg-card border border-border rounded-xl p-4">
         <h3 className="font-semibold mb-2">Asistentes vinculados</h3>

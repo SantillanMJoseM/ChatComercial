@@ -28,13 +28,13 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <form onSubmit={handleSubmit} className="w-full max-w-md bg-slate-800 border border-slate-700 rounded-xl p-8 shadow-sm">
         <h1 className="text-2xl font-bold mb-2">Plataforma Integral de Atención Comercial</h1>
-        <p className="text-slate-400 mb-6">Iniciar sesión</p>
+        <p className="text-slate-300 mb-6">Iniciar sesión</p>
         {error && <div className="mb-4 text-red-600 text-sm">{error}</div>}
         <label className="block mb-2 text-sm font-medium">Email</label>
         <input className="w-full mb-4 px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} required />
         <label className="block mb-2 text-sm font-medium">Contraseña</label>
         <input className="w-full mb-6 px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" type="password" value={password} onChange={(e)=>setPassword(e.target.value)} required />
-        <button disabled={loading} className="w-full bg-primary text-primary-foreground py-2 rounded-md font-medium disabled:opacity-50">
+        <button disabled={loading} className="w-full bg-primary text-indigo-400-foreground py-2 rounded-md font-medium disabled:opacity-50">
           {loading ? 'Ingresando...' : 'Ingresar'}
         </button>
       </form>

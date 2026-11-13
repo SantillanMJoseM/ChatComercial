@@ -27,8 +27,8 @@ export default function IntegrationsPage() {
         <div key={i.id} className="bg-slate-800 border border-slate-700 rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-semibold">{i.name} <span className="text-xs text-slate-500">({i.key})</span></div>
-              <div className="text-sm text-slate-500">Tipo: {i.type} · Activo: {i.isActive ? 'Sí' : 'No'}</div>
+              <div className="font-semibold">{i.name} <span className="text-xs text-slate-300">({i.key})</span></div>
+              <div className="text-sm text-slate-300">Tipo: {i.type} · Activo: {i.isActive ? 'Sí' : 'No'}</div>
               {i.eventCounts?.length ? <div className="text-xs mt-2">Eventos: {i.eventCounts.map((e:any)=>`${e.status}:${e.count}`).join(', ')}</div> : null}
             </div>
             <div className="flex gap-2">
@@ -44,7 +44,7 @@ export default function IntegrationsPage() {
       {session && <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 text-sm">WAHA sesión: {session.status} · {session.me?.id || 'sin vincular'}</div>}
       {qr && qr.base64 && <div className="bg-slate-800 border border-slate-700 rounded-xl p-4"><img src={`data:${qr.mime};base64,${qr.base64}`} alt="QR" className="w-48 h-48" /></div>}
       {qr && qr.error && <div className="text-red-600 text-sm">{qr.error}</div>}
-      {integrations.length === 0 && <div className="text-slate-500">Sin integraciones</div>}
+      {integrations.length === 0 && <div className="text-slate-300">Sin integraciones</div>}
     </div>
   );
 }

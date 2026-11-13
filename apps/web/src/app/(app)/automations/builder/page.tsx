@@ -37,7 +37,7 @@ export default function AutomationBuilderPage() {
     <div className="space-y-4">
       <div className="flex gap-2 items-center">
         <input className="px-3 py-2 border border-border rounded-md bg-background text-sm" value={name} onChange={e=>setName(e.target.value)} />
-        <button onClick={save} disabled={saving} className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm disabled:opacity-50">{saving?'Guardando...':'Guardar'}</button>
+        <button onClick={save} disabled={saving} className="bg-primary text-indigo-400-foreground rounded-md px-4 py-2 text-sm disabled:opacity-50">{saving?'Guardando...':'Guardar'}</button>
         <button onClick={()=>addNode('condition','Condición')} className="px-3 py-2 border border-border rounded-md text-sm">+ Condición</button>
         <button onClick={()=>addNode('action','Acción: send_notification')} className="px-3 py-2 border border-border rounded-md text-sm">+ Acción</button>
       </div>

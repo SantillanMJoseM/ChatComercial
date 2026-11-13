@@ -20,7 +20,7 @@ export default function ContactsPage() {
   return (
     <div className="space-y-4">
       <form onSubmit={create} className="bg-slate-800 border border-slate-700 rounded-xl p-4 grid gap-2 md:grid-cols-3">
-        <select className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" value={form.clientId} onChange={e=>setForm({...form,clientId:e.target.value})} required>
+        <select aria-label="selector" className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" value={form.clientId} onChange={e=>setForm({...form,clientId:e.target.value})} required>
           <option value="">Cliente</option>
           {clients.map((c:any)=> <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>

@@ -20,7 +20,7 @@ export default function ConsentsPage() {
       <form onSubmit={create} className="bg-slate-800 border border-slate-700 rounded-xl p-4 grid gap-2 md:grid-cols-4">
         <input className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" placeholder="Teléfono E.164" value={form.phoneE164} onChange={e=>setForm({...form,phoneE164:e.target.value})} required />
         <input className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" placeholder="Propósito" value={form.purpose} onChange={e=>setForm({...form,purpose:e.target.value})} />
-        <select className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" value={form.status} onChange={e=>setForm({...form,status:e.target.value})}>
+        <select aria-label="selector" className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" value={form.status} onChange={e=>setForm({...form,status:e.target.value})}>
           <option value="granted">granted</option><option value="revoked">revoked</option>
         </select>
         <button className="bg-indigo-600 text-white hover:bg-indigo-700 rounded-md px-4 py-2">Registrar</button>

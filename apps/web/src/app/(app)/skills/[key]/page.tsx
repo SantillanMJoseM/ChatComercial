@@ -47,7 +47,7 @@ export default function SkillDetailPage() {
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-xl p-6">
         <h2 className="text-xl font-bold">{skill.name}</h2>
-        <div className="text-sm text-slate-400">{skill.key} · {skill.status} · modo: {skill.executionMode}</div>
+        <div className="text-sm text-slate-300">{skill.key} · {skill.status} · modo: {skill.executionMode}</div>
         <div className="mt-3 flex gap-2">
           <button onClick={()=>setMode('disabled')} className="px-3 py-1 border border-border rounded text-xs">Disabled</button>
           <button onClick={()=>setMode('assist')} className="px-3 py-1 border border-border rounded text-xs">Assist</button>
@@ -60,8 +60,8 @@ export default function SkillDetailPage() {
         <h3 className="font-semibold mb-2">Nueva versión</h3>
         <form onSubmit={createVersion} className="space-y-2">
           <input className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm" type="number" value={form.version} onChange={e=>setForm({...form,version:Number(e.target.value)})} required />
-          <textarea className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm" rows={4} value={form.instructions} onChange={e=>setForm({...form,instructions:e.target.value})} placeholder="Instrucciones" required />
-          <button className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm">Crear versión (draft)</button>
+          <textarea aria-label="texto" className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm" rows={4} value={form.instructions} onChange={e=>setForm({...form,instructions:e.target.value})} placeholder="Instrucciones" required />
+          <button className="bg-primary text-indigo-400-foreground rounded-md px-4 py-2 text-sm">Crear versión (draft)</button>
         </form>
       </div>
 
@@ -71,8 +71,8 @@ export default function SkillDetailPage() {
           {versions.map((v:any)=>(
             <li key={v.id} className="border-b border-border pb-2">
               <div>v{v.version} · {v.status}</div>
-              <div className="text-xs text-slate-400">{v.instructions?.slice(0,80)}</div>
-              {v.status==='draft' && <button onClick={()=>publish(v.id)} className="text-primary text-xs hover:underline mt-1">Publicar</button>}
+              <div className="text-xs text-slate-300">{v.instructions?.slice(0,80)}</div>
+              {v.status==='draft' && <button onClick={()=>publish(v.id)} className="text-indigo-400 text-xs hover:underline mt-1">Publicar</button>}
             </li>
           ))}
         </ul>
@@ -81,8 +81,8 @@ export default function SkillDetailPage() {
       <div className="bg-card border border-border rounded-xl p-6">
         <h3 className="font-semibold mb-2">Probar skill</h3>
         <form onSubmit={execute} className="space-y-2">
-          <textarea className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm" rows={3} value={execInput} onChange={e=>setExecInput(e.target.value)} />
-          <button className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm">Ejecutar</button>
+          <textarea aria-label="texto" className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm" rows={3} value={execInput} onChange={e=>setExecInput(e.target.value)} />
+          <button className="bg-primary text-indigo-400-foreground rounded-md px-4 py-2 text-sm">Ejecutar</button>
         </form>
         {execResult && <pre className="mt-3 text-xs bg-slate-700 p-2 rounded">{JSON.stringify(execResult,null,2)}</pre>}
       </div>

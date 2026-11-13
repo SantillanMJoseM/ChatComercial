@@ -14,7 +14,7 @@ export default function CollectionsPage() {
           {collections.map((c:any)=>(
             <tr key={c.id} className="border-t border-border">
               <td className="p-3">{c.name}</td><td className="p-3 text-xs">{c.id}</td>
-              <td className="p-3"><Link href={`/knowledge/collections/${c.id}`} className="text-primary text-xs hover:underline">Ver</Link></td>
+              <td className="p-3"><Link href={`/knowledge/collections/${c.id}`} className="text-indigo-400 text-xs hover:underline">Ver</Link></td>
             </tr>
           ))}
         </tbody>

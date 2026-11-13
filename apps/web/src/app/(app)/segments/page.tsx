@@ -32,7 +32,7 @@ export default function SegmentsPage() {
             {segments.map((s:any)=>(
               <tr key={s.id} className="border-t border-slate-700">
                 <td className="p-3">{s.name}</td><td className="p-3">{s.isDynamic?'Sí':'No'}</td>
-                <td className="p-3"><button onClick={()=>previewSeg(s.id)} className="text-primary text-xs hover:underline">Preview</button></td>
+                <td className="p-3"><button onClick={()=>previewSeg(s.id)} className="text-indigo-400 text-xs hover:underline">Preview</button></td>
               </tr>
             ))}
           </tbody>

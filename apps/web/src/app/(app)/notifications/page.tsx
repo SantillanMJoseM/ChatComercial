@@ -20,7 +20,7 @@ export default function NotificationsPage() {
               <td className="p-3 text-xs">{new Date(n.createdAt).toLocaleString()}</td>
               <td className="p-3">{n.title}</td>
               <td className="p-3">{n.read?'Sí':'No'}</td>
-              <td className="p-3">{!n.read && <button onClick={()=>markRead(n.id)} className="text-primary text-xs">Marcar leído</button>}</td>
+              <td className="p-3">{!n.read && <button onClick={()=>markRead(n.id)} className="text-indigo-400 text-xs">Marcar leído</button>}</td>
             </tr>
           ))}
         </tbody>

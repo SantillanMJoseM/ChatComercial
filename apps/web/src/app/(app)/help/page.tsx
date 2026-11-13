@@ -18,7 +18,7 @@ export default function HelpPage() {
     <div className="space-y-4">
       <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
         <h2 className="text-xl font-bold mb-2">Centro de ayuda</h2>
-        <p className="text-sm text-slate-500 mb-4">Documentación funcional de la plataforma. Buscá un módulo o tema.</p>
+        <p className="text-sm text-slate-300 mb-4">Documentación funcional de la plataforma. Buscá un módulo o tema.</p>
         <input className="w-full px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" placeholder="Buscar en la ayuda..." value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
       <div className="grid gap-4 md:grid-cols-2">
@@ -26,14 +26,14 @@ export default function HelpPage() {
           <div key={c.title} className="bg-slate-800 border border-slate-700 rounded-xl p-4">
             <h3 className="font-semibold mb-2">{c.title}</h3>
             <ul className="text-sm space-y-1">
-              {c.items.map((i) => <li key={i} className="text-slate-500">• {i}</li>)}
+              {c.items.map((i) => <li key={i} className="text-slate-300">• {i}</li>)}
             </ul>
           </div>
         ))}
       </div>
       <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 text-sm">
         <h3 className="font-semibold mb-2">Circuitos operativos</h3>
-        <ul className="space-y-1 text-slate-500">
+        <ul className="space-y-1 text-slate-300">
           <li>• Circuito A — Atención comercial: Cliente → Contacto → Conversación → Bandeja → Operador → Resolución.</li>
           <li>• Circuito B — WhatsApp: Vinculación WAHA → Sesión → QR → Dispositivo conectado → Mensajes → Integración con Chatwoot → Plataforma.</li>
           <li>• Circuito C — IA: Proveedor → Modelo → Asistente → Instrucciones → Prueba → Conversación.</li>
@@ -45,7 +45,7 @@ export default function HelpPage() {
       </div>
       <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 text-sm">
         <h3 className="font-semibold mb-2">Guía de configuración inicial</h3>
-        <ol className="list-decimal list-inside space-y-1 text-slate-500">
+        <ol className="list-decimal list-inside space-y-1 text-slate-300">
           <li>Administrador y usuarios.</li>
           <li>Roles y permisos.</li>
           <li>Equipos y operadores.</li>

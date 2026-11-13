@@ -36,15 +36,15 @@ export default function ConversationsPage() {
         <KpiCard title="Resueltas" value={refs.filter((r:any)=>r.status==='resolved').length} color="text-green-600" />
       </div>
       <form onSubmit={doAssign} className="bg-slate-800 border border-slate-700 rounded-xl p-4 grid gap-3 md:grid-cols-4 shadow-sm">
-        <select className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50 text-sm" value={assign.conversationId} onChange={e=>setAssign({...assign,conversationId:e.target.value})} required>
+        <select aria-label="selector" className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50 text-sm" value={assign.conversationId} onChange={e=>setAssign({...assign,conversationId:e.target.value})} required>
           <option value="">Conversación</option>
           {refs.map((r:any)=><option key={r.id} value={r.id}>#{r.chatwootConversationId} ({r.status})</option>)}
         </select>
-        <select className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50 text-sm" value={assign.toUserId} onChange={e=>setAssign({...assign,toUserId:e.target.value})}>
+        <select aria-label="selector" className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50 text-sm" value={assign.toUserId} onChange={e=>setAssign({...assign,toUserId:e.target.value})}>
           <option value="">Operador</option>
           {users.map((u:any)=><option key={u.id} value={u.id}>{u.email}</option>)}
         </select>
-        <select className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50 text-sm" value={assign.toTeamId} onChange={e=>setAssign({...assign,toTeamId:e.target.value})}>
+        <select aria-label="selector" className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50 text-sm" value={assign.toTeamId} onChange={e=>setAssign({...assign,toTeamId:e.target.value})}>
           <option value="">Equipo</option>
           {teams.map((t:any)=><option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
@@ -62,14 +62,14 @@ export default function ConversationsPage() {
                 <td className="p-3">{r.localAssignee?.email || '-'}</td>
                 <td className="p-3">{r.localTeam?.name || '-'}</td>
                 <td className="p-3">
-                  <select className="text-xs border border-slate-700 rounded bg-slate-700/50 px-2 py-1" value={r.clientId || ''} onChange={e=>linkClient(r.id, e.target.value)}>
+                  <select aria-label="selector" className="text-xs border border-slate-700 rounded bg-slate-700/50 px-2 py-1" value={r.clientId || ''} onChange={e=>linkClient(r.id, e.target.value)}>
                     <option value="">Sin cliente</option>
                     {clients.map((c:any)=><option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </td>
               </tr>
             ))}
-            {refs.length === 0 && <tr><td colSpan={5} className="p-6 text-center text-slate-500">Sin conversaciones sincronizadas.</td></tr>}
+            {refs.length === 0 && <tr><td colSpan={5} className="p-6 text-center text-slate-300">Sin conversaciones sincronizadas.</td></tr>}
           </tbody>
         </table>
       </div>
