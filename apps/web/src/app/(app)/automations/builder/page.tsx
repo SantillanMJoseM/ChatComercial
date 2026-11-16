@@ -189,6 +189,51 @@ export default function AutomationBuilderPage() {
   };
 
   const Flow = ReactFlow as any;
+
+  const [simResults, setSimResults] = useState<any[]>([]);
+  const [simRunning, setSimRunning] = useState(false);
+
+  function runSimulation() {
+    setSimRunning(true);
+    const results: any[] = [];
+    const ctx: Record<string, any> = { 'contact.name': 'Cliente de prueba', 'contact.phone': '+5491112345678', 'contact.email': 'test@test.com', 'conversation.id': 'conv-1', 'conversation.status': 'open', 'message.content': 'hola', 'flow.execution_id': 'exec-' + Date.now() };
+    // find trigger
+    const trigger = nodes.find((n) => n.data?.type === 'trigger');
+    if (!trigger) { setSimResults([{ node: 'none', status: 'error', message: 'No trigger' }]); setSimRunning(false); return; }
+    const visited = new Set<string>();
+    let current: any = trigger;
+    let steps = 0;
+    while (current && steps < 50) {
+      steps++;
+      if (visited.has(current.id)) { results.push({ node: current.data?.label, status: 'error', message: 'Cycle detected' }); break; }
+      visited.add(current.id);
+      const nodeType = current.data?.type || 'action';
+      // resolve variables in label/config
+      const resolvedLabel = String(current.data?.label || '').replace(/\{\{([^}]+)\}\}/g, (_, k) => ctx[k.trim()] ?? `{{${k}}}`);
+      results.push({ node: current.data?.label, type: nodeType, status: 'completed', resolved: resolvedLabel, context: { ...ctx } });
+      // pick next edge
+      const outgoing = edges.filter((e) => e.source === current.id);
+      if (outgoing.length === 0) break;
+      // if condition node, evaluate
+      if (nodeType === 'condition') {
+        const cond = current.data?.config?.condition || 'true';
+        const result = cond === 'true' || ctx[cond] === true;
+        const branch = result ? outgoing.find((e) => e.label === 'TRUE' || e.label === 'true') : outgoing.find((e) => e.label === 'FALSE' || e.label === 'false');
+        const next = branch || outgoing[0];
+        current = nodes.find((n) => n.id === next?.target);
+      } else {
+        // simulate action: set context
+        if (nodeType === 'action' && current.data?.label?.includes('Buscar')) {
+          ctx['contact.name'] = ctx['contact.name'] || 'Cliente de prueba';
+          ctx['contact.phone'] = ctx['contact.phone'] || '+5491112345678';
+        }
+        current = nodes.find((n) => n.id === outgoing[0].target);
+      }
+    }
+    setSimResults(results);
+    setSimRunning(false);
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex gap-2 items-center flex-wrap">
@@ -201,6 +246,7 @@ export default function AutomationBuilderPage() {
         </select>
         <button onClick={() => setValidationErrors(validate())} className="px-3 py-2 border border-slate-700 rounded-md text-sm text-slate-300 hover:bg-slate-700">Validar</button>
         <button onClick={dryRun} disabled={dryRunLoading} className="px-3 py-2 border border-slate-700 rounded-md text-sm text-slate-300 hover:bg-slate-700 disabled:opacity-50">{dryRunLoading ? 'Simulando...' : 'Dry Run'}</button>
+        <button onClick={runSimulation} disabled={simRunning} className="px-3 py-2 border border-slate-700 rounded-md text-sm text-slate-300 hover:bg-slate-700 disabled:opacity-50">{simRunning ? 'Simulando...' : 'Simular'}</button>
         <button onClick={save} disabled={saving} className="bg-indigo-600 text-white rounded-md px-4 py-2 text-sm disabled:opacity-50 hover:bg-indigo-700">{saving ? 'Guardando...' : 'Guardar y publicar'}</button>
         <input className="px-3 py-2 border border-slate-700 rounded-md bg-slate-800 text-slate-200 text-sm" placeholder="Buscar nodo..." value={filter} onChange={e => setFilter(e.target.value)} />
       </div>
@@ -262,8 +308,20 @@ export default function AutomationBuilderPage() {
           ) : <div className="text-xs text-slate-500">Seleccioná un nodo del canvas.</div>}
           {dryRunResult && (
             <div className="mt-4 border-t border-slate-700 pt-3">
-              <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Dry Run</div>
+              <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Dry Run (backend)</div>
               <pre className="text-xs text-slate-300 overflow-auto max-h-40">{JSON.stringify(dryRunResult, null, 2)}</pre>
+            </div>
+          )}
+          {simResults.length > 0 && (
+            <div className="mt-4 border-t border-slate-700 pt-3">
+              <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Simulación (frontend)</div>
+              <div className="space-y-1 max-h-60 overflow-auto">
+                {simResults.map((r, i) => (
+                  <div key={i} className="text-xs text-slate-300 bg-slate-700/50 rounded p-2">
+                    <span className="font-semibold">{r.node}</span> — {r.status} — {r.resolved}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
