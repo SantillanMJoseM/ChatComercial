@@ -6,65 +6,60 @@ import '@xyflow/react/dist/style.css';
 import { apiFetch } from '@/lib/api';
 import { PageHeader } from '@/components/ui/page-header';
 
+const CATEGORIES: Record<string, { color: string; icon: string }> = {
+  trigger: { color: 'bg-indigo-600', icon: '⚡' },
+  condition: { color: 'bg-amber-600', icon: '🔀' },
+  action: { color: 'bg-emerald-600', icon: '▶' },
+  control: { color: 'bg-slate-600', icon: '⏹' },
+};
+
 const PALETTE = [
   { group: 'Disparadores', items: [
-    { type: 'trigger', label: 'Evento client.created', nodeType: 'input' },
-    { type: 'trigger', label: 'Evento conversation.created', nodeType: 'input' },
-    { type: 'trigger', label: 'Evento manual', nodeType: 'input' },
-    { type: 'trigger', label: 'Programado (cron)', nodeType: 'input' },
+    { type: 'trigger', label: 'Evento client.created', nodeType: 'trigger' },
+    { type: 'trigger', label: 'Evento conversation.created', nodeType: 'trigger' },
+    { type: 'trigger', label: 'Evento manual', nodeType: 'trigger' },
   ]},
   { group: 'Condiciones', items: [
-    { type: 'condition', label: 'Si / Entonces', nodeType: 'default' },
-    { type: 'condition', label: 'Comparar texto', nodeType: 'default' },
-    { type: 'condition', label: 'Comparar número', nodeType: 'default' },
-    { type: 'condition', label: 'Verificar existencia', nodeType: 'default' },
+    { type: 'condition', label: 'Si / Entonces', nodeType: 'condition' },
+    { type: 'condition', label: 'Comparar texto', nodeType: 'condition' },
+    { type: 'condition', label: 'Comparar número', nodeType: 'condition' },
   ]},
-  { group: 'CRM', items: [
-    { type: 'action', label: 'Buscar cliente', nodeType: 'default' },
-    { type: 'action', label: 'Crear cliente', nodeType: 'default' },
-    { type: 'action', label: 'Actualizar cliente', nodeType: 'default' },
-    { type: 'action', label: 'Agregar etiqueta', nodeType: 'default' },
-    { type: 'action', label: 'Agregar nota', nodeType: 'default' },
-  ]},
-  { group: 'Mensajería', items: [
-    { type: 'action', label: 'Enviar notificación', nodeType: 'default' },
-    { type: 'action', label: 'Enviar WhatsApp (simulado)', nodeType: 'default' },
-    { type: 'action', label: 'Mensaje al operador', nodeType: 'default' },
-  ]},
-  { group: 'Chatwoot', items: [
-    { type: 'action', label: 'Asignar operador', nodeType: 'default' },
-    { type: 'action', label: 'Asignar equipo', nodeType: 'default' },
-    { type: 'action', label: 'Cambiar estado conv.', nodeType: 'default' },
-    { type: 'action', label: 'Derivar a operador', nodeType: 'default' },
-  ]},
-  { group: 'Inteligencia', items: [
-    { type: 'action', label: 'Ejecutar skill', nodeType: 'default' },
-    { type: 'action', label: 'Consultar RAG', nodeType: 'default' },
-    { type: 'action', label: 'Solicitar asistencia IA', nodeType: 'default' },
-    { type: 'action', label: 'Clasificar intención', nodeType: 'default' },
-    { type: 'action', label: 'Resumir conversación', nodeType: 'default' },
+  { group: 'Acciones', items: [
+    { type: 'action', label: 'Enviar notificación', nodeType: 'action' },
+    { type: 'action', label: 'Crear nota', nodeType: 'action' },
+    { type: 'action', label: 'Agregar etiqueta', nodeType: 'action' },
+    { type: 'action', label: 'Ejecutar skill', nodeType: 'action' },
+    { type: 'action', label: 'Consultar RAG', nodeType: 'action' },
+    { type: 'action', label: 'Derivar a operador', nodeType: 'action' },
+    { type: 'action', label: 'Generar reporte', nodeType: 'action' },
   ]},
   { group: 'Control', items: [
-    { type: 'control', label: 'Esperar', nodeType: 'default' },
-    { type: 'control', label: 'Dividir caminos', nodeType: 'default' },
-    { type: 'control', label: 'Finalizar flujo', nodeType: 'output' },
-    { type: 'control', label: 'Manejar error', nodeType: 'default' },
+    { type: 'control', label: 'Esperar', nodeType: 'control' },
+    { type: 'control', label: 'Finalizar flujo', nodeType: 'control' },
   ]},
 ];
 
-const NODE_COLORS: Record<string, string> = {
-  trigger: 'bg-emerald-600',
-  condition: 'bg-amber-600',
-  action: 'bg-indigo-600',
-  control: 'bg-slate-600',
-};
+const VARIABLES = [
+  { key: '{{contact.name}}', desc: 'Nombre del contacto' },
+  { key: '{{contact.phone}}', desc: 'Teléfono del contacto' },
+  { key: '{{contact.email}}', desc: 'Email del contacto' },
+  { key: '{{conversation.id}}', desc: 'ID de conversación' },
+  { key: '{{conversation.status}}', desc: 'Estado de conversación' },
+  { key: '{{message.content}}', desc: 'Contenido del mensaje' },
+  { key: '{{ai.response}}', desc: 'Respuesta de IA' },
+  { key: '{{flow.execution_id}}', desc: 'ID de ejecución' },
+];
 
 function CustomNode({ data }: { data: any }) {
   const type = data?.type || 'action';
-  const color = type === 'trigger' ? 'bg-indigo-600' : type === 'condition' ? 'bg-amber-600' : type === 'control' ? 'bg-slate-600' : 'bg-emerald-600';
+  const color = CATEGORIES[type]?.color || 'bg-slate-600';
+  const icon = CATEGORIES[type]?.icon || '▶';
   return (
-    <div className="rounded-lg border border-slate-600 bg-slate-800 shadow-md min-w-[160px]">
-      <div className={`${color} text-white text-xs font-semibold px-3 py-1.5 rounded-t-lg`}>{String(data?.label || '')}</div>
+    <div className="rounded-lg border border-slate-600 bg-slate-800 shadow-md min-w-[180px]">
+      <div className={`${color} text-white text-xs font-semibold px-3 py-1.5 rounded-t-lg flex items-center gap-2`}>
+        <span>{icon}</span>
+        <span className="truncate">{String(data?.label || '')}</span>
+      </div>
       <div className="px-3 py-2 text-xs text-slate-400">{type}</div>
       <Handle type="target" position={Position.Left} className="!bg-indigo-400 !w-3 !h-3" />
       <Handle type="source" position={Position.Right} className="!bg-indigo-400 !w-3 !h-3" />
@@ -72,6 +67,25 @@ function CustomNode({ data }: { data: any }) {
   );
 }
 const nodeTypes = { custom: CustomNode };
+
+function detectCycles(nodes: Node[], edges: Edge[]): boolean {
+  const adj: Record<string, string[]> = {};
+  for (const n of nodes) adj[n.id] = [];
+  for (const e of edges) { if (adj[e.source]) adj[e.source].push(e.target); }
+  const visited = new Set<string>();
+  const stack = new Set<string>();
+  function dfs(u: string): boolean {
+    visited.add(u); stack.add(u);
+    for (const v of (adj[u] || [])) {
+      if (!visited.has(v)) { if (dfs(v)) return true; }
+      else if (stack.has(v)) return true;
+    }
+    stack.delete(u);
+    return false;
+  }
+  for (const n of nodes) { if (!visited.has(n.id)) { if (dfs(n.id)) return true; } }
+  return false;
+}
 
 export default function AutomationBuilderPage() {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([
@@ -84,24 +98,15 @@ export default function AutomationBuilderPage() {
   const [filter, setFilter] = useState('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [dryRunResult, setDryRunResult] = useState<any>(null);
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
-      if (tag === 'input' || tag === 'textarea') return;
-      if (e.key === 'Delete' || e.key === 'Backspace') {
-        const selectedNodes = nodes.filter((n) => n.selected);
-        const selectedEdges = edges.filter((e) => e.selected);
-        if (selectedNodes.length) { selectedNodes.forEach((n) => deleteNode(n.id)); }
-        if (selectedEdges.length) { deleteSelectedEdge(); }
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [nodes, edges, selected]);
   const [dryRunLoading, setDryRunLoading] = useState(false);
+  const [propForm, setPropForm] = useState({ label: '', varKey: '' });
 
   const onConnect = useCallback((params: Connection) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
+
+  const addNode = (type: string, label: string) => {
+    const id = `${type}-${Date.now()}`;
+    setNodes((nds) => [...nds, { id, position: { x: 260, y: 120 + nds.length * 90 }, data: { label, type, config: {} }, type: 'custom' }]);
+  };
 
   const deleteNode = (id: string) => {
     setNodes((nds) => nds.filter((n) => n.id !== id));
@@ -109,14 +114,20 @@ export default function AutomationBuilderPage() {
     if (selected?.id === id) setSelected(null);
   };
 
-  const deleteSelectedEdge = () => {
-    setEdges((eds) => eds.filter((e) => !e.selected));
-  };
-
-  const addNode = (type: string, label: string, nodeType: string) => {
-    const id = `${type}-${Date.now()}`;
-    setNodes((nds) => [...nds, { id, position: { x: 260, y: 120 + nds.length * 90 }, data: { label, type }, type: 'custom' }]);
-  };
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        const selNodes = nodes.filter((n) => n.selected);
+        const selEdges = edges.filter((e) => e.selected);
+        selNodes.forEach((n) => deleteNode(n.id));
+        if (selEdges.length) setEdges((eds) => eds.filter((e) => !e.selected));
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [nodes, edges, selected]);
 
   function validate(): string[] {
     const errors: string[] = [];
@@ -125,6 +136,10 @@ export default function AutomationBuilderPage() {
     const connected = new Set(edges.flatMap((e) => [e.source, e.target]));
     for (const n of nodes) {
       if (n.data?.type !== 'trigger' && !connected.has(n.id)) errors.push(`Nodo "${n.data?.label}" está desconectado.`);
+    }
+    if (detectCycles(nodes, edges)) errors.push('Se detectó un ciclo en el flujo.');
+    for (const n of nodes) {
+      if (!n.data?.label) errors.push(`Nodo ${n.id} sin nombre.`);
     }
     return errors;
   }
@@ -160,6 +175,12 @@ export default function AutomationBuilderPage() {
     items: g.items.filter((it) => it.label.toLowerCase().includes(filter.toLowerCase())),
   })).filter((g) => g.items.length > 0);
 
+  const updateNodeLabel = (id: string, label: string) => {
+    setNodes((nds) => nds.map((n) => n.id === id ? { ...n, data: { ...n.data, label } } : n));
+    if (selected?.id === id) setSelected((s) => s ? { ...s, data: { ...s.data, label } } : s);
+  };
+
+  const Flow = ReactFlow as any;
   return (
     <div className="space-y-4">
       <div className="flex gap-2 items-center flex-wrap">
@@ -177,24 +198,32 @@ export default function AutomationBuilderPage() {
       )}
 
       <div className="flex gap-4">
-        <div className="w-60 bg-slate-800 border border-slate-700 rounded-xl p-3 space-y-3 max-h-[560px] overflow-auto">
+        <div className="w-64 bg-slate-800 border border-slate-700 rounded-xl p-3 space-y-3 max-h-[600px] overflow-auto">
           <div className="text-xs font-semibold text-slate-400 uppercase">Biblioteca de nodos</div>
           {filteredPalette.map((g) => (
             <div key={g.group}>
               <div className="text-xs text-slate-500 font-semibold mt-2 mb-1">{g.group}</div>
               {g.items.map((it) => (
-                <button key={it.label} onClick={() => addNode(it.type, it.label, it.nodeType)} className="w-full text-left px-2 py-1.5 rounded text-xs text-slate-300 hover:bg-slate-700 mb-1">
+                <button key={it.label} onClick={() => addNode(it.type, it.label)} className="w-full text-left px-2 py-1.5 rounded text-xs text-slate-300 hover:bg-slate-700 mb-1">
                   {it.label}
                 </button>
               ))}
             </div>
           ))}
+          <div className="mt-4 border-t border-slate-700 pt-3">
+            <div className="text-xs font-semibold text-slate-400 uppercase mb-1">Variables</div>
+            {VARIABLES.map((v) => (
+              <div key={v.key} className="text-xs text-slate-400 py-0.5">
+                <code className="text-indigo-400">{v.key}</code> — {v.desc}
+              </div>
+            ))}
+          </div>
         </div>
-        <div style={{ height: 560, flex: 1 }} className="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
-          <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} onNodeClick={(_, n: any) => setSelected(n)} fitView nodeTypes={nodeTypes}>
-            <Controls />
+        <div style={{ height: 600, flex: 1 }} className="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
+          <Flow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} onNodeClick={(_: any, n: any) => setSelected(n)} fitView nodeTypes={nodeTypes}>
+            <Controls className="!bg-slate-800 !border-slate-700 !text-slate-200" />
             <Background color="#334155" gap={16} />
-          </ReactFlow>
+          </Flow>
         </div>
         <div className="w-72 bg-slate-800 border border-slate-700 rounded-xl p-3">
           <div className="text-xs font-semibold text-slate-400 uppercase mb-2">Propiedades</div>
@@ -204,10 +233,8 @@ export default function AutomationBuilderPage() {
               <div className="text-xs text-slate-500">ID: {selected.id}</div>
               <div className="text-xs text-slate-500">Tipo: {String(selected.data?.type || '')}</div>
               <label className="block text-xs text-slate-400">Nombre del nodo</label>
-              <button onClick={() => deleteNode(selected.id)} className="w-full bg-red-600 text-white rounded-md px-3 py-1.5 text-sm hover:bg-red-700 mb-2">Eliminar nodo</button>
-              <input className="w-full px-2 py-1 border border-slate-700 rounded bg-slate-700/50 text-sm text-slate-200" defaultValue={String(selected.data?.label || '')} onChange={(e) => {
-                setNodes((nds) => nds.map((n) => n.id === selected.id ? { ...n, data: { ...n.data, label: e.target.value } } : n));
-              }} />
+              <input className="w-full px-2 py-1 border border-slate-700 rounded bg-slate-700/50 text-sm text-slate-200" defaultValue={String(selected.data?.label || '')} onChange={(e) => updateNodeLabel(selected.id, e.target.value)} />
+              <button onClick={() => { setNodes((nds) => nds.filter((n) => n.id !== selected.id)); setEdges((eds) => eds.filter((e) => e.source !== selected.id && e.target !== selected.id)); setSelected(null); }} className="w-full bg-red-600 text-white rounded-md px-3 py-1.5 text-sm hover:bg-red-700">Eliminar nodo</button>
             </div>
           ) : <div className="text-xs text-slate-500">Seleccioná un nodo del canvas.</div>}
           {dryRunResult && (
