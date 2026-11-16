@@ -89,7 +89,11 @@ function detectCycles(nodes: Node[], edges: Edge[]): boolean {
 
 const TEMPLATES: Record<string, { nodes: any[]; edges: any[] }> = {
   welcome: { nodes: [{ id: 't1', position: { x: 80, y: 120 }, data: { label: 'Disparador', type: 'trigger' }, type: 'custom' }, { id: 'c1', position: { x: 300, y: 120 }, data: { label: 'Condición', type: 'condition' }, type: 'custom' }, { id: 'a1', position: { x: 520, y: 80 }, data: { label: 'Enviar bienvenida', type: 'action' }, type: 'custom' }], edges: [{ id: 'e1', source: 't1', target: 'c1' }, { id: 'e2', source: 'c1', target: 'a1' }] },
+  followup: { nodes: [{ id: 't1', position: { x: 80, y: 120 }, data: { label: 'Disparador manual', type: 'trigger' }, type: 'custom' }, { id: 'a1', position: { x: 300, y: 120 }, data: { label: 'Esperar', type: 'control' }, type: 'custom' }, { id: 'a2', position: { x: 520, y: 120 }, data: { label: 'Enviar seguimiento', type: 'action' }, type: 'custom' }], edges: [{ id: 'e1', source: 't1', target: 'a1' }, { id: 'e2', source: 'a1', target: 'a2' }] },
+  classification: { nodes: [{ id: 't1', position: { x: 80, y: 120 }, data: { label: 'Mensaje recibido', type: 'trigger' }, type: 'custom' }, { id: 'a1', position: { x: 300, y: 120 }, data: { label: 'Clasificar intención', type: 'action' }, type: 'custom' }, { id: 'c1', position: { x: 520, y: 120 }, data: { label: 'Condición', type: 'condition' }, type: 'custom' }, { id: 'a2', position: { x: 740, y: 80 }, data: { label: 'Derivar a operador', type: 'action' }, type: 'custom' }, { id: 'a3', position: { x: 740, y: 180 }, data: { label: 'Responder automáticamente', type: 'action' }, type: 'custom' }], edges: [{ id: 'e1', source: 't1', target: 'a1' }, { id: 'e2', source: 'a1', target: 'c1' }, { id: 'e3', source: 'c1', target: 'a2' }, { id: 'e4', source: 'c1', target: 'a3' }] },
 };
+
+
 
 export default function AutomationBuilderPage() {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([
@@ -192,6 +196,8 @@ export default function AutomationBuilderPage() {
         <select aria-label="Plantilla" className="px-3 py-2 border border-slate-700 rounded-md bg-slate-800 text-slate-200 text-sm" onChange={(e) => { const t = TEMPLATES[e.target.value]; if (t) { setNodes(t.nodes.map((n:any) => ({...n, id: n.id + '-' + Date.now()}))); setEdges(t.edges); } }}>
           <option value="">Plantilla...</option>
           <option value="welcome">Bienvenida</option>
+          <option value="followup">Seguimiento</option>
+          <option value="classification">Clasificación</option>
         </select>
         <button onClick={() => setValidationErrors(validate())} className="px-3 py-2 border border-slate-700 rounded-md text-sm text-slate-300 hover:bg-slate-700">Validar</button>
         <button onClick={dryRun} disabled={dryRunLoading} className="px-3 py-2 border border-slate-700 rounded-md text-sm text-slate-300 hover:bg-slate-700 disabled:opacity-50">{dryRunLoading ? 'Simulando...' : 'Dry Run'}</button>
