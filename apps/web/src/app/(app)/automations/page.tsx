@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { apiFetch } from '@/lib/api';
+import Link from 'next/link';
 import { PageHeader } from '@/components/ui/page-header';
 
 export default function AutomationsPage() {
@@ -24,9 +25,9 @@ export default function AutomationsPage() {
       </form>
       <div className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-sm">
         <table className="w-full text-sm">
-          <thead className="bg-slate-700/50"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Categoría</th></tr></thead>
+          <thead className="bg-slate-700/50"><tr><th className="p-3 text-left">Nombre</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Categoría</th><th className="p-3 text-left">Acción</th></tr></thead>
           <tbody>
-            {items.map((a:any)=>(<tr key={a.id} className="border-t border-slate-700"><td className="p-3">{a.name}</td><td className="p-3">{a.status}</td><td className="p-3">{a.category}</td></tr>))}
+            {items.map((a:any)=>(<tr key={a.id} className="border-t border-slate-700"><td className="p-3">{a.name}</td><td className="p-3">{a.status}</td><td className="p-3">{a.category}</td><td className="p-3"><Link href={`/automations/builder?id=${a.id}`} className="text-indigo-400 text-xs hover:underline">Abrir</Link></td></tr>))}
           </tbody>
         </table>
       </div>
