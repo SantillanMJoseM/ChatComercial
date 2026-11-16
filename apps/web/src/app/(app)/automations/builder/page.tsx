@@ -1,67 +1,64 @@
 'use client';
 import { useCallback, useState } from 'react';
-import { ReactFlow, Controls, Background, addEdge, useNodesState, useEdgesState } from '@xyflow/react';
-import type { Node, Edge, Connection } from '@xyflow/react';
+import ReactFlow, { Controls, Background, addEdge, useNodesState, useEdgesState, Handle, Position } from '@xyflow/react';
+import type { Node, Edge, Connection, NodeProps } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { apiFetch } from '@/lib/api';
 import { PageHeader } from '@/components/ui/page-header';
 
-const PALETTE = [
-  { group: 'Disparadores', items: [
-    { type: 'trigger', label: 'Evento client.created', nodeType: 'input' },
-    { type: 'trigger', label: 'Evento conversation.created', nodeType: 'input' },
-    { type: 'trigger', label: 'Evento manual', nodeType: 'input' },
-    { type: 'trigger', label: 'Programado (cron)', nodeType: 'input' },
-  ]},
-  { group: 'Condiciones', items: [
-    { type: 'condition', label: 'Si / Entonces', nodeType: 'default' },
-    { type: 'condition', label: 'Comparar texto', nodeType: 'default' },
-    { type: 'condition', label: 'Comparar número', nodeType: 'default' },
-    { type: 'condition', label: 'Verificar existencia', nodeType: 'default' },
-  ]},
-  { group: 'CRM', items: [
-    { type: 'action', label: 'Buscar cliente', nodeType: 'default' },
-    { type: 'action', label: 'Crear cliente', nodeType: 'default' },
-    { type: 'action', label: 'Actualizar cliente', nodeType: 'default' },
-    { type: 'action', label: 'Agregar etiqueta', nodeType: 'default' },
-    { type: 'action', label: 'Agregar nota', nodeType: 'default' },
-  ]},
-  { group: 'Mensajería', items: [
-    { type: 'action', label: 'Enviar notificación', nodeType: 'default' },
-    { type: 'action', label: 'Enviar WhatsApp (simulado)', nodeType: 'default' },
-    { type: 'action', label: 'Mensaje al operador', nodeType: 'default' },
-  ]},
-  { group: 'Chatwoot', items: [
-    { type: 'action', label: 'Asignar operador', nodeType: 'default' },
-    { type: 'action', label: 'Asignar equipo', nodeType: 'default' },
-    { type: 'action', label: 'Cambiar estado conv.', nodeType: 'default' },
-    { type: 'action', label: 'Derivar a operador', nodeType: 'default' },
-  ]},
-  { group: 'Inteligencia', items: [
-    { type: 'action', label: 'Ejecutar skill', nodeType: 'default' },
-    { type: 'action', label: 'Consultar RAG', nodeType: 'default' },
-    { type: 'action', label: 'Solicitar asistencia IA', nodeType: 'default' },
-    { type: 'action', label: 'Clasificar intención', nodeType: 'default' },
-    { type: 'action', label: 'Resumir conversación', nodeType: 'default' },
-  ]},
-  { group: 'Control', items: [
-    { type: 'control', label: 'Esperar', nodeType: 'default' },
-    { type: 'control', label: 'Dividir caminos', nodeType: 'default' },
-    { type: 'control', label: 'Finalizar flujo', nodeType: 'output' },
-    { type: 'control', label: 'Manejar error', nodeType: 'default' },
-  ]},
-];
-
-const NODE_COLORS: Record<string, string> = {
-  trigger: 'bg-emerald-600',
+const CATEGORY_COLORS: Record<string, string> = {
+  trigger: 'bg-indigo-600',
   condition: 'bg-amber-600',
-  action: 'bg-indigo-600',
+  action: 'bg-emerald-600',
   control: 'bg-slate-600',
 };
 
+function CustomNode({ data }: NodeProps) {
+  const type = (data?.type as string) || 'action';
+  const color = CATEGORY_COLORS[type] || 'bg-slate-600';
+  return (
+    <div className={`rounded-lg border border-slate-600 bg-slate-800 shadow-md min-w-[160px]`}>
+      <div className={`${color} text-white text-xs font-semibold px-3 py-1.5 rounded-t-lg flex items-center gap-2`}>
+        <span>{type === 'trigger' ? '⚡' : type === 'condition' ? '🔀' : type === 'control' ? '⏹' : '▶'}</span>
+        <span className="truncate">{String(data?.label || '')}</span>
+      </div>
+      <div className="px-3 py-2 text-xs text-slate-400">{type}</div>
+      <Handle type="target" position={Position.Left} className="!bg-indigo-400 !w-3 !h-3" />
+      <Handle type="source" position={Position.Right} className="!bg-indigo-400 !w-3 !h-3" />
+    </div>
+  );
+}
+
+const nodeTypes = { custom: CustomNode };
+
+const PALETTE = [
+  { group: 'Disparadores', items: [
+    { type: 'trigger', label: 'Evento client.created', nodeType: 'custom' },
+    { type: 'trigger', label: 'Evento conversation.created', nodeType: 'custom' },
+    { type: 'trigger', label: 'Evento manual', nodeType: 'custom' },
+  ]},
+  { group: 'Condiciones', items: [
+    { type: 'condition', label: 'Si / Entonces', nodeType: 'custom' },
+    { type: 'condition', label: 'Comparar texto', nodeType: 'custom' },
+  ]},
+  { group: 'Acciones', items: [
+    { type: 'action', label: 'Enviar notificación', nodeType: 'custom' },
+    { type: 'action', label: 'Crear nota', nodeType: 'custom' },
+    { type: 'action', label: 'Agregar etiqueta', nodeType: 'custom' },
+    { type: 'action', label: 'Ejecutar skill', nodeType: 'custom' },
+    { type: 'action', label: 'Consultar RAG', nodeType: 'custom' },
+    { type: 'action', label: 'Derivar a operador', nodeType: 'custom' },
+  ]},
+  { group: 'Control', items: [
+    { type: 'control', label: 'Finalizar flujo', nodeType: 'custom' },
+    { type: 'control', label: 'Manejar error', nodeType: 'custom' },
+  ]},
+];
+
 export default function AutomationBuilderPage() {
+  const Flow = ReactFlow as any;
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([
-    { id: 'trigger-1', position: { x: 80, y: 120 }, data: { label: 'Disparador', type: 'trigger' }, type: 'input' },
+    { id: 'trigger-1', position: { x: 80, y: 120 }, data: { label: 'Disparador', type: 'trigger' }, type: 'custom' },
   ]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [name, setName] = useState('Nueva automatización');
@@ -152,10 +149,10 @@ export default function AutomationBuilderPage() {
           ))}
         </div>
         <div style={{ height: 560, flex: 1 }} className="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
-          <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} onNodeClick={(_, n: any) => setSelected(n)} fitView>
-            <Controls />
+          <Flow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} onNodeClick={(_: any, n: any) => setSelected(n)} fitView nodeTypes={nodeTypes as any}>
+            <Controls className="!bg-slate-800 !border-slate-700 !text-slate-200" />
             <Background color="#334155" gap={16} />
-          </ReactFlow>
+          </Flow>
         </div>
         <div className="w-72 bg-slate-800 border border-slate-700 rounded-xl p-3">
           <div className="text-xs font-semibold text-slate-400 uppercase mb-2">Propiedades</div>
