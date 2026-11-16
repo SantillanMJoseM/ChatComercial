@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { ReactFlow, Controls, Background, addEdge, useNodesState, useEdgesState, Handle, Position } from '@xyflow/react';
 import type { Node, Edge, Connection } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -84,9 +84,34 @@ export default function AutomationBuilderPage() {
   const [filter, setFilter] = useState('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [dryRunResult, setDryRunResult] = useState<any>(null);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea') return;
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        const selectedNodes = nodes.filter((n) => n.selected);
+        const selectedEdges = edges.filter((e) => e.selected);
+        if (selectedNodes.length) { selectedNodes.forEach((n) => deleteNode(n.id)); }
+        if (selectedEdges.length) { deleteSelectedEdge(); }
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [nodes, edges, selected]);
   const [dryRunLoading, setDryRunLoading] = useState(false);
 
   const onConnect = useCallback((params: Connection) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
+
+  const deleteNode = (id: string) => {
+    setNodes((nds) => nds.filter((n) => n.id !== id));
+    setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
+    if (selected?.id === id) setSelected(null);
+  };
+
+  const deleteSelectedEdge = () => {
+    setEdges((eds) => eds.filter((e) => !e.selected));
+  };
 
   const addNode = (type: string, label: string, nodeType: string) => {
     const id = `${type}-${Date.now()}`;
@@ -166,7 +191,7 @@ export default function AutomationBuilderPage() {
           ))}
         </div>
         <div style={{ height: 560, flex: 1 }} className="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
-          <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} onNodeClick={(_, n: any) => setSelected(n)} fitView>
+          <ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} onNodeClick={(_, n: any) => setSelected(n)} fitView nodeTypes={nodeTypes}>
             <Controls />
             <Background color="#334155" gap={16} />
           </ReactFlow>
@@ -179,6 +204,7 @@ export default function AutomationBuilderPage() {
               <div className="text-xs text-slate-500">ID: {selected.id}</div>
               <div className="text-xs text-slate-500">Tipo: {String(selected.data?.type || '')}</div>
               <label className="block text-xs text-slate-400">Nombre del nodo</label>
+              <button onClick={() => deleteNode(selected.id)} className="w-full bg-red-600 text-white rounded-md px-3 py-1.5 text-sm hover:bg-red-700 mb-2">Eliminar nodo</button>
               <input className="w-full px-2 py-1 border border-slate-700 rounded bg-slate-700/50 text-sm text-slate-200" defaultValue={String(selected.data?.label || '')} onChange={(e) => {
                 setNodes((nds) => nds.map((n) => n.id === selected.id ? { ...n, data: { ...n.data, label: e.target.value } } : n));
               }} />
