@@ -4,6 +4,7 @@ import { ReactFlow, Controls, Background, addEdge, useNodesState, useEdgesState 
 import type { Node, Edge, Connection } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { apiFetch } from '@/lib/api';
+import { PageHeader } from '@/components/ui/page-header';
 
 const nodeTypes = {};
 
@@ -35,6 +36,7 @@ export default function AutomationBuilderPage() {
 
   return (
     <div className="space-y-4">
+      <PageHeader title="Constructor visual" description="Diseñá flujos de automatización." />
       <div className="flex gap-2 items-center">
         <input aria-label="Nombre automatización" className="px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50 text-sm" value={name} onChange={e=>setName(e.target.value)} />
         <button onClick={save} disabled={saving} className="bg-primary text-indigo-400-foreground rounded-md px-4 py-2 text-sm disabled:opacity-50">{saving?'Guardando...':'Guardar'}</button>
