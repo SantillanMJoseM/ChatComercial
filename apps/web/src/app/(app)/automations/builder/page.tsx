@@ -242,6 +242,10 @@ export default function AutomationBuilderPage() {
               <div className="text-xs text-slate-500">Tipo: {String(selected.data?.type || '')}</div>
               <label className="block text-xs text-slate-400">Nombre del nodo</label>
               <input className="w-full px-2 py-1 border border-slate-700 rounded bg-slate-700/50 text-sm text-slate-200" defaultValue={String(selected.data?.label || '')} onChange={(e) => updateNodeLabel(selected.id, e.target.value)} />
+              <label className="block text-xs text-slate-400 mt-2">Configuración (JSON)</label>
+              <textarea className="w-full px-2 py-1 border border-slate-700 rounded bg-slate-700/50 text-sm text-slate-200 font-mono" rows={4} defaultValue={JSON.stringify(selected.data?.config || {}, null, 2)} onChange={(e) => {
+                try { const cfg = JSON.parse(e.target.value); setNodes((nds) => nds.map((n) => n.id === selected.id ? { ...n, data: { ...n.data, config: cfg } } : n)); } catch {}
+              }} />
               <label className="block text-xs text-slate-400 mt-2">Insertar variable</label>
               <select aria-label="Variable" className="w-full px-2 py-1 border border-slate-700 rounded bg-slate-700/50 text-sm text-slate-200" onChange={(e) => { if (e.target.value) alert('Variable: ' + e.target.value); }}>
                 <option value="">Seleccionar...</option>
