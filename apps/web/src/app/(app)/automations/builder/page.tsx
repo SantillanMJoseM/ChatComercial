@@ -87,6 +87,10 @@ function detectCycles(nodes: Node[], edges: Edge[]): boolean {
   return false;
 }
 
+const TEMPLATES: Record<string, { nodes: any[]; edges: any[] }> = {
+  welcome: { nodes: [{ id: 't1', position: { x: 80, y: 120 }, data: { label: 'Disparador', type: 'trigger' }, type: 'custom' }, { id: 'c1', position: { x: 300, y: 120 }, data: { label: 'Condición', type: 'condition' }, type: 'custom' }, { id: 'a1', position: { x: 520, y: 80 }, data: { label: 'Enviar bienvenida', type: 'action' }, type: 'custom' }], edges: [{ id: 'e1', source: 't1', target: 'c1' }, { id: 'e2', source: 'c1', target: 'a1' }] },
+};
+
 export default function AutomationBuilderPage() {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([
     { id: 'trigger-1', position: { x: 80, y: 120 }, data: { label: 'Disparador', type: 'trigger' }, type: 'custom' },
@@ -185,6 +189,10 @@ export default function AutomationBuilderPage() {
     <div className="space-y-4">
       <div className="flex gap-2 items-center flex-wrap">
         <input aria-label="Nombre automatización" className="px-3 py-2 border border-slate-700 rounded-md bg-slate-800 text-slate-200 text-sm" value={name} onChange={e => setName(e.target.value)} />
+        <select aria-label="Plantilla" className="px-3 py-2 border border-slate-700 rounded-md bg-slate-800 text-slate-200 text-sm" onChange={(e) => { const t = TEMPLATES[e.target.value]; if (t) { setNodes(t.nodes.map((n:any) => ({...n, id: n.id + '-' + Date.now()}))); setEdges(t.edges); } }}>
+          <option value="">Plantilla...</option>
+          <option value="welcome">Bienvenida</option>
+        </select>
         <button onClick={() => setValidationErrors(validate())} className="px-3 py-2 border border-slate-700 rounded-md text-sm text-slate-300 hover:bg-slate-700">Validar</button>
         <button onClick={dryRun} disabled={dryRunLoading} className="px-3 py-2 border border-slate-700 rounded-md text-sm text-slate-300 hover:bg-slate-700 disabled:opacity-50">{dryRunLoading ? 'Simulando...' : 'Dry Run'}</button>
         <button onClick={save} disabled={saving} className="bg-indigo-600 text-white rounded-md px-4 py-2 text-sm disabled:opacity-50 hover:bg-indigo-700">{saving ? 'Guardando...' : 'Guardar y publicar'}</button>
@@ -234,7 +242,12 @@ export default function AutomationBuilderPage() {
               <div className="text-xs text-slate-500">Tipo: {String(selected.data?.type || '')}</div>
               <label className="block text-xs text-slate-400">Nombre del nodo</label>
               <input className="w-full px-2 py-1 border border-slate-700 rounded bg-slate-700/50 text-sm text-slate-200" defaultValue={String(selected.data?.label || '')} onChange={(e) => updateNodeLabel(selected.id, e.target.value)} />
-              <button onClick={() => { setNodes((nds) => nds.filter((n) => n.id !== selected.id)); setEdges((eds) => eds.filter((e) => e.source !== selected.id && e.target !== selected.id)); setSelected(null); }} className="w-full bg-red-600 text-white rounded-md px-3 py-1.5 text-sm hover:bg-red-700">Eliminar nodo</button>
+              <label className="block text-xs text-slate-400 mt-2">Insertar variable</label>
+              <select aria-label="Variable" className="w-full px-2 py-1 border border-slate-700 rounded bg-slate-700/50 text-sm text-slate-200" onChange={(e) => { if (e.target.value) alert('Variable: ' + e.target.value); }}>
+                <option value="">Seleccionar...</option>
+                {VARIABLES.map((v) => <option key={v.key} value={v.key}>{v.key}</option>)}
+              </select>
+              <button onClick={() => { setNodes((nds) => nds.filter((n) => n.id !== selected.id)); setEdges((eds) => eds.filter((e) => e.source !== selected.id && e.target !== selected.id)); setSelected(null); }} className="w-full bg-red-600 text-white rounded-md px-3 py-1.5 text-sm hover:bg-red-700 mt-2">Eliminar nodo</button>
             </div>
           ) : <div className="text-xs text-slate-500">Seleccioná un nodo del canvas.</div>}
           {dryRunResult && (
