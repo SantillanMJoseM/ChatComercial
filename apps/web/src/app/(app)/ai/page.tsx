@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { apiFetch } from '@/lib/api';
 import { PageHeader } from '@/components/ui/page-header';
+import { HelpLink } from '@/components/ui/help-link';
 import { KpiCard } from '@/components/ui/kpi-card';
 
 export default function AIPage() {
@@ -59,6 +60,7 @@ export default function AIPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Inteligencia artificial" description="Proveedores, modelos y asistentes configurables. Gestión de credenciales y pruebas de ejecución." />
+      <div className="text-xs text-slate-400">Ayuda: <HelpLink articleId="proveedores-ia" label="Proveedores" /> · <HelpLink articleId="asistentes" label="Asistentes" /> · <HelpLink articleId="modelos-ia" label="Modelos" /></div>
       <div className="grid gap-4 md:grid-cols-3">
         <KpiCard title="Proveedores" value={providers.length} />
         <KpiCard title="Modelos" value={models.length} />

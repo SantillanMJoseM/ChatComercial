@@ -1,39 +1,52 @@
 'use client';
 import { useState } from 'react';
-
-const categories = [
-  { title: 'Inicio', items: ['Dashboard', 'Resumen operativo'] },
-  { title: 'Gestión comercial', items: ['Clientes y contactos', 'Segmentaciones', 'Grupos de WhatsApp'] },
-  { title: 'Atención', items: ['Conversaciones', 'Bandejas', 'Operadores', 'Equipos', 'Supervisión'] },
-  { title: 'Inteligencia artificial', items: ['Proveedores', 'Modelos', 'Asistentes', 'Pruebas de asistentes', 'Conocimiento / RAG', 'Skills', 'Ejecuciones de IA'] },
-  { title: 'Automatización', items: ['Automatizaciones', 'Constructor visual', 'Disparadores y condiciones', 'Acciones', 'Aprobaciones y supervisión', 'Historial de ejecuciones'] },
-  { title: 'Analítica', items: ['Reportes', 'Métricas comerciales', 'Métricas de atención', 'Métricas de IA', 'Métricas de automatizaciones'] },
-  { title: 'Administración', items: ['Usuarios', 'Roles y permisos', 'Equipos', 'Integraciones', 'Auditoría', 'Configuración general'] },
-];
+import { helpArticles, searchArticles } from '@/lib/help-content';
+import { PageHeader } from '@/components/ui/page-header';
 
 export default function HelpPage() {
   const [q, setQ] = useState('');
-  const filtered = categories.map((c) => ({ ...c, items: c.items.filter((i) => i.toLowerCase().includes(q.toLowerCase())) })).filter((c) => c.items.length > 0 || q === '');
+  const [selected, setSelected] = useState<string | null>(null);
+  const results = q.trim() ? searchArticles(q) : helpArticles;
+  const article = selected ? helpArticles.find((a) => a.id === selected) : null;
+
+  const categories = Array.from(new Set(helpArticles.map((a) => a.category)));
+
   return (
-    <div className="space-y-4">
-      <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
-        <h2 className="text-xl font-bold mb-2">Centro de ayuda</h2>
-        <p className="text-sm text-slate-300 mb-4">Documentación funcional de la plataforma. Buscá un módulo o tema.</p>
-        <input className="w-full px-3 py-2 border border-slate-700 rounded-md bg-slate-700/50" placeholder="Buscar en la ayuda..." value={q} onChange={(e) => setQ(e.target.value)} />
-      </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        {filtered.map((c) => (
-          <div key={c.title} className="bg-slate-800 border border-slate-700 rounded-xl p-4">
-            <h3 className="font-semibold mb-2">{c.title}</h3>
-            <ul className="text-sm space-y-1">
-              {c.items.map((i) => <li key={i} className="text-slate-300">• {i}</li>)}
-            </ul>
-          </div>
-        ))}
-      </div>
+    <div className="space-y-6">
+      <PageHeader title="Centro de ayuda" description="Documentación funcional de la plataforma. Buscá un módulo o tema." />
+      <input className="w-full px-3 py-2 border border-slate-700 rounded-md bg-slate-800 text-slate-200 text-sm" placeholder="Buscar en la ayuda..." value={q} onChange={(e) => setQ(e.target.value)} />
+
+      {article ? (
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 space-y-4">
+          <button onClick={() => setSelected(null)} className="text-indigo-400 text-sm hover:underline">← Volver</button>
+          <h2 className="text-xl font-bold text-slate-100">{article.title}</h2>
+          <p className="text-sm text-slate-400">{article.summary}</p>
+          <div><h3 className="font-semibold text-slate-200">¿Para qué sirve?</h3><p className="text-sm text-slate-300">{article.purpose}</p></div>
+          <div><h3 className="font-semibold text-slate-200">¿Quién puede utilizarlo?</h3><p className="text-sm text-slate-300">{article.who}</p></div>
+          <div><h3 className="font-semibold text-slate-200">¿Cómo se utiliza?</h3><ul className="text-sm text-slate-300 list-disc list-inside">{article.how.map((h, i) => <li key={i}>{h}</li>)}</ul></div>
+          <div><h3 className="font-semibold text-slate-200">Configuración</h3><ul className="text-sm text-slate-300 list-disc list-inside">{article.config.map((c, i) => <li key={i}>{c}</li>)}</ul></div>
+          <div><h3 className="font-semibold text-slate-200">Requisitos previos</h3><ul className="text-sm text-slate-300 list-disc list-inside">{article.prereq.map((p, i) => <li key={i}>{p}</li>)}</ul></div>
+          <div><h3 className="font-semibold text-slate-200">Errores frecuentes</h3><ul className="text-sm text-slate-300 list-disc list-inside">{article.errors.map((e, i) => <li key={i}>{e}</li>)}</ul></div>
+          <div><h3 className="font-semibold text-slate-200">Buenas prácticas</h3><ul className="text-sm text-slate-300 list-disc list-inside">{article.tips.map((t, i) => <li key={i}>{t}</li>)}</ul></div>
+          <div><h3 className="font-semibold text-slate-200">Artículos relacionados</h3><div className="flex gap-2 flex-wrap">{article.related.map((r) => <button key={r} onClick={() => setSelected(r)} className="text-xs text-indigo-400 hover:underline">{r}</button>)}</div></div>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {categories.map((cat) => (
+            <div key={cat} className="bg-slate-800 border border-slate-700 rounded-xl p-4">
+              <h3 className="font-semibold text-slate-100 mb-2">{cat}</h3>
+              <ul className="text-sm space-y-1">
+                {results.filter((a) => a.category === cat).map((a) => (
+                  <li key={a.id}><button onClick={() => setSelected(a.id)} className="text-indigo-400 hover:underline text-left">{a.title}</button><span className="text-slate-500 text-xs ml-2">{a.summary}</span></li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 text-sm">
-        <h3 className="font-semibold mb-2">Circuitos operativos</h3>
-        <ul className="space-y-1 text-slate-300">
+        <h3 className="font-semibold text-slate-100 mb-2">Circuitos operativos</h3>
+        <ul className="space-y-1 text-slate-400">
           <li>• Circuito A — Atención comercial: Cliente → Contacto → Conversación → Bandeja → Operador → Resolución.</li>
           <li>• Circuito B — WhatsApp: Vinculación WAHA → Sesión → QR → Dispositivo conectado → Mensajes → Integración con Chatwoot → Plataforma.</li>
           <li>• Circuito C — IA: Proveedor → Modelo → Asistente → Instrucciones → Prueba → Conversación.</li>
@@ -42,24 +55,6 @@ export default function HelpPage() {
           <li>• Circuito F — Automatizaciones: Disparador → Evento → Condiciones → Acciones → Aprobación → Ejecución → Registro → Reporte.</li>
           <li>• Circuito G — Reportes: Origen de datos → Métricas → Filtros → Reporte → Exportación.</li>
         </ul>
-      </div>
-      <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 text-sm">
-        <h3 className="font-semibold mb-2">Guía de configuración inicial</h3>
-        <ol className="list-decimal list-inside space-y-1 text-slate-300">
-          <li>Administrador y usuarios.</li>
-          <li>Roles y permisos.</li>
-          <li>Equipos y operadores.</li>
-          <li>Integración Chatwoot.</li>
-          <li>Integración WAHA.</li>
-          <li>Proveedores de IA.</li>
-          <li>Modelos.</li>
-          <li>Asistentes.</li>
-          <li>Embeddings.</li>
-          <li>Base de conocimiento.</li>
-          <li>Skills.</li>
-          <li>Automatizaciones.</li>
-          <li>Reportes.</li>
-        </ol>
       </div>
     </div>
   );
