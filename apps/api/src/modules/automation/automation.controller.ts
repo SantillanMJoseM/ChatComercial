@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { prisma } from '../../lib/prisma';
+import { executeGraph } from './runtime/graph-executor';
 import { evaluateConditions } from './conditions/evaluator';
 import { getActionDef } from './actions/registry';
 import { recordAudit } from '../audit/audit.controller';
@@ -118,10 +119,19 @@ export async function dryRunExecution(req: Request, res: Response, next: NextFun
     if (!auto) return res.status(404).json({ error: 'Not found' });
     const version = body.versionId ? await prisma.automationVersion.findUnique({ where: { id: body.versionId } }) : auto.publishedVersion;
     if (!version) return res.status(400).json({ error: 'No version' });
+
+    const actions = (version.actions as any[]) || [];
+    // detect graph format (builder stores { nodes, edges })
+    const graph = actions.find((a: any) => a?.nodes && a?.edges);
+    if (graph) {
+      const result = await executeGraph(graph.nodes, graph.edges, body.event || {}, true);
+      res.json({ automationId: auto.id, versionId: version.id, dryRun: true, ...result });
+      return;
+    }
+    // fallback: legacy conditions/actions
     const ctx = body.event || {};
     const cond = evaluateConditions(version.conditions, ctx);
-    const actions = (version.actions as any[]) || [];
-    const wouldExecute = cond.result ? actions.map((a) => ({ type: a.type, def: getActionDef(a.type)?.name, risk: getActionDef(a.type)?.risk, params: a.params })) : [];
+    const wouldExecute = cond.result ? actions.map((a: any) => ({ type: a.type, def: getActionDef(a.type)?.name, risk: getActionDef(a.type)?.risk, params: a.params })) : [];
     res.json({ automationId: auto.id, versionId: version.id, conditions: cond, wouldExecute, dryRun: true });
   } catch (e) { next(e); }
 }
